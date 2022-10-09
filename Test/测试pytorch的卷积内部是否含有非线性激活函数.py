@@ -49,7 +49,7 @@ for m in net_relu.modules():
 
 for m in net.modules():
     if isinstance(m, nn.Conv2d):
-        m.weight.data = torch.ones((1, 1, 3, 3)) / 9.0
+        m.weight.data = torch.ones((1, 1, 3, 3))/9.0
         m.bias.data = torch.zeros(1)
         print(m.weight)
 
