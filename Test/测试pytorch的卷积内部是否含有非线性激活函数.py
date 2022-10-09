@@ -83,7 +83,7 @@ kernel = kernel.reshape((9,1))
 s = src.dot(kernel)
 pass
 
-net = torchvision.models.vgg.vgg16()
+net = vgg16()
 print(net)
 net = torchvision.models.resnet.resnet18()
 print(net)

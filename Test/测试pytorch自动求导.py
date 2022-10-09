@@ -1,109 +1,99 @@
+#coding=gb2312
+
+""" 2022.10.9
+"""
 import torch
 from torch import autograd
 
 
-def test1():
-    x = torch.tensor(2.)
-    a = torch.tensor(2., requires_grad=True)  # è¡¨ç¤ºautograd.gradæ—¶ï¼Œä¼šå¯¹å…¶è¿›è¡Œæ±‚å¯¼ï¼Œ
+def test_±êÁ¿¶ÔÏòÁ¿Çóµ¼():
+    x = torch.tensor(2.)  # Êı×ÖÇ°ºóµÄµã±íÊ¾Ê¡ÂÔ0
+    a = torch.tensor(2., requires_grad=True)  # ±íÊ¾autograd.gradÊ±£¬»á¶ÔÆä½øĞĞÇóµ¼£¬
     b = torch.tensor(2., requires_grad=True)
     c = torch.tensor(3., requires_grad=True)
 
-    y = a ** 2 * x + b * x + c
+    print("1¡¢²ÉÓÃautograd.gradº¯Êı½øĞĞÇóµ¼")
+    y = a ** 2 * x + b * x + c  # **±íÊ¾ÃİÔËËã
 
+    """ Ìİ¶ÈÏÂ½µËã·¨Á÷³Ì£º
+    1¡¢¸ø¶¨³õÖµ
+    2¡¢¼ÆËã³õÖµµÄµ¼Êı
+    3¡¢x1 = x0 + lr*d µÃµ½ĞÂµÄ³õÖµ£¬ÆäÖĞlrÎª²½³¤£¬dÎªÌİ¶È¡£
+    4¡¢Ñ­»·µü´ú2¡¢3²½,Ö±µ½x1-x0ºÜĞ¡£¬ÔòµÃµ½y×îĞ¡Öµ¶ÔÓ¦µÄx
+    Èç¹û½«yÊÓÎªloss,ÔòÀûÓÃÌİ¶ÈÏÂ½µËã·¨½«µÃµ½Ê¹y×îĞ¡Ê±µÄ¾í»ıºË¡¢Éñ¾­ÍøÂç²ÎÊıµÈµÈ£¬²ÎÊı¹æÄ£Îª¼¸Ê®Íò¼¶±ğ¡£
+    """
+
+    # Ìİ¶ÈÊÖ¶¯ÍÆµ¼
+    # dy/da = 2xa = 8   (ÆäÖĞx=2,a=2)
+    # dy/db = x = 2     (ÆäÖĞx=2)
+    # dy/dc = 1
     print('before:', a.grad, b.grad, c.grad)
     grads = autograd.grad(y, [a, b, c])
     print('after', grads[0], grads[1], grads[2])
-    print(grads)
-
-    x = torch.tensor([1., 2., 3.], requires_grad=True)
-    y = torch.sum(x)
-
-    y.backward()
-    print('grad_scaler', x.grad)
     pass
 
-    x = torch.tensor([3., 4.], requires_grad=True)
-    if x > torch.tensor([1, 2]):
-        y = x
-    else:
-        y = 0
+    print("2¡¢²ÉÓÃÕÅÁ¿¶ÔÏóµÄ·½·¨backward½øĞĞÇóµ¼")
+    a.grad = None
+    b.grad = None
+    c.grad = None
+    y = a ** 2 * x + b * x + c  # **±íÊ¾ÃİÔËËã
     y.backward()
-    print('x_grad', x.grad)
+    print('backward', a.grad, b.grad, c.grad)
 
-    # x = torch.tensor([1., 2., 3.], requires_grad=True)
-    # y = 2 * x
-    # y.backward()
-    # print('grad_vector', y.grad)
+    # ±êÁ¿¶ÔÏòÁ¿Çóµ¼£¬y = x1+x2+x3, dy/dx1 = 1
+    x = torch.tensor([1., 2., 3.], requires_grad=True)
+    y = torch.sum(x)
+    y.backward()
+    print(f'±êÁ¿¶ÔÏòÁ¿Çóµ¼£¬ÊÖ¶¯ÍÆµ¼½á¹ûÎª£º[dy/dx1 = 1, dy/dx2 = 1, dy/dx3 = 1], pytorch¼ÆËã½á¹ûÎª£º {x.grad}')
+    pass
 
 
-# å¤åˆå‡½æ•°æ±‚å¯¼
-def test1():
-    x = torch.tensor(1., requires_grad=True)  # è¡¨ç¤ºautograd.gradæ—¶ï¼Œä¼šå¯¹å…¶è¿›è¡Œæ±‚å¯¼ï¼Œ
+# ¸´ºÏº¯ÊıÇóµ¼
+def test_¸´ºÏº¯ÊıÇóµ¼():
+    x = torch.tensor(1., requires_grad=True)  # ±íÊ¾autograd.gradÊ±£¬»á¶ÔÆä½øĞĞÇóµ¼£¬
     y = 2 * x + 1
     z = y ** 3
 
+    # ¸´ºÏº¯ÊıÇóµ¼,ÊÖ¶¯ÍÆµ¼½á¹ûÎª£ºdz/dx = dz/dy * dy/dx = 3*y^2 * 2 = 3*(2*x+1)^2*2 = 54
     z.backward()
-    print('x.grad =', x.grad)
+    print(f'¸´ºÏº¯ÊıÇóµ¼,ÊÖ¶¯ÍÆµ¼½á¹ûÎª£ºdz/dx = dz/dy * dy/dx = 3*y^2 * 2 = 3*(2*x+1)^2*2 = 54, pytorch¼ÆËã½á¹ûÎª£ºx.grad = {x.grad}')
     print('y.grad =', y.grad)
     print('z.grad =', z.grad)
     pass
 
 
-# å¤šå…ƒå‡½æ•°æ±‚åå¯¼
-def test2():
-    x = torch.tensor(2.)
-    a = torch.tensor(2., requires_grad=True)  # è¡¨ç¤ºautograd.gradæ—¶ï¼Œä¼šå¯¹å…¶è¿›è¡Œæ±‚å¯¼ï¼Œ
-    b = torch.tensor(2., requires_grad=True)
-    c = torch.tensor(3., requires_grad=True)
-    y = a ** 2 * x + b * x + c
-
-    print('before:', a.grad, b.grad, c.grad)
-    grads = autograd.grad(y, [a, b, c])
-    print('after', grads[0], grads[1], grads[2])
+# ·Ö¶Îº¯ÊıÇóµ¼ http://www.pointborn.com/article/2021/7/21/1589.html
+def test_·Ö¶Îº¯ÊıÇóµ¼():
+    # x = torch.tensor([3., 4.], requires_grad=True)
+    # if x > torch.tensor([1, 2]):
+    #     y = torch.sum(x)
+    # else:
+    #     y = 0
+    # y.backward()
+    # print('x_grad', x.grad)
     pass
 
 
-# å¤šå…ƒå‡½æ•°æ±‚åå¯¼
-def test3():
-    x = torch.tensor([1., 2., 3.], requires_grad=True)
-    y = torch.sum(x)
-    # y = torch.sum(x * x)
-    y.backward()
-    print('grad_scaler', x.grad)
-    pass
-
-
-# åˆ†æ®µå‡½æ•°æ±‚å¯¼ http://www.pointborn.com/article/2021/7/21/1589.html
-def test4():
-    x = torch.tensor([3., 4.], requires_grad=True)
-    if x > torch.tensor([1, 2]):
-        y = torch.sum(x)
-    else:
-        y = 0
-    y.backward()
-    print('x_grad', x.grad)
-
-
-# æ¢¯åº¦ä¸‹é™æœ€ä¼˜åŒ–
-def test5():
-    x = torch.as_tensor([1., -1.])
-    x.requires_grad = True
-    # f = 5 * x[0] ** 4 + 4 * x[0] ** 2 * x[1] - x[0] * x[1] ** 3 + 4 * x[1] ** 4 - x[0]
-
-    lr = 0.01
-    for i in range(10000):
+# Ìİ¶ÈÏÂ½µËã·¨Çó¼«Ğ¡Öµ£¬ÌâÄ¿À´ÖÁ£º¡¶ÊıÖµ·ÖÎö¡·ÅáÓñÈãÒë£¬2014£¬Àı13.6£¬¼ÆËã½á¹ûÒ»Ñù£¬
+def test_Ìİ¶ÈÏÂ½µÇóº¯Êı×îĞ¡Öµ():
+    x = torch.tensor([1., -1.], requires_grad=True)
+    lr = 0.1
+    for i in range(200):
         f = 5 * x[0] ** 4 + 4 * x[0] ** 2 * x[1] - x[0] * x[1] ** 3 + 4 * x[1] ** 4 - x[0]
-        f.backward()
-        grad = x.grad
-        x1 = x + lr * grad
+        # f.backward() ½öÔÚÒ¶½ÚµãÖĞÀÛ»ıÌİ¶È¡£out²»ÊÇÒ¶½Úµã£¬Òò´ËgradÎªNone¡£autograd.grad¿ÉÓÃÓÚ²éÕÒÈÎºÎÕÅÁ¿wrtµ½ÈÎºÎÕÅÁ¿µÄÌİ¶È¡£
+        grad = autograd.grad(f, x)
+        grad = grad[0].data
+        x1 = x - lr * grad
+        if (x1 - x).norm()<1E-5:
+            break
         x = x1
+        #x.grad = None
         print(x)
         pass
 
 
 if __name__ == '__main__':
-    # test1()
-    # test2()
-    # test3()
-    # test4()
-    test5()
+    test_±êÁ¿¶ÔÏòÁ¿Çóµ¼()
+    test_¸´ºÏº¯ÊıÇóµ¼()
+    test_·Ö¶Îº¯ÊıÇóµ¼()
+    test_Ìİ¶ÈÏÂ½µÇóº¯Êı×îĞ¡Öµ()
