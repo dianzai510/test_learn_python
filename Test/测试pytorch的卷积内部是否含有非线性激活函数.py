@@ -1,22 +1,21 @@
-#!/usr/bin/env Python
-# coding=utf-8
+#coding=gb2312
 
 """
-ç»“è®ºï¼špytorchçš„å·ç§¯å±‚ä¸åŒ…å«éçº¿æ€§æ¿€æ´»ï¼ŒåŸå› ï¼šâ†“
-ç½‘ç»œæ·»åŠ ReLUå±‚åï¼Œè¾“å‡ºç”±è´Ÿæ•°å˜æˆäº†0
+½áÂÛ£ºpytorchµÄ¾í»ı²ã²»°üº¬·ÇÏßĞÔ¼¤»î£¬Ô­Òò£º¡ı
+ÍøÂçÌí¼ÓReLU²ãºó£¬Êä³öÓÉ¸ºÊı±ä³ÉÁË0
 """
 import torch.nn
 from torch import nn
 from torch.nn import Module
 from torchvision.models import resnet18
 
-#åŒ…å«Reluçš„ç½‘ç»œ
+#°üº¬ReluµÄÍøÂç
 class MyNet_Relu(Module):
     def __init__(self):
         super(MyNet_Relu, self).__init__()
         self.Conv = nn.Sequential(
-            nn.Conv2d(1, 1, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0)),#å·ç§¯å±‚
-            nn.ReLU()#éçº¿æ€§æ¿€æ´»ï¼Œæ·»åŠ ReLUå±‚åï¼Œè¾“å‡ºçš„è´Ÿæ•°å˜æˆäº†0ï¼Œ
+            nn.Conv2d(1, 1, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0)),#¾í»ı²ã
+            nn.ReLU()#·ÇÏßĞÔ¼¤»î£¬Ìí¼ÓReLU²ãºó£¬Êä³öµÄ¸ºÊı±ä³ÉÁË0
         )
         pass
 
@@ -24,12 +23,12 @@ class MyNet_Relu(Module):
         x = self.Conv(x)
         return x
 
-#ä¸åŒ…å«Reluçš„ç½‘ç»œ
+#²»°üº¬ReluµÄÍøÂç
 class MyNet(Module):
     def __init__(self):
         super(MyNet, self).__init__()
         self.Conv = nn.Sequential(
-            nn.Conv2d(1, 1, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0)),#å·ç§¯å±‚
+            nn.Conv2d(1, 1, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0)),#¾í»ı²ã
         )
         pass
 
@@ -37,11 +36,11 @@ class MyNet(Module):
         x = self.Conv(x)
         return x
 
-#æ•°æ®
+#Êı¾İ
 d1 = -1 * torch.rand((1, 3, 3))
 net_relu = MyNet_Relu()
 net = MyNet()
-#åˆå§‹åŒ–æƒé‡
+#³õÊ¼»¯È¨ÖØ
 for m in net_relu.modules():
     if isinstance(m, nn.Conv2d):
         m.weight.data = torch.ones((1, 1, 3, 3))/9.0
