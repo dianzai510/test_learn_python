@@ -11,6 +11,7 @@ VGG16的网络结构显示：每个卷积层后都跟了一个relu层，而网页上展示的VGG结构基本都忽
 resnet一部分卷积后跟batchnorm+relu，另一部分是与原数据相加后再接relu,因此都有relu，（参考：https://www.modb.pro/db/488020）
 因为卷积也是线性运算，如果没有非线性激活则会退化。
 """
+
 import torch.nn
 import torchvision
 from torch import nn
