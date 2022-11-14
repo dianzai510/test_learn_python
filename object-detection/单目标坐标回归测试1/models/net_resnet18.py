@@ -9,7 +9,7 @@ class net_resnet18(Module):
         super(net_resnet18, self).__init__()
         self.resnet = resnet18(pretrained=True)
         self.resnet.fc = Linear(512, 4, bias=True)  # 更改全连接层
-        self.ss = Sigmoid()
+        self.sigmoid = Sigmoid()  # 没有Sigmoid时网络输出为nan，网络难以收敛！
         print(self.resnet)  # 打印网络模型
 
         total_params = sum(p.numel() for p in self.resnet.parameters())
@@ -19,7 +19,7 @@ class net_resnet18(Module):
 
     def forward(self, x):
         x = self.resnet(x)
-        x = self.ss(x)
+        x = self.sigmoid(x)
         return x
 
 

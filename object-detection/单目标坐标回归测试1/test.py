@@ -35,7 +35,7 @@ def test(opt):
     datasets_val = DataLoader(mydata, batch_size=1, shuffle=True)
 
     net = net_resnet18()
-    path = './run/train/weights/epoch=189-train_acc=0.9998342990875244.pth'
+    path = './run/train/weights/epoch=366-train_acc=0.9999989867210388.pth'
     checkpoint = torch.load(path)
     net.load_state_dict(checkpoint['net'])
     net.to(device)

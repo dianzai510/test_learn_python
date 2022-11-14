@@ -34,14 +34,18 @@ def train(opt):
     datasets_val = DataLoader(mydata, batch_size=5, shuffle=True)
 
     # 训练轮数
-    epoch_count = 300
+    epoch_count = 500
     net = net_resnet18()  # classify_net1()
+    # if opt.model != '':
+    #     checkpoint = torch.load(opt.model)
+    #     net.load_state_dict(checkpoint['net'])
+
     net.to(device)
     # loss_fn = nn.CrossEntropyLoss()
     loss_fn = nn.MSELoss()
 
-    optimizer = torch.optim.SGD(net.parameters(), lr=0.1)
-    # optimizer = torch.optim.Adam(net.parameters(), lr=0.1)
+    # optimizer = torch.optim.SGD(net.parameters(), lr=0.1)
+    optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
     writer = SummaryWriter(f"{opt.model_save_path}/logs")
     x = torch.tensor(np.random.randn(1, 3, 256, 306), dtype=torch.float)  # type:torch.Tensor
     x = x.to(device)
@@ -56,7 +60,8 @@ def train(opt):
         if len(lists) > 0:
             lists.sort(key=lambda fn: os.path.getmtime(f"{opt.model_save_path}/weights" + "\\" + fn))  # 按时间排序
             last_pt_path = os.path.join(f"{opt.model_save_path}/weights", lists[len(lists) - 1])
-            checkpoint = torch.load(last_pt_path)
+            #checkpoint = torch.load(last_pt_path)
+            checkpoint = torch.load(opt.model)
             start_epoch = checkpoint['epoch']
             net.load_state_dict(checkpoint['net'])
             optimizer.load_state_dict(checkpoint['optimizer'])
@@ -159,7 +164,8 @@ def train(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--resume', nargs='?', const=True, default=False, help='resume most recent training')
+    parser.add_argument('--model', nargs='?', default='run/train/weights/best.pth', help='')
+    parser.add_argument('--resume', nargs='?', const=True, default=True, help='resume most recent training')
     parser.add_argument('--save_period', type=int, default=-1, help='Log model after every "save_period" epoch')
     parser.add_argument('--model_save_path', default='run/train', help='save to project/name')
 
