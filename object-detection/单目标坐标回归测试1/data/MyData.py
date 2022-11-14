@@ -33,7 +33,6 @@ class data_ic(Dataset):
         img = torchvision.transforms.ToTensor()(img)
 
         # img = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), -1)
-
         # img = torchvision.transforms.Resize(300)(img)
         # img = torch.float(img)
         # img /= 255.
@@ -45,7 +44,9 @@ class data_ic(Dataset):
             data_list = lines[0].split(' ')
             x = float(data_list[1])
             y = float(data_list[2])
-            pos = torch.tensor([x, y])
+            w = float(data_list[3])
+            h = float(data_list[4])
+            pos = torch.tensor([x, y, w, h])
 
         return img, pos
 

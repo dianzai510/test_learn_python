@@ -26,13 +26,12 @@ import numpy as np
 
 def train(opt):
     # 定义设备
-    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    device = torch.device("cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cpu")
 
-    mydata = data_ic('D:/work/files/data/test_yolo/ic')
+    mydata = data_ic('C:/work/files/deeplearn_dataset/坐标回归测试/train')
     datasets_train = DataLoader(mydata, batch_size=5, shuffle=True)
     datasets_val = DataLoader(mydata, batch_size=5, shuffle=True)
-
 
     # 训练轮数
     epoch_count = 300
@@ -40,10 +39,11 @@ def train(opt):
     net.to(device)
     # loss_fn = nn.CrossEntropyLoss()
     loss_fn = nn.MSELoss()
+
     optimizer = torch.optim.SGD(net.parameters(), lr=0.1)
-    # optimizer = torch.optim.Adam(net.parameters(), lr=0.01)
+    # optimizer = torch.optim.Adam(net.parameters(), lr=0.1)
     writer = SummaryWriter(f"{opt.model_save_path}/logs")
-    x = torch.tensor(np.random.randn(1, 3, 2048, 2448), dtype=torch.float)  # type:torch.Tensor
+    x = torch.tensor(np.random.randn(1, 3, 256, 306), dtype=torch.float)  # type:torch.Tensor
     x = x.to(device)
     writer.add_graph(net, x)
     start_epoch = 0
@@ -85,11 +85,11 @@ def train(opt):
             # img2.show()
             # endregion
 
-            if epoch < 2:  # 保存两轮的训练图像
-                for i in range(imgs.shape[0]):
-                    img1 = imgs[i, :, :, :]
-                    img1 = torchvision.transforms.ToPILImage()(img1)
-                    img1.save(f'{opt.model_save_path}/{datetime.now().strftime("%Y.%m.%d_%H.%M.%S.%f")}.png', 'png')
+            # if epoch < 2:  # 保存两轮的训练图像
+            #     for i in range(imgs.shape[0]):
+            #         img1 = imgs[i, :, :, :]
+            #         img1 = torchvision.transforms.ToPILImage()(img1)
+            #         img1.save(f'{opt.model_save_path}/{datetime.now().strftime("%Y.%m.%d_%H.%M.%S.%f")}.png', 'png')
 
             out = net(imgs)
             loss = loss_fn(out, labels)
@@ -98,7 +98,7 @@ def train(opt):
             loss.backward()
             optimizer.step()
 
-            acc = (out.argmax(1) == labels).sum()
+            acc = loss
             total_train_accuracy += acc
             total_train_loss += loss
 
@@ -125,10 +125,10 @@ def train(opt):
                 loss = loss_fn(out, labels)
                 total_val_loss += loss
 
-                acc = (out.argmax(1) == labels).sum()
+                acc = loss
                 total_val_accuracy += acc
 
-        train_acc = total_train_accuracy / len(datasets_train)
+        train_acc = 1 - total_train_accuracy / len(datasets_train)
         train_loss = total_train_loss
         val_acc = total_val_accuracy / len(datasets_val)
         val_loss = total_val_loss

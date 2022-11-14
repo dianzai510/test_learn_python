@@ -1,6 +1,6 @@
 import torch
 import torchvision.models.resnet
-from torch.nn import Module, Linear
+from torch.nn import Module, Linear, Sigmoid
 from torchvision.models.resnet import resnet101, resnet50, resnet34, resnet18
 
 
@@ -9,14 +9,8 @@ class net_resnet18(Module):
         super(net_resnet18, self).__init__()
         self.resnet = resnet18(pretrained=True)
         self.resnet.fc = Linear(512, 4, bias=True)  # 更改全连接层
-
+        self.ss = Sigmoid()
         print(self.resnet)  # 打印网络模型
-
-        # for name, param in self.resnet.named_parameters():  # 除全连接层外全部冻结，不训练
-        #     if 'fc' in name:
-        #         param.requires_grad = True
-        #     else:
-        #         param.requires_grad = False
 
         total_params = sum(p.numel() for p in self.resnet.parameters())
         print(f'总参数数量：{total_params}')
@@ -25,6 +19,7 @@ class net_resnet18(Module):
 
     def forward(self, x):
         x = self.resnet(x)
+        x = self.ss(x)
         return x
 
 
