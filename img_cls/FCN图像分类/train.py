@@ -116,20 +116,23 @@ def train(opt):
         writer.add_scalar("acc_val", mean_acc_val, epoch)
         writer.add_scalar("loss_val", mean_loss_val, epoch)
 
+        # region 保存模型
         # 保存best
         best_path = f'{opt.out_path}/weights/best.pth'
         f = best_path if os.path.exists(best_path) else utils.getlastfile(opt.out_path + '/' + 'weights')
         if f is not None:
             checkpoint = torch.load(f)
             acc_last = checkpoint['acc']
-            if mean_acc_train > acc_last:
+            loss_last = checkpoint['loss']
+            if mean_acc_train >= acc_last and mean_loss_train < loss_last:
                 # 保存训练模型
                 checkpoint = {'net': net.state_dict(),
                               'optimizer': optimizer.state_dict(),
                               'epoch': epoch,
-                              'acc': mean_acc_train}
+                              'acc': mean_acc_train,
+                              'loss': mean_loss_train}
                 torch.save(checkpoint, f'{opt.out_path}/weights/best.pth')
-                print(f"epoch{epoch}已保存为best.pth，准确率acc为mean_acc_train({acc_train}/{len(data_xray.datasets_train)}")
+                print(f"epoch{epoch}已保存为best.pth，acc:{mean_acc_train}({acc_train}/{len(data_xray.datasets_train)})")
 
         # 按周期保存模型
         if epoch % opt.save_period == 1:
@@ -139,15 +142,19 @@ def train(opt):
             checkpoint = {'net': net.state_dict(),
                           'optimizer': optimizer.state_dict(),
                           'epoch': epoch,
-                          'acc': mean_acc_train}
+                          'acc': mean_acc_train,
+                          'loss': mean_loss_train}
             torch.save(checkpoint, f'{opt.out_path}/weights/epoch={epoch}.pth')
             print(f"第{epoch}轮模型参数已保存")
+        # endregion
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='run/train/exp/weights/best.pth', help='指定权重文件，未指定则使用官方权重！')
-    parser.add_argument('--resume', default=True, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
+    parser.add_argument('--weights', default='run/train/exp/weights/best.pth',
+                        help='指定权重文件，未指定则使用官方权重！')
+    parser.add_argument('--resume', default=True, type=bool,
+                        help='True表示从--weights参数指定的epoch开始训练,False从0开始')
 
     parser.add_argument('--epoch', default='300', type=int)
     parser.add_argument('--lr', default=0.01, type=float)
