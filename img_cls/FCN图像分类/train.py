@@ -1,8 +1,11 @@
 import argparse
 import os.path
 import pathlib
+from datetime import datetime
+
 import numpy as np
 import torch
+import torchvision.transforms
 from torch import nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
@@ -49,7 +52,7 @@ def train(opt):
 
     print(f"训练集的数量：{len(data_xray.datasets_train)}")
     print(f"验证集的数量：{len(data_xray.datasets_val)}")
-
+    cnt = 0
     for epoch in range(start_epoch, epoch_count):
         print(f"----第{epoch}轮训练----")
 
@@ -73,14 +76,18 @@ def train(opt):
             loss_train += loss
 
             # region 保存指定数量的训练图像
-            if opt.train_img > 0:
-                imgs
-                pass
+            path = f'{opt.out_path}/img'
+            img_count = len(os.listdir(path))
+            if img_count < opt.train_img:
+                cnt += 1
+                path = f'{opt.out_path}/img'
+                if os.path.exists(path) is not True:
+                    os.makedirs(path)
 
-                for img in imgs:
-                    print(img.shape)
-                    pass
-
+                for i in range(imgs.shape[0]):
+                    img = imgs[i, :, :, :]
+                    img = torchvision.transforms.ToPILImage()(img)
+                    img.save(f'{opt.out_path}/img/{datetime.now().strftime("%Y.%m.%d_%H.%M.%S.%f")}.png', 'png')
             # endregion
 
         # 验证
@@ -132,7 +139,8 @@ def train(opt):
                               'acc': mean_acc_train,
                               'loss': mean_loss_train}
                 torch.save(checkpoint, f'{opt.out_path}/weights/best.pth')
-                print(f"epoch{epoch}已保存为best.pth,acc:{mean_acc_train}({acc_train}/{len(data_xray.datasets_train)}),loss:{mean_loss_train}")
+                print(
+                    f"epoch{epoch}已保存为best.pth,acc:{mean_acc_train}({acc_train}/{len(data_xray.datasets_train)}),loss:{mean_loss_train}")
 
         # 按周期保存模型
         if epoch % opt.save_period == 1:
@@ -157,11 +165,11 @@ if __name__ == '__main__':
                         help='True表示从--weights参数指定的epoch开始训练,False从0开始')
 
     parser.add_argument('--epoch', default='300', type=int)
-    parser.add_argument('--lr', default=0.01, type=float)
+    parser.add_argument('--lr', default=0.001, type=float)
     parser.add_argument('--out_path', default='run/train/exp', type=str)
     parser.add_argument('--add_graph', default=False, type=bool)
     parser.add_argument('--save_period', default=5, type=int, help='多少轮保存一次，')
-    parser.add_argument('--train_img', default=0, type=int, help='保存指定数量的训练图像')
+    parser.add_argument('--train_img', default=100, type=int, help='保存指定数量的训练图像')
 
     opt = parser.parse_args()
     train(opt)
