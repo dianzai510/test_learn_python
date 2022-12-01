@@ -5,9 +5,9 @@ import os
 """
 
 
-def getlastfile(path):
+def getlastfile(path, ext):
     if os.path.exists(path) is not True: return None
-    list_file = [path + '/' + f for f in os.listdir(path)]
+    list_file = [path + '/' + f for f in os.listdir(path) if f.endswith(".pth")]
     if len(list_file) > 0:
         list_file.sort(key=lambda fn: os.path.getmtime(fn))
         return list_file[-1]
