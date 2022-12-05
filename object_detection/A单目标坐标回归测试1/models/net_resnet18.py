@@ -19,7 +19,7 @@ class net_resnet18(Module):
 
     def forward(self, x):
         x = self.resnet(x)
-        x = self.sigmoid(x)
+        x = self.sigmoid(x)  # sigmoid将目标数据归一化到0~1，使得网络很容易收敛。
         return x
 
 

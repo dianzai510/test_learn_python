@@ -1,14 +1,13 @@
 import os
-
-import cv2
-import numpy as np
-from PIL import Image
 import torch
 import torchvision
+from PIL.Image import Image
+
 from torch.utils.data import Dataset
 
 
-class data_ic(Dataset):
+# 将label转换为7x7x30的张量.
+class data(Dataset):
     def __init__(self, data_path):
         self.Images = []
         self.Labels = []
@@ -38,6 +37,8 @@ class data_ic(Dataset):
         # img /= 255.
         # img = torch.permute(img, (2, 0, 1))  # 交换维度
 
+
+
         pos = []
         with open(label_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
@@ -52,13 +53,11 @@ class data_ic(Dataset):
 
 
 if __name__ == '__main__':
-    mydata = data_ic('D:/work/files/data/test_yolo/ic')
-    # im = Image.open(data[0])
-    # img.show(img)
-    img, pos = mydata[0]
-    img = img.numpy()
-    img *= 255
+    a = torch.rand(3, 4)
+    print(a)
+    mask = torch.randint(2, (3, 4))
+    print(mask)
+    mask = mask == 1
+    print(mask)
 
-    cv2.namedWindow("dis")
-    cv2.imshow('dis', img)
-    cv2.waitKey()
+    print(a[mask])
