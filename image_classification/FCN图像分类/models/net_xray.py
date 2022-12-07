@@ -1,7 +1,7 @@
 import torch
 from torch.nn import Linear, Module
 from torchvision.models.resnet import resnet18
-from img_cls.FCN图像分类.data import data_xray_sot23
+from image_classification.FCN图像分类.data import data_xray_sot23
 
 
 class net_xray(Module):

@@ -1,8 +1,8 @@
 import argparse
 import onnx
 import torch.onnx.utils
-from img_cls.FCN图像分类.data import data_xray_sot23, data_xray_sc88
-from img_cls.FCN图像分类.models.net_xray import net_xray
+from image_classification.FCN图像分类.data import data_xray_sot23, data_xray_sc88
+from image_classification.FCN图像分类.models.net_xray import net_xray
 
 
 def export(opt):
