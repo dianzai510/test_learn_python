@@ -37,10 +37,7 @@ if __name__ == '__main__':
     for imgs, labels in dataloader_train:
         img1 = imgs[0, :, :, :]
         img1 = torchvision.transforms.ToPILImage()(img1)  # type:PIL.Image.Image
-
-        print(labels[0])
         img1.show()
         img1.close()
-
-        # print(img1.size)
+        print(img1.size)
         pass

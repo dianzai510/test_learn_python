@@ -180,14 +180,14 @@ def train(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='run/train/exp_xray_sot23/weights/best.pth',
+    parser.add_argument('--weights', default='run/train/exp_xray_sc88/weights/best.pth',  # run/train/exp_xray_sot23/weights/best.pth
                         help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--resume', default=False, type=bool,
                         help='True表示从--weights参数指定的epoch开始训练,False从0开始')
     parser.add_argument('--data', default=data_xray_sc88)
 
     parser.add_argument('--epoch', default='300', type=int)
-    parser.add_argument('--lr', default=0.01, type=float)
+    parser.add_argument('--lr', default=0.001, type=float)
     parser.add_argument('--out_path', default='run/train/exp_xray_sc88', type=str)
     parser.add_argument('--add_graph', default=False, type=bool)
     parser.add_argument('--save_period', default=20, type=int, help='多少轮保存一次，')
