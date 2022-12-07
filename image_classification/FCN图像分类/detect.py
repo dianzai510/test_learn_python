@@ -3,7 +3,7 @@ import os
 
 from PIL.Image import Image
 
-from img_cls.FCN图像分类.data import data_xray
+from image_classification.FCN图像分类.data import data_xray
 
 
 def detect(opt):

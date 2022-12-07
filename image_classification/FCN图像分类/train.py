@@ -8,9 +8,9 @@ import torchvision.transforms
 from torch import nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-from img_cls.FCN图像分类.data import data_xray
-from img_cls.FCN图像分类.models.net_xray import net_xray
-from img_cls.FCN图像分类.utils import utils
+from image_classification.FCN图像分类.data import data_xray
+from image_classification.FCN图像分类.models.net_xray import net_xray
+from image_classification.FCN图像分类.utils import utils
 
 
 def train(opt):

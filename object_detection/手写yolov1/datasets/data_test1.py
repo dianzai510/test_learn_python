@@ -1,4 +1,6 @@
 import os
+
+import cv2
 import torch
 import torchvision
 from PIL.Image import Image
@@ -6,6 +8,9 @@ from torch.utils.data import Dataset
 
 
 # 将label转换为7x7x30的张量.
+from object_detection.手写yolov1.utils import basic
+
+
 class data(Dataset):
     def __init__(self, data_path, image_size=448, grid_size=7, num_bboxes=2, num_classes=20):
         self.image_size = image_size
@@ -29,10 +34,18 @@ class data(Dataset):
         image_path = self.Images[item]
         label_path = self.Labels[item]
 
-        img = Image.open(image_path)
-        img = torchvision.transforms.ToTensor()(img)
+        # region 1、读取图像
+        img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+        max_len = max(img.shape)
+        padding_lr = (img.shape[1] - max_len) / 2
+        padding_up = (img.shape[0] - max_len) / 2
+        img = cv2.copyMakeBorder(padding_up, padding_up, padding_lr, padding_lr, cv2.BORDER_CONSTANT, value=0)
+        img = cv2.resize(img, dsize=(self.image_size, self.image_size), interpolation=cv2.INTER_LINEAR)
+        # endregion
 
-        label = torch.zeros(self.grid_size, self.grid_size, (self.num_bboxes * (4 + 1) + self.num_classes))
+        # region 2、读取标签
+        labels = []
+        # label = torch.zeros(self.grid_size, self.grid_size, (self.num_bboxes * (4 + 1) + self.num_classes))
         with open(label_path, 'r') as f:
             lines = f.readlines()
             lines = [l.split(' ') for l in lines]
@@ -46,43 +59,11 @@ class data(Dataset):
                 h = data_list[4]
 
                 # label = torch.tensor([x, y, w, h])
-                label[x, y] = torch.tensor([w, h, 1, cls])
-        return img, label
+                labels.append(torch.tensor([cls, x, y, w, h]))
+        labels = basic.encode(labels)
+        # endregion
 
-    def encode(self, boxes, labels, grid_size, num_bbox, num_cls):
-        """ Encode box coordinates and class labels as one target tensor.
-        Args:
-            boxes: (tensor) [[x1, y1, x2, y2]_obj1, ...], normalized from 0.0 to 1.0 w.r.t. image width/height.
-            labels: (tensor) [c_obj1, c_obj2, ...]
-        Returns:
-            An encoded tensor sized [S, S, 5 x B + C], 5=(x, y, w, h, conf)
-        """
-
-        S, B, C = grid_size, num_bbox, num_cls  # self.S, self.B, self.C
-        N = 5 * B + C
-
-        target = torch.zeros(S, S, N)
-        cell_size = 1.0 / float(S)
-        boxes_wh = boxes[:, 2:] - boxes[:, :2]  # width and height for each box, [n, 2]
-        boxes_xy = (boxes[:, 2:] + boxes[:, :2]) / 2.0  # center x & y for each box, [n, 2]
-        for b in range(boxes.size(0)):
-            xy, wh, label = boxes_xy[b], boxes_wh[b], int(labels[b])
-
-            ij = (xy / cell_size).ceil() - 1.0
-            i, j = int(ij[0]), int(ij[1])  # y & x index which represents its location on the grid.
-            x0y0 = ij * cell_size  # x & y of the cell left-top corner.
-            xy_normalized = (xy - x0y0) / cell_size  # x & y of the box on the cell, normalized from 0.0 to 1.0.
-
-            # TBM, remove redundant dimensions from target tensor.
-            # To remove these, loss implementation also has to be modified.
-            for k in range(B):
-                s = 5 * k
-                target[j, i, s:s + 2] = xy_normalized
-                target[j, i, s + 2:s + 4] = wh
-                target[j, i, s + 4] = 1.0
-            target[j, i, 5 * B + label] = 1.0
-
-        return target
+        return img, labels
 
 
 if __name__ == '__main__':

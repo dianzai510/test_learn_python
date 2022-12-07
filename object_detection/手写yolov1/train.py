@@ -26,7 +26,7 @@ def train(opt):
 
     net.to(device)
 
-    loss_fn = nn.CrossEntropyLoss()  # 定义损失函数
+    loss_fn = loss_yolov1()  # nn.CrossEntropyLoss()  # 定义损失函数
     optimizer = torch.optim.SGD(net.parameters(), lr=opt.lr)  # 定义优化器 momentum=0.99
     #optimizer = torch.optim.Adam(net.parameters(), lr=opt.lr)
 
