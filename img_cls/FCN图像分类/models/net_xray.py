@@ -1,7 +1,7 @@
 import torch
 from torch.nn import Linear, Module
 from torchvision.models.resnet import resnet18
-from img_cls.FCN图像分类.data import data_xray
+from img_cls.FCN图像分类.data import data_xray_sot23
 
 
 class net_xray(Module):
@@ -16,7 +16,7 @@ class net_xray(Module):
 
 
 if __name__ == '__main__':
-    input_shape = (1, 3, data_xray.input_size[0], data_xray.input_size[1])
+    input_shape = (1, 3) + data_xray_sot23.input_size
     img = torch.randn(size=input_shape)
     print(img.shape)
     net = net_xray(True)
