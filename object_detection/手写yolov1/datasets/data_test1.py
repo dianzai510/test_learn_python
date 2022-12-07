@@ -4,8 +4,7 @@ import cv2
 import torch
 import torchvision
 from PIL.Image import Image
-from torch.utils.data import Dataset
-
+from torch.utils.data import Dataset, DataLoader
 
 # 将label转换为7x7x30的张量.
 from object_detection.手写yolov1.utils import basic
@@ -24,8 +23,8 @@ class data(Dataset):
         images_path = os.path.join(data_path, "Images")
         labels_path = os.path.join(data_path, "Labels")
 
-        self.Images = [f for f in os.listdir(images_path) if f.endswith('.jpg') or f.endswith('.png')]
-        self.Labels = [f for f in os.listdir(labels_path) if f.endswith('.txt')]
+        self.Images = [data_path + '/' + f for f in os.listdir(images_path) if f.endswith('.jpg') or f.endswith('.png')]
+        self.Labels = [data_path + '/' + f for f in os.listdir(labels_path) if f.endswith('.txt')]
 
     def __len__(self):
         return len(self.Images)
@@ -67,15 +66,13 @@ class data(Dataset):
 
 
 if __name__ == '__main__':
-    Images = [f for f in os.listdir('D:/下载/Rotated-RetinaNet-master') if f.endswith('.py')]
+    datasets_train = data('D:/work/files/data/DeepLearningDataSets/x_ray_datasets(git)/train')
+    dataloader_train = DataLoader(datasets_train, 10, shuffle=True)
+    for imgs, labels in dataloader_train:
+        img1 = imgs[0, :, :, :]
+        img1 = torchvision.transforms.ToPILImage()(img1)  # type:PIL.Image.Image
+        img1.show()
+        img1.close()
+        print(img1.size)
+        pass
 
-    a = torch.rand(3, 4)
-    print(a)
-    mask = torch.randint(2, (3, 4))
-    print(mask)
-    mask = mask == 1
-    print(mask)
-
-    print(a[mask])
-
-    # expand(),expand_as()函数只能将size = 1的维度扩展到更大的尺寸，如果扩展其他size（）的维度会报错。
