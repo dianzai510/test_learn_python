@@ -44,23 +44,16 @@ def train(opt):
 
     # 绘制网络图
     if opt.add_graph:
-        input_size = (1, 3) + opt.datasets
-        x = torch.tensor(np.random.randn(input_size), dtype=torch.float)
+        x = torch.tensor(np.random.randn(1, 3, 110, 310), dtype=torch.float)
         x = x.to(device)
         writer.add_graph(net, x)
 
     # 加载数据集
-    data = opt.data
-    dataloader_train = DataLoader(data.datasets_train, 10, shuffle=True)
-    dataloader_val = DataLoader(data.datasets_val, 4, shuffle=True)
+    dataloader_train = DataLoader(data_xray.datasets_train, 10, shuffle=True)
+    dataloader_val = DataLoader(data_xray.datasets_val, 4, shuffle=True)
 
-    print(f"训练集的数量：{len(data.datasets_train)}")
-    print(f"验证集的数量：{len(data.datasets_val)}")
-
-    pathlib.Path(f'{opt.out_path}/weights').mkdir(parents=True, exist_ok=True)
-    pathlib.Path(f'{opt.out_path}/logs').mkdir(parents=True, exist_ok=True)
-    pathlib.Path(f'{opt.out_path}/img').mkdir(parents=True, exist_ok=True)
-
+    print(f"训练集的数量：{len(data_xray.datasets_train)}")
+    print(f"验证集的数量：{len(data_xray.datasets_val)}")
     cnt = 0
     for epoch in range(start_epoch, epoch_count):
         print(f"----第{epoch}轮训练----")
@@ -86,12 +79,13 @@ def train(opt):
 
             # region 保存指定数量的训练图像
             path = f'{opt.out_path}/img'
-            if os.path.exists(path) is not True:
-                os.makedirs(path)
-
             img_count = len(os.listdir(path))
             if img_count < opt.train_img:
                 cnt += 1
+                path = f'{opt.out_path}/img'
+                if os.path.exists(path) is not True:
+                    os.makedirs(path)
+
                 for i in range(imgs.shape[0]):
                     img = imgs[i, :, :, :]
                     img = torchvision.transforms.ToPILImage()(img)
@@ -119,15 +113,15 @@ def train(opt):
 
 
         # 打印一轮的训练结果
-        mean_acc_train = acc_train / len(data.datasets_train)
+        mean_acc_train = acc_train / len(data_xray.datasets_train)
         mean_loss_train = loss_train
-        mean_acc_val = acc_val / len(data.datasets_val)
+        mean_acc_val = acc_val / len(data_xray.datasets_val)
         mean_loss_val = loss_val
 
         result_epoch_str = f"epoch:{epoch}, " \
-                           f"acc_train:{mean_acc_train}({acc_train}/{len(data.datasets_train)}) " \
+                           f"acc_train:{mean_acc_train}({acc_train}/{len(data_xray.datasets_train)}) " \
                            f"loss_train:{mean_loss_train}, " \
-                           f"acc_val:{mean_acc_val}({acc_val}/{len(data.datasets_val)}) " \
+                           f"acc_val:{mean_acc_val}({acc_val}/{len(data_xray.datasets_val)}) " \
                            f"loss_val:{mean_loss_val}"
 
         print(f"{result_epoch_str}\n")
@@ -184,11 +178,10 @@ if __name__ == '__main__':
                         help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--resume', default=False, type=bool,
                         help='True表示从--weights参数指定的epoch开始训练,False从0开始')
-    parser.add_argument('--data', default=data_xray_sc88)
 
     parser.add_argument('--epoch', default='300', type=int)
     parser.add_argument('--lr', default=0.01, type=float)
-    parser.add_argument('--out_path', default='run/train/exp_xray_sc88', type=str)
+    parser.add_argument('--out_path', default='run/train/exp', type=str)
     parser.add_argument('--add_graph', default=False, type=bool)
     parser.add_argument('--save_period', default=20, type=int, help='多少轮保存一次，')
     parser.add_argument('--train_img', default=200, type=int, help='保存指定数量的训练图像')
