@@ -11,6 +11,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from object_detection.手写yolov1.loss_yolov1 import loss_yolov1
 from object_detection.手写yolov1.model.yolov1 import yolov1
+from object_detection.手写yolov1.datasets.data_test_yolov1 import data_test_yolov1
 
 
 def train(opt):
@@ -27,7 +28,6 @@ def train(opt):
         net.load_state_dict(checkpoint['net'])  # 加载checkpoint的网络权重
 
     net.to(device)
-
     loss_fn = loss_yolov1()  # nn.CrossEntropyLoss()  # 定义损失函数
     optimizer = torch.optim.SGD(net.parameters(), lr=opt.lr)  # 定义优化器 momentum=0.99
     #optimizer = torch.optim.Adam(net.parameters(), lr=opt.lr)
@@ -50,8 +50,12 @@ def train(opt):
         writer.add_graph(net, x)
 
     # 加载数据集
-    dataloader_train = DataLoader(data_xray.datasets_train, 10, shuffle=True)
-    dataloader_val = DataLoader(data_xray.datasets_val, 4, shuffle=True)
+    data = opt.data  # type:data_test_yolov1
+    data_test_yolov1("")
+    datasets_train = data()
+    datasets_val = data()
+    dataloader_train = DataLoader(datasets_train, 10, shuffle=True)
+    dataloader_val = DataLoader(datasets_val, 4, shuffle=True)
 
     print(f"训练集的数量：{len(data_xray.datasets_train)}")
     print(f"验证集的数量：{len(data_xray.datasets_val)}")
@@ -175,12 +179,13 @@ def train(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data', default='')
-    parser.add_argument('--num_class', default=2, type=int)
+
     parser.add_argument('--weights', default='run/train/exp_xray_sot23/weights/best.pth',
                         help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--resume', default=False, type=bool,
                         help='True表示从--weights参数指定的epoch开始训练,False从0开始')
+    parser.add_argument('--data', default=data_test_yolov1)
+    parser.add_argument('--num_class', default=2, type=int)
 
     parser.add_argument('--epoch', default='300', type=int)
     parser.add_argument('--lr', default=0.01, type=float)

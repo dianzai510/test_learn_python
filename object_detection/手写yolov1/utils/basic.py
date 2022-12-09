@@ -1,5 +1,8 @@
+import cv2
 import torch
 from torch import nn
+import numpy as np
+from utils import utils
 
 
 class CBL(nn.Module):
@@ -38,43 +41,7 @@ class SPP(nn.Module):
         return y
 
 
-def encode123(boxes, labels, grid_size, num_bbox, num_cls):
-    """ Encode box coordinates and class labels as one target tensor.
-    Args:
-        boxes: (tensor) [[x1, y1, x2, y2]_obj1, ...], normalized from 0.0 to 1.0 w.r.t. image width/height.
-        labels: (tensor) [c_obj1, c_obj2, ...]
-    Returns:
-        An encoded tensor sized [S, S, 5 x B + C], 5=(x, y, w, h, conf)
-    """
-
-    S, B, C = grid_size, num_bbox, num_cls  # self.S, self.B, self.C
-    N = 5 * B + C
-
-    target = torch.zeros(S, S, N)
-    cell_size = 1.0 / float(S)
-    boxes_wh = boxes[:, 2:] - boxes[:, :2]  # width and height for each box, [n, 2]
-    boxes_xy = (boxes[:, 2:] + boxes[:, :2]) / 2.0  # center x & y for each box, [n, 2]
-    for b in range(boxes.size(0)):
-        xy, wh, label = boxes_xy[b], boxes_wh[b], int(labels[b])
-
-        ij = (xy / cell_size).ceil() - 1.0
-        i, j = int(ij[0]), int(ij[1])  # y & x index which represents its location on the grid.
-        x0y0 = ij * cell_size  # x & y of the cell left-top corner.
-        xy_normalized = (xy - x0y0) / cell_size  # x & y of the box on the cell, normalized from 0.0 to 1.0.
-
-        # TBM, remove redundant dimensions from target tensor.
-        # To remove these, loss implementation also has to be modified.
-        for k in range(B):
-            s = 5 * k
-            target[j, i, s:s + 2] = xy_normalized
-            target[j, i, s + 2:s + 4] = wh
-            target[j, i, s + 4] = 1.0
-        target[j, i, 5 * B + label] = 1.0
-
-    return target
-
-
-def encode(labels, grid_size, num_bbox, num_cls):
+def encode(labels, grid_size, num_bbox, num_cls, dis=None):
     """ Encode box coordinates and class labels as one target tensor.
     Args:
         boxes: (tensor) [[cx, cy, w, h]_obj1, ...], normalized from 0.0 to 1.0 w.r.t. image width/height.
@@ -86,22 +53,31 @@ def encode(labels, grid_size, num_bbox, num_cls):
 
     S, B, C = grid_size, num_bbox, num_cls  # self.S, self.B, self.C
     N = 5 * B + C
-
-    target = torch.zeros(S, S, N)
-    label = labels[:, :1]
-    boxes_xy = labels[:, 1:3]  # box中心坐标(归一化)
-    boxes_wh = labels[:, 3:5]  # box宽高(归一化)
+    target = torch.zeros(S, S, N)  # 生成指定尺寸维度的张量
+    label = labels[:, :1]  # 从张量labels中提取类别
+    boxes_xy = labels[:, 1:3]  # 从张量labels中提取box中心坐标(归一化)
+    boxes_wh = labels[:, 3:5]  # 从张量labels中提取box宽高(归一化)
     for index in range(labels.size(0)):
-        cls, xy, wh = int(labels[index]), boxes_xy[index], boxes_wh[index]
-        ij = (xy * S).floor()  # 归一化到0~S,取整,得到目标在哪个网格
+        cls, xy, wh = int(label[index]), boxes_xy[index], boxes_wh[index]
+        ij = (xy * S).floor()  # 归一化到0~S,取整,得到目标在哪个网格(网格的左上角坐标)
         delta_xy = (xy - ij / S) * S  # 归一化至0~1,目标位置相对于当前网格的偏移量,因为(xy - ij/S)∈[0,1/S]
 
-        i, j = ij[0], ij[1]
+        i, j = int(ij[0]), int(ij[1])
         for k in range(B):
             s = 5 * k
-            target[j, i, s:s + 2] = delta_xy  # xy_normalized
-            target[j, i, s + 2:s + 4] = wh
-            target[j, i, s + 4] = 1.0
-        target[j, i, 5 * B + label] = 1.0
+            target[j, i, s:s + 2] = delta_xy  # xy相对于网格左上角的偏移量(归一化至0-1)
+            target[j, i, s + 2:s + 4] = wh  # wh
+            target[j, i, s + 4] = 1.0  # 置信度
 
+            # grid_lu = np.array([i / 7.0 * 448.0, j / 7.0 * 448.0])
+            # cv2.circle(dis, grid_lu.astype(np.int), 5, (255, 0, 0), -1)
+            #
+            # target_center = grid_lu + delta_xy.numpy() * 448 / 7
+            # cv2.circle(dis, target_center.astype(np.int), 5, (0, 0, 255), -1)
+            # target_wh = np.array([448 * wh[0], 448 * wh[1]])
+            # utils.rectangle(dis, target_center.astype(np.int), target_wh.astype(np.int), (0, 0, 255), 2)
+
+        # cv2.imshow('dis', dis)
+        # cv2.waitKey()
+        target[j, i, 5 * B + cls] = 1.0  # 对指定类别赋1
     return target
