@@ -1,7 +1,7 @@
 import argparse
 import onnx
 import torch.onnx.utils
-from image_classification.FCN图像分类.data import data_xray_sot23, data_xray_sc88
+from image_classification.FCN图像分类.data import data_xray_sot23, data_xray_sc88, data_xray_sc70
 from image_classification.FCN图像分类.models.net_xray import net_xray
 
 
@@ -34,8 +34,8 @@ def export(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='run/train/exp_xray_sc88/weights/best.pth')
-    parser.add_argument('--data', default=data_xray_sc88, type=dict)
+    parser.add_argument('--weights', default='run/train/exp_xray_sot23/weights/best.pth')
+    parser.add_argument('--data', default=data_xray_sot23, type=dict)
 
     opt = parser.parse_args()
     export(opt)

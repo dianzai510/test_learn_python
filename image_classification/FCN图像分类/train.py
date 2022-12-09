@@ -29,7 +29,9 @@ def train(opt):
     net.to(device)
     loss_fn = nn.CrossEntropyLoss()  # 定义损失函数
     optimizer = torch.optim.SGD(net.parameters(), lr=opt.lr)  # 定义优化器 momentum=0.99
-    #optimizer = torch.optim.Adam(net.parameters(), lr=opt.lr)
+    # optimizer = torch.optim.Adam(net.parameters(), lr=opt.lr)
+
+
 
     start_epoch = 0
     if opt.resume:
@@ -41,6 +43,11 @@ def train(opt):
     # 初始化pathlib.Path
     result_epoch_path = pathlib.Path(f'{opt.out_path}/weights/results.txt')
     result_best_path = pathlib.Path(f'{opt.out_path}/weights/best.txt')
+    result_param_path = pathlib.Path(f'{opt.out_path}/weights/param.txt')
+
+    # 保存opt
+    with result_param_path.open('w') as fp:
+        fp.write(f'{opt}')
 
     # 绘制网络图
     if opt.add_graph:
@@ -51,8 +58,8 @@ def train(opt):
 
     # 加载数据集
     data = opt.data
-    dataloader_train = DataLoader(data.datasets_train, 10, shuffle=True)
-    dataloader_val = DataLoader(data.datasets_val, 4, shuffle=True)
+    dataloader_train = DataLoader(data.datasets_train, opt.batch_size, shuffle=True)  # 10
+    dataloader_val = DataLoader(data.datasets_val, opt.batch_size, shuffle=True)  # 4
 
     print(f"训练集的数量：{len(data.datasets_train)}")
     print(f"验证集的数量：{len(data.datasets_val)}")
@@ -112,11 +119,20 @@ def train(opt):
                 acc = (out.argmax(1) == labels).sum()
                 acc_val += acc
                 loss_val += loss
+
+
                 # region 保存验证失败的图像
+                import utils.utils
+
+                for a in imgs:
+                    img = utils.tensor2mat(a)
+                    dir = f'{opt.out_path}/img'
+                    # os.makedirs(dir, exist_ok=True)
+                    pathlib.Path(dir).mkdir(parents=True, exist_ok=True)
+                    img.save(f'{dir}/val_ng_{datetime.now().strftime("%Y.%m.%d_%H.%M.%S.%f")}.png', 'png')
                 # endregion
 
         '''************************************************分割线***************************************************'''
-
 
         # 打印一轮的训练结果
         mean_acc_train = acc_train / len(data.datasets_train)
@@ -158,7 +174,7 @@ def train(opt):
                               'acc': mean_acc_train,
                               'loss': mean_loss_train}
                 torch.save(checkpoint, f'{opt.out_path}/weights/best.pth')
-                print(f"已保存为best.pth, {result_epoch_str}")
+                print(f"已保存为best.pth\n{result_epoch_str}")
                 # 写入best.txt
                 with result_best_path.open('w') as fp:
                     fp.write(f'{result_epoch_str}\n')
@@ -180,18 +196,23 @@ def train(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='run/train/exp_xray_sc70/weights/best.pth',  # run/train/exp_xray_sot23/weights/best.pth
+    parser.add_argument('--weights', default='run/train/exp_xray_sc88/weights/best.pth',
+                        # run/train/exp_xray_sot23/weights/best.pth
                         help='指定权重文件，未指定则使用官方权重！')
-    parser.add_argument('--resume', default=False, type=bool,
+    parser.add_argument('--resume', default=True, type=bool,
                         help='True表示从--weights参数指定的epoch开始训练,False从0开始')
-    parser.add_argument('--data', default=data_xray_sc70)
+    parser.add_argument('--data', default=data_xray_sc88)
 
-    parser.add_argument('--epoch', default='300', type=int)
+    parser.add_argument('--epoch', default='400', type=int)
     parser.add_argument('--lr', default=0.01, type=float)
-    parser.add_argument('--out_path', default='run/train/exp_xray_sc70', type=str)
+    parser.add_argument('--batch_size', default=60, type=int)
+    parser.add_argument('--out_path', default='run/train/exp_xray_sot23', type=str)
     parser.add_argument('--add_graph', default=False, type=bool)
     parser.add_argument('--save_period', default=20, type=int, help='多少轮保存一次，')
     parser.add_argument('--train_img', default=200, type=int, help='保存指定数量的训练图像')
 
     opt = parser.parse_args()
+    opt.weights
+    print(opt)
+
     train(opt)
