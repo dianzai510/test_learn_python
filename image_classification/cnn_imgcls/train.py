@@ -216,7 +216,7 @@ def train(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='',  # 修改
+    parser.add_argument('--weights', default='run/train/exp_xray_sod323/weights/best.pth',  # 修改
                         # run/train/exp_xray_sot23/weights/best.pth
                         help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--resume', default=False, type=bool,
