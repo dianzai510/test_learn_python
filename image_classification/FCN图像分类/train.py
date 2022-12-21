@@ -8,7 +8,8 @@ import torchvision.transforms
 from torch import nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-from image_classification.FCN图像分类.data import data_xray_sot23, data_xray_sc88, data_xray_sc70
+from image_classification.FCN图像分类.data import data_xray_sot23, data_xray_sc88, data_xray_sc70, data_xray_sc89, \
+    data_xray_sod123, data_xray_sod323
 from image_classification.FCN图像分类.models.net_xray import net_xray
 from image_classification.FCN图像分类.utils import utils
 
@@ -38,7 +39,14 @@ def train(opt):
 
     # 初始化TensorBoard
     writer = SummaryWriter(f"{opt.out_path}/logs")
+
     # 初始化pathlib.Path
+    pathlib.Path(f'{opt.out_path}/weights').mkdir(parents=True, exist_ok=True)
+    pathlib.Path(f'{opt.out_path}/logs').mkdir(parents=True, exist_ok=True)
+    pathlib.Path(f'{opt.out_path}/img').mkdir(parents=True, exist_ok=True)
+    pathlib.Path(f'{opt.out_path}/train_fial_img').mkdir(parents=True, exist_ok=True)
+    pathlib.Path(f'{opt.out_path}/val_fial_img').mkdir(parents=True, exist_ok=True)
+
     result_epoch_path = pathlib.Path(f'{opt.out_path}/weights/results.txt')
     result_best_path = pathlib.Path(f'{opt.out_path}/weights/best.txt')
     result_param_path = pathlib.Path(f'{opt.out_path}/weights/param.txt')
@@ -62,10 +70,7 @@ def train(opt):
     print(f"训练集的数量：{len(data.datasets_train)}")
     print(f"验证集的数量：{len(data.datasets_val)}")
 
-    pathlib.Path(f'{opt.out_path}/weights').mkdir(parents=True, exist_ok=True)
-    pathlib.Path(f'{opt.out_path}/logs').mkdir(parents=True, exist_ok=True)
-    pathlib.Path(f'{opt.out_path}/img').mkdir(parents=True, exist_ok=True)
-    pathlib.Path(f'{opt.out_path}/val_fial_img').mkdir(parents=True, exist_ok=True)
+
 
     cnt = 0
     for epoch in range(start_epoch, epoch_count):
@@ -101,6 +106,21 @@ def train(opt):
                     img = imgs[i, :, :, :]
                     img = torchvision.transforms.ToPILImage()(img)
                     img.save(f'{opt.out_path}/img/{datetime.now().strftime("%Y.%m.%d_%H.%M.%S.%f")}.png', 'png')
+            # endregion
+
+            # region 保存训练失败的图像
+            path_train_fial_img = f'{opt.out_path}/train_fial_img'
+            img_count = len(os.listdir(path_train_fial_img))
+            if img_count < 30:
+                check_result = out.argmax(1) == labels
+                for i in range(check_result.shape[0]):
+                    f = check_result[i]
+                    if f == False:
+                        img = imgs[i, :, :, :]
+                        img = torchvision.transforms.ToPILImage()(img)
+                        img.save(
+                            f'{path_train_fial_img}/label_{str(labels[i].item())}_out_{out[i].tolist()}_{datetime.now().strftime("%Y.%m.%d_%H.%M.%S.%f")}.png',
+                            'png')
             # endregion
 
         # 验证
@@ -196,17 +216,17 @@ def train(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='run/train/exp_xray_sc88/weights/best.pth',  # 修改
+    parser.add_argument('--weights', default='',  # 修改
                         # run/train/exp_xray_sot23/weights/best.pth
                         help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--resume', default=False, type=bool,
                         help='True表示从--weights参数指定的epoch开始训练,False从0开始')
-    parser.add_argument('--data', default=data_xray_sc88)  # 修改
+    parser.add_argument('--data', default=data_xray_sod323)  # 修改
 
     parser.add_argument('--epoch', default='400', type=int)
     parser.add_argument('--lr', default=0.01, type=float)
     parser.add_argument('--batch_size', default=60, type=int)
-    parser.add_argument('--out_path', default='run/train/exp_xray_sc88', type=str)  # 修改
+    parser.add_argument('--out_path', default='run/train/exp_xray_sod323', type=str)  # 修改
     parser.add_argument('--add_graph', default=False, type=bool)
     parser.add_argument('--save_period', default=20, type=int, help='多少轮保存一次，')
     parser.add_argument('--train_img', default=200, type=int, help='保存指定数量的训练图像')
