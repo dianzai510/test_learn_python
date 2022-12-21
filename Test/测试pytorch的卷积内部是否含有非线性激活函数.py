@@ -1,4 +1,4 @@
-#coding=gb2312
+# coding=gb2312
 
 """ 2022.10.9
 疑问：根据鲁鹏老师的所述，神经网络里的卷积是包含非线性激活、偏置的，与普通卷积不一样，但非线性激活包含在卷积内部还是外部指定？
@@ -22,13 +22,14 @@ import cv2
 import numpy as np
 from torchvision.models import resnet18, vgg16
 
-#包含Relu的网络
+
+# 包含Relu的网络
 class MyNet_Relu(Module):
     def __init__(self):
         super(MyNet_Relu, self).__init__()
         self.Conv = nn.Sequential(
-            nn.Conv2d(1, 1, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0)),#卷积层
-            nn.ReLU()#非线性激活，添加ReLU层后，输出的负数变成了0
+            nn.Conv2d(1, 1, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0)),  # 卷积层
+            nn.ReLU()  # 非线性激活，添加ReLU层后，输出的负数变成了0
         )
         pass
 
@@ -36,12 +37,13 @@ class MyNet_Relu(Module):
         x = self.Conv(x)
         return x
 
-#不包含Relu的网络
+
+# 不包含Relu的网络
 class MyNet(Module):
     def __init__(self):
         super(MyNet, self).__init__()
         self.Conv = nn.Sequential(
-            nn.Conv2d(1, 1, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0)),#卷积层
+            nn.Conv2d(1, 1, kernel_size=(3, 3), stride=(1, 1), padding=(0, 0)),  # 卷积层
         )
         pass
 
@@ -49,20 +51,21 @@ class MyNet(Module):
         x = self.Conv(x)
         return x
 
-#数据
-d1 = -1 * torch.rand((1, 3, 3)) #type:torch.Tensor
+
+# 数据
+d1 = -1 * torch.rand((1, 3, 3))  # type:torch.Tensor
 net_relu = MyNet_Relu()
 net = MyNet()
-#初始化权重
+# 初始化权重
 for m in net_relu.modules():
     if isinstance(m, nn.Conv2d):
-        m.weight.data = torch.ones((1, 1, 3, 3))/9.0
-        m.bias.data = torch.tensor([1])#torch.zeros(1)
+        m.weight.data = torch.ones((1, 1, 3, 3)) / 9.0
+        m.bias.data = torch.tensor([1])  # torch.zeros(1)
         print(m.weight)
 
 for m in net.modules():
     if isinstance(m, nn.Conv2d):
-        m.weight.data = torch.ones((1, 1, 3, 3))/9.0
+        m.weight.data = torch.ones((1, 1, 3, 3)) / 9.0
         m.bias.data = torch.zeros(1)
         print(m.weight)
 
@@ -72,18 +75,18 @@ out = net(d1)
 print(f"out_relu={out_relu},out={out}")
 
 print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-#numpy计算卷积
-src = d1.numpy()#type:np.ndarray
+# numpy计算卷积
+src = d1.numpy()  # type:np.ndarray
 src = src.reshape((-1))
-kernel = torch.ones((3,3),dtype=float)/9.0#type:np.ndarray
+kernel = torch.ones((3, 3), dtype=float) / 9.0  # type:np.ndarray
 kernel = kernel.reshape((-1))
 dst = np.convolve(src, kernel, mode='valid')
 pass
 
-#手写卷积计算
+# 手写卷积计算
 src = src[::-1]
-src = src.reshape((1,9))
-kernel = kernel.reshape((9,1))
+src = src.reshape((1, 9))
+kernel = kernel.reshape((9, 1))
 s = src.dot(kernel)
 pass
 
