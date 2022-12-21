@@ -44,8 +44,8 @@ def train(opt):
     pathlib.Path(f'{opt.out_path}/weights').mkdir(parents=True, exist_ok=True)
     pathlib.Path(f'{opt.out_path}/logs').mkdir(parents=True, exist_ok=True)
     pathlib.Path(f'{opt.out_path}/img').mkdir(parents=True, exist_ok=True)
-    pathlib.Path(f'{opt.out_path}/train_fial_img').mkdir(parents=True, exist_ok=True)
-    pathlib.Path(f'{opt.out_path}/val_fial_img').mkdir(parents=True, exist_ok=True)
+    pathlib.Path(f'{opt.out_path}/train_fail_img').mkdir(parents=True, exist_ok=True)
+    pathlib.Path(f'{opt.out_path}/val_fail_img').mkdir(parents=True, exist_ok=True)
 
     result_epoch_path = pathlib.Path(f'{opt.out_path}/weights/results.txt')
     result_best_path = pathlib.Path(f'{opt.out_path}/weights/best.txt')
