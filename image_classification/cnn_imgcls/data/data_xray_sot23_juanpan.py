@@ -11,7 +11,7 @@ transform_train = torchvision.transforms.Compose([
     torchvision.transforms.Pad(100, padding_mode='symmetric'),
     torchvision.transforms.RandomVerticalFlip(0.5),
     torchvision.transforms.RandomHorizontalFlip(0.5),
-    # torchvision.transforms.GaussianBlur(kernel_size=(3, 5), sigma=(0.1, 2.0)),
+    torchvision.transforms.GaussianBlur(kernel_size=(3, 5), sigma=(0.1, 2.0)),
     torchvision.transforms.RandomRotation(2, expand=False, interpolation=InterpolationMode.NEAREST),
     torchvision.transforms.RandomAffine(degrees=0, translate=(0.02, 0.01)),
     torchvision.transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3),  # 亮度、对比度、饱和度
