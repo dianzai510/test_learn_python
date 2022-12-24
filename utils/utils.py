@@ -4,17 +4,30 @@ import cv2
 
 
 def tensor2mat(data, dtype=np.uint8):
+    """
+    将给定的张量转换为Mat
+    :param data:张量
+    :param dtype:模板数据类型，默认np.uint8
+    :return:Mat
+    """
     img = data.numpy()  # type:np.ndarray
-    img = img.copy()  # Layout of the output array img is incompatible with cv::Mat
-    img = img * 255
+    img = img.copy()  # 没有这句会报错：Layout of the output array img is incompatible with cv::Mat
+    img *= 255
     img = img.astype(np.uint8)
-    img = np.transpose(img, (1, 2, 0))  # bgr转rgb
-
+    img = np.transpose(img, (1, 2, 0))  # c,h,w → h,w,c
     img = img.copy()
     return img
 
 
 def drawgrid(img, size, color=(0, 0, 255), linewidth=2):
+    """
+    在图像上绘制指定格式的网络线
+    :param img:
+    :param size:
+    :param color:
+    :param linewidth:
+    :return:
+    """
     img = img.copy()
     x = np.arange(size[0]) * img.shape[1] / size[0]
     y1 = np.zeros_like(x)
@@ -44,6 +57,15 @@ def drawgrid(img, size, color=(0, 0, 255), linewidth=2):
 
 
 def rectangle(img, center, wh, color, thickness):
+    """
+    给定中心和宽高绘制矩阵
+    :param img:
+    :param center:
+    :param wh:
+    :param color:
+    :param thickness:
+    :return:
+    """
     pt1 = center - wh / 2.0  # type: np.ndarray
     pt2 = center + wh / 2.0  # type: np.ndarray
     pt1 = pt1.astype(np.int)
