@@ -102,7 +102,7 @@ def train(opt):
 
         # 保存训练模型
         state_dict = {'net': net.state_dict(),
-                      'optimizer': optimizer.state_dict(),
+                      # 'optimizer': optimizer.state_dict(),# 不保存优化器权重文件体积非常小，可以上传至github
                       'epoch': epoch}
 
         pathlib.Path(f'{opt.model_save_path}/weights').mkdir(parents=True,

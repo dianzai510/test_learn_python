@@ -46,7 +46,7 @@ class data_ic(Dataset):
             y = float(data_list[2])
             w = float(data_list[3])
             h = float(data_list[4])
-            pos.append(torch.tensor([x, y, w, h]))
+            pos = torch.tensor([x, y, w, h])
 
         return img, pos
 
