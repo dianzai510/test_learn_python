@@ -41,7 +41,7 @@ class SPP(nn.Module):
         return y
 
 
-def encode(labels, grid_size, num_bbox, num_cls, dis=None):
+def encode(labels, grid_size, num_bbox, num_cls):
     """ Encode box coordinates and class labels as one target tensor.
     Args:
         boxes: (tensor) [[cx, cy, w, h]_obj1, ...], normalized from 0.0 to 1.0 w.r.t. image width/height.
@@ -53,7 +53,7 @@ def encode(labels, grid_size, num_bbox, num_cls, dis=None):
 
     S, B, C = grid_size, num_bbox, num_cls  # self.S, self.B, self.C
     N = 5 * B + C
-    target = torch.zeros(S, S, N)  # 生成指定尺寸维度的张量
+    target = torch.zeros(N, S, S)  # 生成指定尺寸维度的张量
     label = labels[:, :1]  # 从张量labels中提取类别
     boxes_xy = labels[:, 1:3]  # 从张量labels中提取box中心坐标(归一化)
     boxes_wh = labels[:, 3:5]  # 从张量labels中提取box宽高(归一化)
@@ -65,19 +65,9 @@ def encode(labels, grid_size, num_bbox, num_cls, dis=None):
         i, j = int(ij[0]), int(ij[1])
         for k in range(B):
             s = 5 * k
-            target[j, i, s:s + 2] = delta_xy  # xy相对于网格左上角的偏移量(归一化至0-1)
-            target[j, i, s + 2:s + 4] = wh  # wh
-            target[j, i, s + 4] = 1.0  # 置信度
+            target[s:s + 2, j, i] = delta_xy  # xy相对于网格左上角的偏移量(归一化至0-1)
+            target[s + 2:s + 4, j, i] = wh  # wh
+            target[s + 4, j, i] = 1.0  # 置信度
 
-            # grid_lu = np.array([i / 7.0 * 448.0, j / 7.0 * 448.0])
-            # cv2.circle(dis, grid_lu.astype(np.int), 5, (255, 0, 0), -1)
-            #
-            # target_center = grid_lu + delta_xy.numpy() * 448 / 7
-            # cv2.circle(dis, target_center.astype(np.int), 5, (0, 0, 255), -1)
-            # target_wh = np.array([448 * wh[0], 448 * wh[1]])
-            # utils.rectangle(dis, target_center.astype(np.int), target_wh.astype(np.int), (0, 0, 255), 2)
-
-        # cv2.imshow('dis', dis)
-        # cv2.waitKey()
-        target[j, i, 5 * B + cls] = 1.0  # 对指定类别赋1
+        target[5 * B + cls, j, i] = 1.0  # 对指定类别赋1
     return target

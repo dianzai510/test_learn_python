@@ -6,20 +6,22 @@ from object_detection.手写yolov1.utils.basic import SPP, CBL
 
 
 class yolov1(nn.Module):
-    def __init__(self, input_size=None, num_classes=20):
+    def __init__(self, input_size=448, num_classes=2):
         super(yolov1, self).__init__()
 
         self.input_size = input_size
         self.num_classes = num_classes
 
         model = torchvision.models.resnet18(True)  # 官方代码生成resnet18
-
         self.backbone = nn.Sequential(*list(model.children())[:-2])  # 删除
         feat_dim = 512
 
         self.neck = nn.Sequential(
             SPP(),
-            CBL(feat_dim * 4, feat_dim, kernel_size=1)
+            CBL(4 * feat_dim, feat_dim, kernel_size=1),
+            CBL(feat_dim, feat_dim, kernel_size=3),
+            CBL(feat_dim, feat_dim, kernel_size=3),
+            CBL(feat_dim, feat_dim, kernel_size=3)
         )
 
         self.head = nn.Sequential(
@@ -29,7 +31,7 @@ class yolov1(nn.Module):
             CBL(feat_dim // 2, feat_dim, kernel_size=3, padding=1),
         )
 
-        self.pred = nn.Conv2d(feat_dim, 4 + 1 + self.num_classes, kernel_size=1)
+        self.pred = nn.Conv2d(feat_dim, (4 + 1) * 2 + self.num_classes, kernel_size=1)
 
     def forward(self, x):
         x = self.backbone(x)  # 主干网
@@ -40,8 +42,8 @@ class yolov1(nn.Module):
 
 
 if __name__ == '__main__':
-    yolo = yolov1(1024, 2)
-    x = torch.rand(1, 3, 1024, 1024)
+    yolo = yolov1(416, 2)
+    x = torch.rand(1, 3, 416, 416)
     y = yolo(x)
 
     print(y.shape)

@@ -51,14 +51,13 @@ def train(opt):
 
     # 加载数据集
     data = opt.data  # type:data_test_yolov1
-    data_test_yolov1("")
-    datasets_train = data()
-    datasets_val = data()
+    datasets_train = data("D:/work/files/data/DeepLearningDataSets/x-ray/datasets-xray-sot23/train")
+    datasets_val = data("D:/work/files/data/DeepLearningDataSets/x-ray/datasets-xray-sot23/val")
     dataloader_train = DataLoader(datasets_train, 10, shuffle=True)
     dataloader_val = DataLoader(datasets_val, 4, shuffle=True)
 
-    print(f"训练集的数量：{len(data_xray.datasets_train)}")
-    print(f"验证集的数量：{len(data_xray.datasets_val)}")
+    print(f"训练集的数量：{len(datasets_train)}")
+    print(f"验证集的数量：{len(datasets_val)}")
     cnt = 0
     for epoch in range(start_epoch, epoch_count):
         print(f"----第{epoch}轮训练----")
@@ -180,7 +179,7 @@ def train(opt):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--weights', default='run/train/exp_xray_sot23/weights/best.pth',
+    parser.add_argument('--weights', default='',
                         help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--resume', default=False, type=bool,
                         help='True表示从--weights参数指定的epoch开始训练,False从0开始')
