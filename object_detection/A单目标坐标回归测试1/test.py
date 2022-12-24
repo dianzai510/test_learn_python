@@ -31,11 +31,11 @@ def test(opt):
     # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     device = torch.device("cpu")
     loss_fn = nn.MSELoss()
-    mydata = data_ic('C:/work/files/deeplearn_dataset/坐标回归测试/test')
+    mydata = data_ic('d:/work/files/deeplearn_dataset/坐标回归测试/test')
     datasets_val = DataLoader(mydata, batch_size=1, shuffle=True)
 
     net = net_resnet18()
-    path = './run/train/weights/epoch=2-train_acc=0.9969967007637024.pth'
+    path = './run/train/weights/best.pth'
     checkpoint = torch.load(path)
     net.load_state_dict(checkpoint['net'])
     net.to(device)
