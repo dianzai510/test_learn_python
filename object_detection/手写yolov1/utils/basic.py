@@ -53,7 +53,7 @@ def encode(labels, grid_size, num_bbox, num_cls):
 
     S, B, C = grid_size, num_bbox, num_cls  # self.S, self.B, self.C
     N = 5 * B + C
-    target = torch.zeros(N, S, S)  # 生成指定尺寸维度的张量
+    target = torch.zeros(S, S, N)  # 生成指定尺寸维度的张量
     label = labels[:, :1]  # 从张量labels中提取类别
     boxes_xy = labels[:, 1:3]  # 从张量labels中提取box中心坐标(归一化)
     boxes_wh = labels[:, 3:5]  # 从张量labels中提取box宽高(归一化)
@@ -65,9 +65,9 @@ def encode(labels, grid_size, num_bbox, num_cls):
         i, j = int(ij[0]), int(ij[1])
         for k in range(B):
             s = 5 * k
-            target[s:s + 2, j, i] = delta_xy  # xy相对于网格左上角的偏移量(归一化至0-1)
-            target[s + 2:s + 4, j, i] = wh  # wh
-            target[s + 4, j, i] = 1.0  # 置信度
+            target[j, i, s:s + 2] = delta_xy  # xy相对于网格左上角的偏移量(归一化至0-1)
+            target[j, i, s + 2:s + 4] = wh  # wh
+            target[j, i, s + 4] = 1.0  # 置信度
 
-        target[5 * B + cls, j, i] = 1.0  # 对指定类别赋1
+        target[j, i, 5 * B + cls] = 1.0  # 对指定类别赋1
     return target

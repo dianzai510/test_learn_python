@@ -114,8 +114,6 @@ def train(opt):
                 # endregion
 
         '''************************************************分割线***************************************************'''
-
-
         # 打印一轮的训练结果
         mean_acc_train = acc_train / len(data_xray.datasets_train)
         mean_loss_train = loss_train

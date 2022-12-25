@@ -14,7 +14,7 @@ def tensor2mat(data, dtype=np.uint8):
     img = img.copy()  # 没有这句会报错：Layout of the output array img is incompatible with cv::Mat
     img *= 255
     img = img.astype(np.uint8)
-    img = np.transpose(img, (1, 2, 0))  # c,h,w → h,w,c
+    # img = np.transpose(img, (1, 2, 0))  # c,h,w → h,w,c
     img = img.copy()
     return img
 

@@ -38,6 +38,8 @@ class yolov1(nn.Module):
         x = self.neck(x)  # 颈部网络
         x = self.head(x)  # 预测头
         x = self.pred(x)  # 预测层
+
+        x = torch.permute(x, (0, 2, 3, 1))
         return x
 
 

@@ -44,6 +44,7 @@ class data_test_yolov1(Dataset):
         img = cv2.copyMakeBorder(img, padding_up, padding_up, padding_lr, padding_lr, borderType=cv2.BORDER_CONSTANT,
                                  value=0)
         img = torchvision.transforms.ToTensor()(img)
+        # img = torch.permute(img, (1, 2, 0))
         # endregion
 
         # region 2、读取标签,并根据图像的缩放方式调整bbox坐标值
@@ -74,7 +75,8 @@ class data_test_yolov1(Dataset):
 
 if __name__ == '__main__':
     image_size = 416
-    datasets_train = data_test_yolov1('D:/work/files/data/DeepLearningDataSets/x-ray/datasets-xray-sot23/train', image_size=image_size)
+    datasets_train = data_test_yolov1('D:/work/files/data/DeepLearningDataSets/x-ray/datasets-xray-sot23/train',
+                                      image_size=image_size)
     dataloader_train = DataLoader(datasets_train, 1, shuffle=True)
     for imgs, labels in dataloader_train:
         img1 = imgs[0, ...]
