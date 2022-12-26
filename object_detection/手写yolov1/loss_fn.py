@@ -159,7 +159,7 @@ class loss_fn(nn.Module):
         loss_cls = F.mse_loss(cls_pred, cls_label, reduction='sum')
 
         # 总损失
-        loss = self.lambda_noobj * loss_noobj + self.lambda_coord * (loss_xy + loss_wh) + loss_conf + loss_cls
+        loss = self.lambda_noobj * loss_noobj + loss_conf + self.lambda_coord * (loss_xy + loss_wh) + loss_cls
         loss /= float(batch_size)
         return loss
 
