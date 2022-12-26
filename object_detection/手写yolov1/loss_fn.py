@@ -141,17 +141,16 @@ class loss_fn(nn.Module):
 
             #label匹配到的box,在self.B个预测box中获取与label box iou值最大的那个box的索引
             max_iou, max_index = iou.max(0)
-            obj_response_mask[i+max_index] = 1
-            obj_not_response_mask[i+1-max_index] = 1
+            obj_response_mask[i+max_index] = 1  # iou较大的索引
+            obj_not_response_mask[i+1-max_index] = 1  #iou较小的索引
 
             bbox_label_iou[i+max_index, 4] = max_iou
-            pass
 
         bbox_label_iou = Variable(bbox_label_iou)
 
-        bbox_pred_reponse = bbox_pred[obj_response_mask].view(-1, 5)
-        bbox_label_response = bbox_label[obj_response_mask].view(-1, 5)
-        bbox_label_response_iou = bbox_label_iou[obj_response_mask].view(-1, 5)
+        bbox_pred_reponse = bbox_pred[obj_response_mask].view(-1, 5)  #提取较大IOU的bbox
+        bbox_label_response = bbox_label[obj_response_mask].view(-1, 5)  #提取对应label
+        bbox_label_response_iou = bbox_label_iou[obj_response_mask].view(-1, 5)  #提取对应iou
 
         # 含有目标的置信度损失
         loss_conf = F.mse_loss(bbox_pred_reponse[:,4], bbox_label_response_iou[:,4], reduction='sum')
@@ -165,8 +164,8 @@ class loss_fn(nn.Module):
         return loss
 
 if __name__ == '__main__':
-    pred = torch.randint(0, 3, (1, 7, 7, 12))
-    label = torch.randint(0, 3, (1, 7, 7, 12))
+    pred = torch.randint(0, 3, (5, 7, 7, 12))
+    label = torch.randint(0, 3, (5, 7, 7, 12))
     loss = loss_fn()
 
     loss(pred, label)
