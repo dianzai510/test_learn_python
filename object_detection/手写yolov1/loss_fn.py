@@ -164,8 +164,9 @@ class loss_fn(nn.Module):
         return loss
 
 if __name__ == '__main__':
-    pred = torch.randint(0, 3, (5, 7, 7, 12))
+    pred = torch.rand((5, 7, 7, 12))
     label = torch.randint(0, 3, (5, 7, 7, 12))
     loss = loss_fn()
 
-    loss(pred, label)
+    a = loss(pred, label)
+    pass
