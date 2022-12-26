@@ -1,13 +1,16 @@
 import torch
 from torch import nn
 import torch.nn.functional as F
+from torch.autograd import Variable
 
 class loss_fn(nn.Module):
-    def __init__(self, S, B, C):
+    def __init__(self, S, B, C, lambda_coord, lambda_noobj):
         super(loss_fn, self).__init__()
         self.S = S
         self.B = B
         self.C = C
+        self.lambda_coord = lambda_coord
+        self.lambda_noobj = lambda_noobj
 
     def xywh2xyxy(self, xywh):
         xy, wh = xywh[:2], xywh[2:]
@@ -35,7 +38,7 @@ class loss_fn(nn.Module):
 
     def forward(self, pred, label):
         S, B, C = self.S, self.B, self.C
-        N = 12
+        N = 2 * B + C
 
         # 1、获取含有目标的索引
         coobj_mask = label[:, :, :, 4] > 0  # 获取同样尺寸的mask,shape=[batch, 7, 7]
@@ -98,6 +101,18 @@ class loss_fn(nn.Module):
             pass
 
         bbox_label_iou = Variable(bbox_label_iou)
+
+        bbox_pred_reponse = bbox_pred[coobj_response_mask].view(-1, 5)
+        bbox_label_response = box_pred[coobj_response_mask].view(-1, 5)
+        bbox_label_response_iou = bbox_label_iou[coobj_response_mask].view(-1, 5)
+
+        # 含有目标的置信度损失
+        loss_confidence = F.mse_loss(bbox_pred_reponse[:,4], bbox_label_response_iou[:,4], reduction='sum')
+        loss_xy = F.mse_loss()
+        loss_wh = F.mse_loss()
+        loss_cls = F.mse_loss()
+
+        loss = self.lambda_coord * (loss_xy+loss_wh) + loss_confidence + self.lambda_noobj * loss_noobj + loss_cls
 
         # noobj_pred = pred[noobj_mask].view(-1, N)
         # noobj_label = label[noobj_mask].view(-1, N)
