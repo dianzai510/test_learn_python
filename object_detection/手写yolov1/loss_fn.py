@@ -6,8 +6,29 @@ class loss_fn(nn.Module):
     def __init__(self):
         super(loss_fn, self).__init__()
 
+    def xywh2xyxy(self, xywh):
+        xy, wh = xywh[:2], xywh[2:]
+        x1y1 = xy - wh / 2
+        x2y2 = xy + wh / 2
+
+        return x1y1
+
     def iou(self, bbox1, bbox2):
-        pass
+        x1, y1, x2, y2 = self.xywh2xyxy(bbox1)
+        a1, b1, a2, b2 = self.xywh2xyxy(bbox2)
+        ax = max(x1, a1)  # 相交区域左上角横坐标
+        ay = max(y1, b1)  # 相交区域左上角纵坐标
+        bx = min(x2, a2)  # 相交区域右下角横坐标
+        by = min(y2, b2)  # 相交区域右下角纵坐标
+
+        area_bbox1 = (x2 - x1) * (y2 - y1)  # bbox1的面积
+        area_bbox2 = (a2 - a1) * (b2 - b1)  # bbox2的面积
+
+        w = max(0, bx - ax)
+        h = max(0, by - ay)
+        area_X = w * h  # 交集
+        result = area_X / (area_bbox1 + area_bbox2 - area_X)
+        return result
 
     def forward(self, pred, label):
         S, B, C = 7, 2, 2
