@@ -4,7 +4,7 @@ import torch
 import torchvision
 from torch.utils.data import Dataset, DataLoader
 from utils import utils
-from object_detection.手写yolov1.utils import basic
+from object_detection.手写yolov1.model import basic
 
 
 class data_test_yolov1(Dataset):
@@ -75,7 +75,7 @@ class data_test_yolov1(Dataset):
 
 if __name__ == '__main__':
     image_size = 416
-    datasets_train = data_test_yolov1('D:/work/files/data/DeepLearningDataSets/x-ray/datasets-xray-sot23/train',
+    datasets_train = data_test_yolov1('D:/work/files/deeplearn_datasets/test_datasets/test_yolo_xray/train',
                                       image_size=image_size)
     dataloader_train = DataLoader(datasets_train, 1, shuffle=True)
     for imgs, labels in dataloader_train:

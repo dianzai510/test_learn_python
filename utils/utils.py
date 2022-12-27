@@ -6,15 +6,19 @@ import cv2
 def tensor2mat(data, dtype=np.uint8):
     """
     将给定的张量转换为Mat
-    :param data:张量
+    :param data:张量,三个维度，[c,h,w]
     :param dtype:模板数据类型，默认np.uint8
-    :return:Mat
+    :return:OpenCV Mat，三个维度，[h,w,c]
     """
+    size = data.size()
+    if len(size) != 3:
+        assert "张量维度不为3！"
+        return None
     img = data.numpy()  # type:np.ndarray
     img = img.copy()  # 没有这句会报错：Layout of the output array img is incompatible with cv::Mat
     img *= 255
     img = img.astype(np.uint8)
-    # img = np.transpose(img, (1, 2, 0))  # c,h,w → h,w,c
+    img = np.transpose(img, (1, 2, 0))  # c,h,w → h,w,c
     img = img.copy()
     return img
 
@@ -71,3 +75,4 @@ def rectangle(img, center, wh, color, thickness):
     pt1 = pt1.astype(np.int)
     pt2 = pt2.astype(np.int)
     cv2.rectangle(img, pt1, pt2, color, thickness)
+    return img
