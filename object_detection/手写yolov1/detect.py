@@ -18,7 +18,7 @@ def detect(opt):
     net.load_state_dict(checkpoint['net'])
 
     # 2、加载数据
-    datasets = data_test_yolov1("D:/work/files/deeplearn_datasets/test_datasets/test_yolo_xray/val")
+    datasets = data_test_yolov1("D:/work/files/deeplearn_datasets/test_datasets/test_yolo_xray/train")
     data_loader = DataLoader(datasets, 1)
     for images, labels in data_loader:
         pred = net(images)

@@ -5,7 +5,7 @@ import torchvision
 from torch.utils.data import Dataset, DataLoader
 from utils import utils
 from object_detection.手写yolov1.model import basic
-
+import numpy as np
 
 class data_test_yolov1(Dataset):
     def __init__(self, data_path, image_size=416, grid_size=7, num_bboxes=2, num_classes=2):
@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
         label = labels[0]
         # obj_mask = label[:, :, 4] > 0
-        # objs = label[obj_mask]
+        # objs = label[obj_mask]indexing with dtype torch.uint8 is now deprecated
         for j in range(label.shape[0]):
             for i in range(label.shape[1]):
                 c = label[j, i][4]
@@ -95,5 +95,6 @@ if __name__ == '__main__':
                     xy = ij + data[:2] * d
                     wh = data[2:4] * image_size
                     utils.rectangle(dis, xy.numpy(), wh.numpy(), (255, 0, 0), 2)
+                    cv2.circle(dis, tuple(xy.numpy().astype(np.int)), 3, (255, 0, 0), -1)
         cv2.imshow('dis', dis)
         cv2.waitKey()

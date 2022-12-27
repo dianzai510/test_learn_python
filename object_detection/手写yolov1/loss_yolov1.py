@@ -160,11 +160,17 @@ class loss_yolov1(nn.Module):
         loss_wh = F.mse_loss((bbox_pred_reponse[:, 2:4]), (bbox_label_response[:, 2:4]), reduction='sum')
         loss_cls = F.mse_loss(cls_pred, cls_label, reduction='sum')
 
-        # 总损失
+        # 总损失（无目标损失的权重较小，有目标损失权重较大）
         loss = self.lambda_noobj * loss_noobj + loss_conf + self.lambda_coord * (loss_xy + loss_wh) + loss_cls
         loss /= float(batch_size)
         return loss
 
+    def compute_loss(pred_tensor, label_tensor):
+        """
+        计算无目标的损失、置信度损失、BBOX损失、分类损失
+
+        """
+        pass
 
 if __name__ == '__main__':
     pred = torch.rand((5, 7, 7, 12))
