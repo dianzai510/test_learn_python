@@ -8,6 +8,8 @@ import torchvision.transforms
 from torch import nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
+
+from object_detection.手写yolov1.loss_yolov1 import loss_yolov1
 from object_detection.手写yolov1.model.yolov1 import yolov1
 from object_detection.手写yolov1.datasets.data_test_yolov1 import data_test_yolov1
 
@@ -26,7 +28,7 @@ def train(opt):
         net.load_state_dict(checkpoint['net'])  # 加载checkpoint的网络权重
 
     net.to(device)
-    loss_fn = loss_fn()  # nn.CrossEntropyLoss()  # 定义损失函数
+    loss_fn = loss_yolov1()  # nn.CrossEntropyLoss()  # 定义损失函数
     optimizer = torch.optim.SGD(net.parameters(), lr=opt.lr)  # 定义优化器 momentum=0.99
     #optimizer = torch.optim.Adam(net.parameters(), lr=opt.lr)
 
@@ -49,8 +51,8 @@ def train(opt):
 
     # 加载数据集
     data = opt.data  # type:data_test_yolov1
-    datasets_train = data("D:/work/files/data/DeepLearningDataSets/x-ray/datasets-xray-sot23/train")
-    datasets_val = data("D:/work/files/data/DeepLearningDataSets/x-ray/datasets-xray-sot23/val")
+    datasets_train = data("D:/work/files/DeepLearningDataSets/x-ray/datasets-xray-sot23/train")
+    datasets_val = data("D:/work/files/DeepLearningDataSets/x-ray/datasets-xray-sot23/val")
     dataloader_train = DataLoader(datasets_train, 10, shuffle=True)
     dataloader_val = DataLoader(datasets_val, 4, shuffle=True)
 

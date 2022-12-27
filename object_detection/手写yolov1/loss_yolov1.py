@@ -5,7 +5,7 @@ from torch.autograd import Variable
 
 class loss_yolov1(nn.Module):
     def __init__(self, S=7, B=2, C=2, lambda_coord=5.0, lambda_noobj=0.5):
-        super(loss_fn, self).__init__()
+        super(loss_yolov1, self).__init__()
         self.S = S
         self.B = B
         self.C = C
