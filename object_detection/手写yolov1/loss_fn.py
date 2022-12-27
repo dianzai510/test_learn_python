@@ -124,17 +124,16 @@ class loss_fn(nn.Module):
         obj_not_response_mask.zero_()
         bbox_label_iou = torch.zeros(bbox_label.size())
         for i in range(0, bbox_label.size()[0], 2):
-            # 选择最佳IOU box
-            box_pred = bbox_pred[i:i+self.B] # 获取当前位置预测的两个box
-            box_pred_xyxy = torch.FloatTensor(box_pred.size())
-            # (x,y,w,h) → (x,y,x,y)
-            box_pred_xyxy[:,  :2] = box_pred[:,:2] / self.S - 0.5 * box_pred[:,2:4]
-            box_pred_xyxy[:, 2:4] = box_pred[:,:2] / self.S + 0.5 * box_pred[:,2:4]
+            # 选择最佳IOU box # (x,y,w,h) → (x,y,x,y)
+            box_pred_xywh = bbox_pred[i:i+self.B] # 获取当前位置预测的两个box
+            box_pred_xyxy = torch.FloatTensor(box_pred_xywh.size())
+            box_pred_xyxy[:,  :2] = box_pred_xywh[:,:2] / self.S - 0.5 * box_pred_xywh[:,2:4]
+            box_pred_xyxy[:, 2:4] = box_pred_xywh[:,:2] / self.S + 0.5 * box_pred_xywh[:,2:4]
 
-            box_label = bbox_label[i].view(-1, 5)
-            box_label_xyxy = torch.FloatTensor(box_label.size())
-            box_label_xyxy[:, :2] = box_label[:,:2] / self.S - 0.5 * box_label[:,2:4]
-            box_label_xyxy[:,2:4] = box_label[:,:2] / self.S + 0.5 * box_label[:,2:4]
+            box_label_xywh = bbox_label[i].view(-1, 5)
+            box_label_xyxy = torch.FloatTensor(box_label_xywh.size())
+            box_label_xyxy[:, :2] = box_label_xywh[:,:2] / self.S - 0.5 * box_label_xywh[:,2:4]
+            box_label_xyxy[:,2:4] = box_label_xywh[:,:2] / self.S + 0.5 * box_label_xywh[:,2:4]
 
             # 计算两个box与对应label的iou
             iou = self.compute_iou(box_pred_xyxy[:,:4], box_label_xyxy[:,:4])
