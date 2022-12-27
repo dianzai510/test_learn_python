@@ -1,8 +1,6 @@
 import argparse
 import os
-
 from PIL.Image import Image
-
 from image_classification.cnn_imgcls.data import data_xray_sot23
 
 
