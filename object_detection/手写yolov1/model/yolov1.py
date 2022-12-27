@@ -6,7 +6,7 @@ from object_detection.手写yolov1.utils.basic import SPP, CBL
 
 
 class yolov1(nn.Module):
-    def __init__(self, input_size=448, num_classes=2):
+    def __init__(self, input_size=416, num_classes=2):
         super(yolov1, self).__init__()
 
         self.input_size = input_size
@@ -31,7 +31,11 @@ class yolov1(nn.Module):
             CBL(feat_dim // 2, feat_dim, kernel_size=3, padding=1),
         )
 
-        self.pred = nn.Conv2d(feat_dim, (4 + 1) * 2 + self.num_classes, kernel_size=1)
+        # self.pred = nn.Conv2d(feat_dim, (4 + 1) * 2 + self.num_classes, kernel_size=1)
+        self.pred = nn.Sequential(
+            nn.Conv2d(feat_dim, (4 + 1) * 2 + self.num_classes, kernel_size=1),
+            nn.Sigmoid()
+        )
 
     def forward(self, x):
         x = self.backbone(x)  # 主干网
@@ -39,7 +43,7 @@ class yolov1(nn.Module):
         x = self.head(x)  # 预测头
         x = self.pred(x)  # 预测层
 
-        x = torch.permute(x, (0, 2, 3, 1))
+        x = torch.permute(x, (0, 2, 3, 1))  # 交换维度[1,12,7,7] → [1,7,7,12]
         return x
 
 

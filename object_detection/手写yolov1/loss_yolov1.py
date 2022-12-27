@@ -3,6 +3,7 @@ from torch import nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
+
 class loss_yolov1(nn.Module):
     def __init__(self, S=7, B=2, C=2, lambda_coord=5.0, lambda_noobj=0.5, device=torch.device("cuda")):
         super(loss_yolov1, self).__init__()
@@ -104,14 +105,14 @@ class loss_yolov1(nn.Module):
         cls_label = coobj_label[:, 5 * B:]
 
         # 5、计算不含目标的损失
-        noobj_pred = pred_tensor[noobj_mask].view(-1, N)#从预测值中提取应该不含目标的数据
-        noobj_lable = label_tensor[noobj_mask].view(-1, N)#从标签中提取不含目标的数据
+        noobj_pred = pred_tensor[noobj_mask].view(-1, N)  # 从预测值中提取应该不含目标的数据
+        noobj_label = label_tensor[noobj_mask].view(-1, N)  # 从标签中提取不含目标的数据
         noobj_pred_mask = torch.ByteTensor(noobj_pred.size())
         noobj_pred_mask.zero_()
         noobj_pred_mask[:, 4] = 1
         noobj_pred_mask[:, 9] = 1
-        noobj_pred_conf = noobj_pred[noobj_pred_mask]# 预测数据中不含目标的置信度
-        noobj_label_conf= noobj_lable[noobj_pred_mask]#标签中不含目标的置信度
+        noobj_pred_conf = noobj_pred[noobj_pred_mask]  # 预测数据中不含目标的置信度
+        noobj_label_conf = noobj_label[noobj_pred_mask]  # 标签中不含目标的置信度
 
         noobj_label_conf = noobj_label_conf.float()
         noobj_pred_conf = noobj_pred_conf.float()
@@ -119,44 +120,44 @@ class loss_yolov1(nn.Module):
         loss_noobj = F.mse_loss(noobj_pred_conf, noobj_label_conf, reduce='sum')  # 计算无目标的损失
 
         # 6、计算含有目标的损失
-        obj_response_mask = torch.ByteTensor(bbox_label.size())
+        obj_response_mask = torch.ByteTensor(bbox_label.size()).to(self.device)
         obj_response_mask.zero_()
-        obj_not_response_mask = torch.ByteTensor(bbox_label.size())
+        obj_not_response_mask = torch.ByteTensor(bbox_label.size()).to(self.device)
         obj_not_response_mask.zero_()
-        bbox_label_iou = torch.zeros(bbox_label.size())
-
+        bbox_label_iou = torch.zeros(bbox_label.size()).to(self.device)
         for i in range(0, bbox_label.size()[0], 2):
             # 选择最佳IOU box # (x,y,w,h) → (x,y,x,y)
-            box_pred_xywh = bbox_pred[i:i+self.B] # 获取当前位置预测的两个box
+            box_pred_xywh = bbox_pred[i:i + self.B]  # 获取当前位置预测的两个box
             box_pred_xyxy = torch.FloatTensor(box_pred_xywh.size())
-            box_pred_xyxy[:,  :2] = box_pred_xywh[:,:2] / self.S - 0.5 * box_pred_xywh[:,2:4]
-            box_pred_xyxy[:, 2:4] = box_pred_xywh[:,:2] / self.S + 0.5 * box_pred_xywh[:,2:4]
+            box_pred_xyxy[:, :2] = box_pred_xywh[:, :2] / self.S - 0.5 * box_pred_xywh[:, 2:4]
+            box_pred_xyxy[:, 2:4] = box_pred_xywh[:, :2] / self.S + 0.5 * box_pred_xywh[:, 2:4]
 
             box_label_xywh = bbox_label[i].view(-1, 5)
             box_label_xyxy = torch.FloatTensor(box_label_xywh.size())
-            box_label_xyxy[:, :2] = box_label_xywh[:,:2] / self.S - 0.5 * box_label_xywh[:,2:4]
-            box_label_xyxy[:,2:4] = box_label_xywh[:,:2] / self.S + 0.5 * box_label_xywh[:,2:4]
+            box_label_xyxy[:, :2] = box_label_xywh[:, :2] / self.S - 0.5 * box_label_xywh[:, 2:4]
+            box_label_xyxy[:, 2:4] = box_label_xywh[:, :2] / self.S + 0.5 * box_label_xywh[:, 2:4]
 
             # 计算两个box与对应label的iou
-            iou = self.compute_iou(box_pred_xyxy[:,:4], box_label_xyxy[:,:4])
+            iou = self.compute_iou(box_pred_xyxy[:, :4], box_label_xyxy[:, :4])
 
-            #label匹配到的box,在self.B个预测box中获取与label box iou值最大的那个box的索引
+            # label匹配到的box,在self.B个预测box中获取与label box iou值最大的那个box的索引
             max_iou, max_index = iou.max(0)
-            obj_response_mask[i+max_index] = 1  # iou较大的索引
-            obj_not_response_mask[i+1-max_index] = 1  #iou较小的索引
+            obj_response_mask[i + max_index] = 1  # iou较大的索引
+            obj_not_response_mask[i + 1 - max_index] = 1  # iou较小的索引
 
-            bbox_label_iou[i+max_index, 4] = max_iou
+            bbox_label_iou[i + max_index, 4] = max_iou
 
         bbox_label_iou = Variable(bbox_label_iou)
 
-        bbox_pred_reponse = bbox_pred[obj_response_mask].view(-1, 5)  #提取较大IOU的bbox
-        bbox_label_response = bbox_label[obj_response_mask].view(-1, 5)  #提取对应label
-        bbox_label_response_iou = bbox_label_iou[obj_response_mask].view(-1, 5)  #提取对应iou
+        bbox_pred_reponse = bbox_pred[obj_response_mask].view(-1, 5).to(self.device)  # 提取较大IOU的bbox
+        bbox_label_response = bbox_label[obj_response_mask].view(-1, 5).to(self.device)  # 提取对应label
+        bbox_label_response_iou = bbox_label_iou[obj_response_mask].view(-1, 5).to(self.device)  # 提取对应iou
 
         # 含有目标的置信度损失
-        loss_conf = F.mse_loss(bbox_pred_reponse[:,4], bbox_label_response_iou[:,4], reduction='sum')
-        loss_xy = F.mse_loss(bbox_pred_reponse[:,:2], bbox_label_response[:,:2], reduction='sum')
-        loss_wh = F.mse_loss(torch.sqrt(bbox_pred_reponse[:,2:4]), torch.sqrt(bbox_label_response[:,2:4]), reduction='sum')
+        loss_conf = F.mse_loss(bbox_pred_reponse[:, 4], bbox_label_response_iou[:, 4], reduction='sum')
+        #bbox_pred_reponse[:, :2] = torch.sigmoid(bbox_pred_reponse[:, :2])
+        loss_xy = F.mse_loss(bbox_pred_reponse[:, :2], bbox_label_response[:, :2], reduction='sum')
+        loss_wh = F.mse_loss((bbox_pred_reponse[:, 2:4]), (bbox_label_response[:, 2:4]), reduction='sum')
         loss_cls = F.mse_loss(cls_pred, cls_label, reduction='sum')
 
         # 总损失
@@ -164,10 +165,11 @@ class loss_yolov1(nn.Module):
         loss /= float(batch_size)
         return loss
 
+
 if __name__ == '__main__':
     pred = torch.rand((5, 7, 7, 12))
     label = torch.randint(0, 3, (5, 7, 7, 12))
-    loss = loss_fn()
+    loss = loss_yolov1()
 
     a = loss(pred, label)
     pass

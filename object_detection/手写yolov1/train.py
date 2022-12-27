@@ -75,12 +75,13 @@ def train(opt):
             loss.backward()
             optimizer.step()
 
-            acc = (out.argmax(1) == labels).sum()
-            acc_train += acc
+            # acc = (out.argmax(1) == labels).sum()
+            # acc_train += acc
             loss_train += loss
 
             # region 保存指定数量的训练图像
             path = f'{opt.out_path}/img'
+            pathlib.Path(path).mkdir(parents=True, exist_ok=True)
             img_count = len(os.listdir(path))
             if img_count < opt.train_img:
                 cnt += 1
@@ -105,71 +106,32 @@ def train(opt):
 
                 out = net(imgs)
                 loss = loss_fn(out, labels)
-                acc = (out.argmax(1) == labels).sum()
-                acc_val += acc
+                # acc = (out.argmax(1) == labels).sum()
+                # acc_val += acc
                 loss_val += loss
-                # region 保存验证失败的图像
-                # endregion
 
         '''************************************************分割线***************************************************'''
         # 打印一轮的训练结果
-        mean_acc_train = acc_train / len(data_xray.datasets_train)
+        # mean_acc_train = acc_train / len(data_xray.datasets_train)
         mean_loss_train = loss_train
-        mean_acc_val = acc_val / len(data_xray.datasets_val)
+        # mean_acc_val = acc_val / len(data_xray.datasets_val)
         mean_loss_val = loss_val
 
         result_epoch_str = f"epoch:{epoch}, " \
-                           f"acc_train:{mean_acc_train}({acc_train}/{len(data_xray.datasets_train)}) " \
                            f"loss_train:{mean_loss_train}, " \
-                           f"acc_val:{mean_acc_val}({acc_val}/{len(data_xray.datasets_val)}) " \
                            f"loss_val:{mean_loss_val}"
 
         print(f"{result_epoch_str}\n")
 
-        writer.add_scalar("acc_train", mean_acc_train, epoch)
         writer.add_scalar("loss_train", mean_loss_train, epoch)
-        writer.add_scalar("acc_val", mean_acc_val, epoch)
         writer.add_scalar("loss_val", mean_loss_val, epoch)
-
-        # 保存本轮的训练结果
-        with result_epoch_path.open('a') as fp:
-            fp.write(f"{result_epoch_str}\n")
-
-        # region 保存模型
-        # 保存best
-        best_path = f'{opt.out_path}/weights/best.pth'
-
-        f = best_path if os.path.exists(best_path) else utils.getlastfile(opt.out_path + '/' + 'weights', '.pth')
-        if f is not None:
-            checkpoint = torch.load(f)
-            acc_last = checkpoint['acc']
-            loss_last = checkpoint['loss']
-            if mean_acc_train >= acc_last and mean_loss_train < loss_last:
-                # 保存训练模型
-                checkpoint = {'net': net.state_dict(),
-                              'optimizer': optimizer.state_dict(),
-                              'epoch': epoch,
-                              'acc': mean_acc_train,
-                              'loss': mean_loss_train}
-                torch.save(checkpoint, f'{opt.out_path}/weights/best.pth')
-                print(f"已保存为best.pth, {result_epoch_str}")
-                # 写入best.txt
-                with result_best_path.open('w') as fp:
-                    fp.write(f'{result_epoch_str}\n')
-
-        # 按周期保存模型
-        if epoch % opt.save_period == 0:
-            # 创建目录
-            pathlib.Path(f'{opt.out_path}/weights').mkdir(parents=True, exist_ok=True)
-            # 保存训练模型
-            checkpoint = {'net': net.state_dict(),
-                          'optimizer': optimizer.state_dict(),
-                          'epoch': epoch,
-                          'acc': mean_acc_train,
-                          'loss': mean_loss_train}
-            torch.save(checkpoint, f'{opt.out_path}/weights/epoch={epoch}.pth')
-            print(f"第{epoch}轮模型参数已保存")
-        # endregion
+        checkpoint = {'net': net.state_dict(),
+                      'optimizer': optimizer.state_dict(),
+                      'epoch': epoch,
+                      'loss_train': loss_train,
+                      'loss_val': loss_val}
+        pathlib.Path(f'{opt.out_path}/weights').mkdir(parents=True, exist_ok=True)
+        torch.save(checkpoint, f'{opt.out_path}/weights/best.pth')
 
 
 if __name__ == '__main__':
