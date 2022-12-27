@@ -51,8 +51,8 @@ def train(opt):
 
     # 加载数据集
     data = opt.data  # type:data_test_yolov1
-    datasets_train = data("D:/work/files/DeepLearningDataSets/x-ray/datasets-xray-sot23/train")
-    datasets_val = data("D:/work/files/DeepLearningDataSets/x-ray/datasets-xray-sot23/val")
+    datasets_train = data("D:/work/files/deeplearn_datasets/test_datasets/test_yolo_xray/train")
+    datasets_val = data("D:/work/files/deeplearn_datasets/test_datasets/test_yolo_xray/val")
     dataloader_train = DataLoader(datasets_train, 10, shuffle=True)
     dataloader_val = DataLoader(datasets_val, 4, shuffle=True)
 
