@@ -8,8 +8,6 @@ import torchvision.transforms
 from torch import nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-
-from object_detection.手写yolov1.loss_yolov1 import loss_yolov1
 from object_detection.手写yolov1.model.yolov1 import yolov1
 from object_detection.手写yolov1.datasets.data_test_yolov1 import data_test_yolov1
 
@@ -28,7 +26,7 @@ def train(opt):
         net.load_state_dict(checkpoint['net'])  # 加载checkpoint的网络权重
 
     net.to(device)
-    loss_fn = loss_yolov1()  # nn.CrossEntropyLoss()  # 定义损失函数
+    loss_fn = loss_fn()  # nn.CrossEntropyLoss()  # 定义损失函数
     optimizer = torch.optim.SGD(net.parameters(), lr=opt.lr)  # 定义优化器 momentum=0.99
     #optimizer = torch.optim.Adam(net.parameters(), lr=opt.lr)
 
