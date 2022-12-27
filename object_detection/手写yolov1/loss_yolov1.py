@@ -4,13 +4,14 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 
 class loss_yolov1(nn.Module):
-    def __init__(self, S=7, B=2, C=2, lambda_coord=5.0, lambda_noobj=0.5):
+    def __init__(self, S=7, B=2, C=2, lambda_coord=5.0, lambda_noobj=0.5, device=torch.device("cuda")):
         super(loss_yolov1, self).__init__()
         self.S = S
         self.B = B
         self.C = C
         self.lambda_coord = lambda_coord
         self.lambda_noobj = lambda_noobj
+        self.device = device
 
     def xywh2xyxy(self, xywh):
         xy, wh = xywh[:2], xywh[2:]
@@ -123,6 +124,7 @@ class loss_yolov1(nn.Module):
         obj_not_response_mask = torch.ByteTensor(bbox_label.size())
         obj_not_response_mask.zero_()
         bbox_label_iou = torch.zeros(bbox_label.size())
+
         for i in range(0, bbox_label.size()[0], 2):
             # 选择最佳IOU box # (x,y,w,h) → (x,y,x,y)
             box_pred_xywh = bbox_pred[i:i+self.B] # 获取当前位置预测的两个box
