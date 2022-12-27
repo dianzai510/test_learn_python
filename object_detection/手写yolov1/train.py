@@ -8,8 +8,6 @@ import torchvision.transforms
 from torch import nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-
-from object_detection.手写yolov1.loss_yolov1 import loss_yolov1
 from object_detection.手写yolov1.model.yolov1 import yolov1
 from object_detection.手写yolov1.datasets.data_test_yolov1 import data_test_yolov1
 
