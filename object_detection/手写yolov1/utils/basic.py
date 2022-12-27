@@ -63,7 +63,7 @@ def encode(labels, grid_size, num_bbox, num_cls):
         delta_xy = (xy - ij / S) * S  # 归一化至0~1,目标位置相对于当前网格的偏移量,因为(xy - ij/S)∈[0,1/S]
 
         i, j = int(ij[0]), int(ij[1])
-        for k in range(B):
+        for k in range(B):  # label中两个bbox值是一样的
             s = 5 * k
             target[j, i, s:s + 2] = delta_xy  # xy相对于网格左上角的偏移量(归一化至0-1)
             target[j, i, s + 2:s + 4] = wh  # wh
