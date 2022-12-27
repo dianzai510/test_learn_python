@@ -15,7 +15,6 @@ class yolov1(nn.Module):
         self.backbone = nn.Sequential(*list(model.children())[:-2])  # 删除
         feat_dim = 512
 
-        from object_detection.手写yolov1.model.basic import CBL
         self.neck = nn.Sequential(
             SPP(),
             CBL(4 * feat_dim, feat_dim, kernel_size=1),

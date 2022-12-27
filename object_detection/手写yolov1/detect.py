@@ -17,7 +17,7 @@ def detect(opt):
     net.load_state_dict(checkpoint['net'])
 
     # 2、加载数据
-    datasets = data_test_yolov1("D:/work/files/deeplearn_datasets/test_datasets/test_yolo_xray/train")
+    datasets = data_test_yolov1("D:/work/files/deeplearn_datasets/test_datasets/test_yolo_xray/val")
     data_loader = DataLoader(datasets, 1)
     for images, labels in data_loader:
         pred = net(images)
@@ -61,6 +61,6 @@ def detect(opt):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', default='run/train/exp/weights/best.pth')
-    parser.add_argument('--conf', type=float, default=0.9)
+    parser.add_argument('--conf', type=float, default=0.1)
     opt = parser.parse_args()
     detect(opt)
