@@ -145,7 +145,7 @@ if __name__ == '__main__':
     parser.add_argument('--num_class', default=2, type=int)
 
     parser.add_argument('--epoch', default='300', type=int)
-    parser.add_argument('--lr', default=0.001, type=float)
+    parser.add_argument('--lr', default=0.01, type=float)
     parser.add_argument('--out_path', default='run/train/exp', type=str)
     parser.add_argument('--add_graph', default=False, type=bool)
     parser.add_argument('--save_period', default=20, type=int, help='多少轮保存一次，')
