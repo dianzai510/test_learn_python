@@ -1,8 +1,5 @@
-import cv2
 import torch
 from torch import nn
-import numpy as np
-from utils import utils
 
 
 class CBL(nn.Module):
