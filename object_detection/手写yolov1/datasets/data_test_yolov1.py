@@ -44,7 +44,6 @@ class data_test_yolov1(Dataset):
         img = cv2.copyMakeBorder(img, padding_up, padding_up, padding_lr, padding_lr, borderType=cv2.BORDER_CONSTANT,
                                  value=0)
         img = torchvision.transforms.ToTensor()(img)
-        # img = torch.permute(img, (1, 2, 0))
         # endregion
 
         # region 2、读取标签,并根据图像的缩放方式调整bbox坐标值
