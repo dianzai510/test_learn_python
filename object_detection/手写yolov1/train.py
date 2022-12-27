@@ -21,7 +21,7 @@ def train(opt):
     net = yolov1()  # 加载官方预训练权重
 
     # 初始化网络权重
-    if opt.weights != "":
+    if os.path.exists(opt.weights):
         checkpoint = torch.load(opt.weights)
         net.load_state_dict(checkpoint['net'])  # 加载checkpoint的网络权重
 

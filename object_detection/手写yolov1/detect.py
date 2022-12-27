@@ -11,6 +11,7 @@ from utils import utils
 def detect(opt):
     # 0、加载参数
     conf = opt.conf
+
     # 1、加载网络
     checkpoint = torch.load(opt.weights)
     net = yolov1()
@@ -61,6 +62,6 @@ def detect(opt):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', default='run/train/exp/weights/best.pth')
-    parser.add_argument('--conf', type=float, default=0.1)
+    parser.add_argument('--conf', type=float, default=0.7)
     opt = parser.parse_args()
     detect(opt)
