@@ -24,8 +24,8 @@ transform_val = torchvision.transforms.Compose([
     torchvision.transforms.ToTensor()
 ])
 
-datasets_train = ImageFolder("D:/work/files/deeplearn_dataset/x-ray/cls-dataset/sot23/train", transform=transform_train)
-datasets_val = ImageFolder("D:/work/files/deeplearn_dataset/x-ray/cls-dataset/sot23/val", transform=transform_val)
+datasets_train = ImageFolder("D:/work/files/deeplearn_datasets/x-ray/cls-dataset/sot23/train", transform=transform_train)
+datasets_val = ImageFolder("D:/work/files/deeplearn_datasets/x-ray/cls-dataset/sot23/val", transform=transform_val)
 
 # dataloader_train = DataLoader(datasets_train, 10, shuffle=True)
 # dataloader_val = DataLoader(datasets_val, 4, shuffle=True)
