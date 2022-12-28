@@ -30,7 +30,7 @@ def train(opt):
     # device = torch.device("cpu")
 
     # 读取数据
-    mydata = data_ic('d:/work/files/deeplearn_dataset/坐标回归测试/train')
+    mydata = data_ic('d:/work/files/deeplearn_datasets/test_datasets/单目标回归测试/train')
     datasets_train = DataLoader(mydata, batch_size=5, shuffle=True)
     datasets_val = DataLoader(mydata, batch_size=5, shuffle=True)
 
