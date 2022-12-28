@@ -2,7 +2,7 @@ import argparse
 import onnx
 import torch.onnx.utils
 from image_classification.cnn_imgcls.data import data_xray_sot23, data_xray_sc88, data_xray_sc70, data_xray_sc89, \
-    data_xray_sod123, data_xray_sod323, data_xray_sot23_juanpan, data_xray_sod523
+    data_xray_sod123, data_xray_sod323, data_xray_sot23_juanpan, data_xray_sod523, data_xray_sod723
 from image_classification.cnn_imgcls.models.net_xray import net_xray
 
 
@@ -35,8 +35,8 @@ def export(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='run/train/exp_xray_sod523/weights/best.pth')  # 修改
-    parser.add_argument('--data', default=data_xray_sod523, type=dict)  # 修改
+    parser.add_argument('--weights', default='run/train/exp_xray_sod723/weights/best.pth')  # 修改
+    parser.add_argument('--data', default=data_xray_sod723, type=dict)  # 修改
 
     opt = parser.parse_args()
     export(opt)
