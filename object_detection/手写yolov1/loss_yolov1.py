@@ -155,7 +155,7 @@ class loss_yolov1(nn.Module):
 
         # 含有目标的置信度损失
         loss_conf = F.mse_loss(bbox_pred_reponse[:, 4], bbox_label_response_iou[:, 4], reduction='sum')
-        #bbox_pred_reponse[:, :2] = torch.sigmoid(bbox_pred_reponse[:, :2])
+        # bbox_pred_reponse[:, :2] = torch.sigmoid(bbox_pred_reponse[:, :2])
         loss_xy = F.mse_loss(bbox_pred_reponse[:, :2], bbox_label_response[:, :2], reduction='sum')
         loss_wh = F.mse_loss((bbox_pred_reponse[:, 2:4]), (bbox_label_response[:, 2:4]), reduction='sum')
         loss_cls = F.mse_loss(cls_pred, cls_label, reduction='sum')
@@ -168,9 +168,15 @@ class loss_yolov1(nn.Module):
     def compute_loss(pred_tensor, label_tensor):
         """
         计算无目标的损失、置信度损失、BBOX损失、分类损失
-
+        1、无目标的网格，直接计算其置信度损失（label置信度为0）
+        2、有目标的网格，需要计算其：
+                                置信度损失
+                                xy损失
+                                wh损失
+                                cls损失
         """
         pass
+
 
 if __name__ == '__main__':
     pred = torch.rand((5, 7, 7, 12))
