@@ -11,7 +11,7 @@ transform_train = torchvision.transforms.Compose([
     torchvision.transforms.Pad(100, padding_mode='symmetric'),
     torchvision.transforms.RandomVerticalFlip(0.5),
     torchvision.transforms.RandomHorizontalFlip(0.5),
-    # torchvision.transforms.GaussianBlur(kernel_size=(3, 5), sigma=(0.1, 2.0)),
+    torchvision.transforms.GaussianBlur(kernel_size=(3, 5), sigma=0.3),
     torchvision.transforms.RandomRotation(2, expand=False, interpolation=InterpolationMode.NEAREST),
     torchvision.transforms.RandomAffine(degrees=0, translate=(0.02, 0.01)),
     torchvision.transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3),  # 亮度、对比度、饱和度
@@ -31,13 +31,15 @@ datasets_val = ImageFolder("D:/work/files/deeplearn_datasets/x-ray/cls-dataset/s
 # dataloader_val = DataLoader(datasets_val, 4, shuffle=True)
 
 if __name__ == '__main__':
-
     dataloader_train = DataLoader(datasets_train, 10, shuffle=True)
     dataloader_val = DataLoader(datasets_val, 4, shuffle=True)
     for imgs, labels in dataloader_train:
         img1 = imgs[0, :, :, :]
+        label1 = labels[0]
         img1 = torchvision.transforms.ToPILImage()(img1)  # type:PIL.Image.Image
+
+        print(label1)
         img1.show()
         img1.close()
-        print(img1.size)
+
         pass
