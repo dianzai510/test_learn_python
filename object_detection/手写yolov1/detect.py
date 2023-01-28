@@ -62,6 +62,6 @@ def detect(opt):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', default='run/train/exp/weights/best.pth')
-    parser.add_argument('--conf', type=float, default=0.7)
+    parser.add_argument('--conf', type=float, default=0.3)
     opt = parser.parse_args()
     detect(opt)
