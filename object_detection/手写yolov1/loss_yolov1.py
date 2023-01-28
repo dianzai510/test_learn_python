@@ -8,7 +8,6 @@ def xywh2xyxy(xywh):
     xy, wh = xywh[:2], xywh[2:]
     x1y1 = xy - wh / 2
     x2y2 = xy + wh / 2
-
     return x1y1
 
 
