@@ -4,6 +4,73 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 
 
+def xywh2xyxy(xywh):
+    xy, wh = xywh[:2], xywh[2:]
+    x1y1 = xy - wh / 2
+    x2y2 = xy + wh / 2
+    return x1y1
+
+
+def compute_iou(box1, box2):
+    """iou的作用是，当一个物体有多个框时，选一个相比ground truth最大的执行度的为物体的预测，然后将剩下的框降序排列，
+    如果后面的框中有与这个框的iou大于一定的阈值时则将这个框舍去（这样就可以抑制一个物体有多个框的出现了），
+    目标检测算法中都会用到这种思想。
+    Compute the intersection over union of two set of boxes, each box is [x1,y1,x2,y2].
+    Args:
+      box1: (tensor) bounding boxes, sized [N,4].
+      box2: (tensor) bounding boxes, sized [M,4].
+    Return:
+      (tensor) iou, sized [N,M]."""
+
+    N = box1.size(0)
+    M = box2.size(0)
+
+    # torch.max(input, other, out=None) → Tensor
+    # Each element of the tensor input is compared with the corresponding element
+    # of the tensor other and an element-wise maximum is taken.
+    # left top
+    lt = torch.max(
+        box1[:, :2].unsqueeze(1).expand(N, M, 2),  # [N,2] -> [N,1,2] -> [N,M,2]
+        box2[:, :2].unsqueeze(0).expand(N, M, 2),  # [M,2] -> [1,M,2] -> [N,M,2]
+    )
+    # right bottom
+    rb = torch.min(
+        box1[:, 2:].unsqueeze(1).expand(N, M, 2),  # [N,2] -> [N,1,2] -> [N,M,2]
+        box2[:, 2:].unsqueeze(0).expand(N, M, 2),  # [M,2] -> [1,M,2] -> [N,M,2]
+    )
+
+    wh = rb - lt  # [N,M,2]
+    wh[wh < 0] = 0  # clip at 0
+    inter = wh[:, :, 0] * wh[:, :, 1]  # [N,M]
+
+    area1 = (box1[:, 2] - box1[:, 0]) * (box1[:, 3] - box1[:, 1])  # [N,]
+    area2 = (box2[:, 2] - box2[:, 0]) * (box2[:, 3] - box2[:, 1])  # [M,]
+    area1 = area1.unsqueeze(1).expand_as(inter)  # [N,] -> [N,1] -> [N,M]
+    area2 = area2.unsqueeze(0).expand_as(inter)  # [M,] -> [1,M] -> [N,M]
+
+    iou = inter / (area1 + area2 - inter)
+
+    return iou
+
+
+def compute_iou1(bbox1, bbox2):
+    x1, y1, x2, y2 = xywh2xyxy(bbox1)
+    a1, b1, a2, b2 = xywh2xyxy(bbox2)
+    ax = max(x1, a1)  # 相交区域左上角横坐标
+    ay = max(y1, b1)  # 相交区域左上角纵坐标
+    bx = min(x2, a2)  # 相交区域右下角横坐标
+    by = min(y2, b2)  # 相交区域右下角纵坐标
+
+    area_bbox1 = (x2 - x1) * (y2 - y1)  # bbox1的面积
+    area_bbox2 = (a2 - a1) * (b2 - b1)  # bbox2的面积
+
+    w = max(0, bx - ax)
+    h = max(0, by - ay)
+    area_X = w * h  # 交集
+    result = area_X / (area_bbox1 + area_bbox2 - area_X)
+    return result
+
+
 class loss_yolov1(nn.Module):
     def __init__(self, S=7, B=2, C=2, lambda_coord=5.0, lambda_noobj=0.1, device=torch.device("cuda")):
         super(loss_yolov1, self).__init__()
@@ -13,71 +80,6 @@ class loss_yolov1(nn.Module):
         self.lambda_coord = lambda_coord
         self.lambda_noobj = lambda_noobj
         self.device = device
-
-    def xywh2xyxy(self, xywh):
-        xy, wh = xywh[:2], xywh[2:]
-        x1y1 = xy - wh / 2
-        x2y2 = xy + wh / 2
-
-        return x1y1
-
-    def compute_iou(self, box1, box2):
-        """iou的作用是，当一个物体有多个框时，选一个相比ground truth最大的执行度的为物体的预测，然后将剩下的框降序排列，
-        如果后面的框中有与这个框的iou大于一定的阈值时则将这个框舍去（这样就可以抑制一个物体有多个框的出现了），
-        目标检测算法中都会用到这种思想。
-        Compute the intersection over union of two set of boxes, each box is [x1,y1,x2,y2].
-        Args:
-          box1: (tensor) bounding boxes, sized [N,4].
-          box2: (tensor) bounding boxes, sized [M,4].
-        Return:
-          (tensor) iou, sized [N,M]."""
-
-        N = box1.size(0)
-        M = box2.size(0)
-
-        # torch.max(input, other, out=None) → Tensor
-        # Each element of the tensor input is compared with the corresponding element
-        # of the tensor other and an element-wise maximum is taken.
-        # left top
-        lt = torch.max(
-            box1[:, :2].unsqueeze(1).expand(N, M, 2),  # [N,2] -> [N,1,2] -> [N,M,2]
-            box2[:, :2].unsqueeze(0).expand(N, M, 2),  # [M,2] -> [1,M,2] -> [N,M,2]
-        )
-        # right bottom
-        rb = torch.min(
-            box1[:, 2:].unsqueeze(1).expand(N, M, 2),  # [N,2] -> [N,1,2] -> [N,M,2]
-            box2[:, 2:].unsqueeze(0).expand(N, M, 2),  # [M,2] -> [1,M,2] -> [N,M,2]
-        )
-
-        wh = rb - lt  # [N,M,2]
-        wh[wh < 0] = 0  # clip at 0
-        inter = wh[:, :, 0] * wh[:, :, 1]  # [N,M]
-
-        area1 = (box1[:, 2] - box1[:, 0]) * (box1[:, 3] - box1[:, 1])  # [N,]
-        area2 = (box2[:, 2] - box2[:, 0]) * (box2[:, 3] - box2[:, 1])  # [M,]
-        area1 = area1.unsqueeze(1).expand_as(inter)  # [N,] -> [N,1] -> [N,M]
-        area2 = area2.unsqueeze(0).expand_as(inter)  # [M,] -> [1,M] -> [N,M]
-
-        iou = inter / (area1 + area2 - inter)
-
-        return iou
-
-    def compute_iou1(self, bbox1, bbox2):
-        x1, y1, x2, y2 = self.xywh2xyxy(bbox1)
-        a1, b1, a2, b2 = self.xywh2xyxy(bbox2)
-        ax = max(x1, a1)  # 相交区域左上角横坐标
-        ay = max(y1, b1)  # 相交区域左上角纵坐标
-        bx = min(x2, a2)  # 相交区域右下角横坐标
-        by = min(y2, b2)  # 相交区域右下角纵坐标
-
-        area_bbox1 = (x2 - x1) * (y2 - y1)  # bbox1的面积
-        area_bbox2 = (a2 - a1) * (b2 - b1)  # bbox2的面积
-
-        w = max(0, bx - ax)
-        h = max(0, by - ay)
-        area_X = w * h  # 交集
-        result = area_X / (area_bbox1 + area_bbox2 - area_X)
-        return result
 
     def forward(self, pred_tensor, label_tensor):
         S, B, C = self.S, self.B, self.C
@@ -138,7 +140,7 @@ class loss_yolov1(nn.Module):
             box_label_xyxy[:, 2:4] = box_label_xywh[:, :2] / self.S + 0.5 * box_label_xywh[:, 2:4]
 
             # 计算两个box与对应label的iou
-            iou = self.compute_iou(box_pred_xyxy[:, :4], box_label_xyxy[:, :4])
+            iou = compute_iou(box_pred_xyxy[:, :4], box_label_xyxy[:, :4])
 
             # label匹配到的box,在self.B个预测box中获取与label box iou值最大的那个box的索引
             max_iou, max_index = iou.max(0)
