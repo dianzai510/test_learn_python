@@ -1,6 +1,6 @@
 import torch
 from torch.nn import Linear, Module
-from torchvision.models.resnet import resnet18
+from torchvision.models.resnet import resnet18, resnet101
 from image_classification.cnn_imgcls.data import data_xray_sot23
 
 
@@ -9,6 +9,8 @@ class net_xray(Module):
         super(net_xray, self).__init__()
         self.resnet = resnet18(pretrained=pretrained)
         self.resnet.fc = Linear(512, 2, bias=True)
+        # self.resnet = resnet101(pretrained=pretrained)
+        #self.resnet.fc = Linear(2048, 2, bias=True)
 
     def forward(self, x):
         x = self.resnet(x)
