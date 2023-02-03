@@ -13,7 +13,7 @@ transform_train = torchvision.transforms.Compose([
     torchvision.transforms.RandomHorizontalFlip(0.5),
     # torchvision.transforms.GaussianBlur(kernel_size=(3, 5), sigma=(0.1, 2.0)),
     torchvision.transforms.RandomRotation(10, expand=False, interpolation=InterpolationMode.BILINEAR),
-    torchvision.transforms.RandomAffine(degrees=0, translate=(0.02, 0.01)),
+    torchvision.transforms.RandomAffine(degrees=0, translate=(0.01, 0.02)),
     torchvision.transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1),  # 亮度、对比度、饱和度
     torchvision.transforms.ToTensor(),
     torchvision.transforms.CenterCrop(input_size),
