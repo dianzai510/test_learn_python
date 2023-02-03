@@ -10,7 +10,8 @@ from torch import nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from image_classification.cnn_imgcls.data import data_xray_sot23, data_xray_sc88, data_xray_sc70, data_xray_sc89, \
-    data_xray_sod123, data_xray_sod323, data_xray_sot23_juanpan, data_xray_sod523, data_xray_sod723
+    data_xray_sod123, data_xray_sod323, data_xray_sot23_juanpan, data_xray_sod523, data_xray_sod723, data_xray_sot25, \
+    data_xray_sot26, data_xray_sot23e
 from image_classification.cnn_imgcls.models.net_xray import net_xray
 from image_classification.cnn_imgcls.utils import utils
 
@@ -217,20 +218,19 @@ def train(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='run/train/exp_xray_sot23/weights/best.pth',  # 修改
+    parser.add_argument('--weights', default='run/train/exp_xray_sot23e/weights/best.pth',  # 修改
                         help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--resume', default=False, type=bool,
                         help='True表示从--weights参数指定的epoch开始训练,False从0开始')
-    parser.add_argument('--data', default=data_xray_sot23)  # 修改
+    parser.add_argument('--data', default=data_xray_sot23e)  # 修改
 
     parser.add_argument('--epoch', default='400', type=int)
     parser.add_argument('--lr', default=0.01, type=float)
-    parser.add_argument('--batch_size', default=60, type=int)
-    parser.add_argument('--out_path', default='run/train/exp_xray_sot23', type=str)  # 修改
+    parser.add_argument('--batch_size', default=20, type=int)
+    parser.add_argument('--out_path', default='run/train/exp_xray_sot23e', type=str)  # 修改
     parser.add_argument('--add_graph', default=False, type=bool)
     parser.add_argument('--save_period', default=20, type=int, help='多少轮保存一次，')
     parser.add_argument('--train_img', default=200, type=int, help='保存指定数量的训练图像')
 
     opt = parser.parse_args()
-
     train(opt)
