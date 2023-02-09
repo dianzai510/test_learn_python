@@ -7,7 +7,7 @@ import os
 
 def getlastfile(path, ext):
     if os.path.exists(path) is not True: return None
-    list_file = [path + '/' + f for f in os.listdir(path) if f.endswith(".pth")]
+    list_file = [path + '/' + f for f in os.listdir(path) if f.endswith(".pth")]  # 列表解析
     if len(list_file) > 0:
         list_file.sort(key=lambda fn: os.path.getmtime(fn))
         return list_file[-1]
@@ -16,5 +16,6 @@ def getlastfile(path, ext):
 
 
 if __name__ == '__main__':
-    a = getlastfile('D:/桌面/JP')
+    a = getlastfile('D:/work/proj/xray/test_learn_python/image_classification/cnn_imgcls/run/train/oqa_agl/weights',
+                    '.pth')
     pass
