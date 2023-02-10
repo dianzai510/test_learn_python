@@ -1,8 +1,6 @@
 import os
-import torch
 import torchvision
 from PIL import Image
-from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader, Dataset
 from torchvision.transforms import InterpolationMode
 
