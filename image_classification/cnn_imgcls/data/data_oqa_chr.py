@@ -9,16 +9,20 @@ dataset 为数据集
 dataloader 为数据集加载器
 """
 import os
+import cv2
 import torchvision
 from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
 import torch.nn.functional as f
+from torchvision.transforms import InterpolationMode
+
+import utils.utils
 
 input_size = (200, 200)
 class_num = 36
 
 
-class SquarePad:
+class SquarePad3:
     def __call__(self, image):
         # image = torchvision.transforms.Pad()
         w, h = image.size
@@ -34,24 +38,49 @@ class SquarePad:
         return image
 
 
-# Tip:图像增强太过了会导致识别率下降
+class SquarePad2:
+    def __call__(self, image):
+        max_wh = 200  # max(w, h)
+        img = utils.utils.pil2mat(image)
+        h, w, c = img.shape
+        f = max_wh / max(h, w)
+        resize_img = cv2.resize(img, (0, 0), fx=f, fy=f)
+        image = utils.utils.mat2pil(resize_img)
+
+        # image = torchvision.transforms.Pad()
+        w, h = image.size
+
+        left = int((max_wh - w) / 2)
+        right = max_wh - w - left
+        top = int((max_wh - h) / 2)
+        bottom = max_wh - h - top
+
+        padding = [left, top, right, bottom]
+        image = torchvision.transforms.Pad(padding=padding, fill=0)(image)  # left, top, right and bottom
+
+        return image
+
+
+class SquarePad:
+    def __call__(self, image):
+        max_wh = 200  # max(w, h)
+        img = utils.utils.pil2mat(image)
+        resize_img = cv2.resize(img, (200, 200))
+        image = utils.utils.mat2pil(resize_img)
+        return image
+
+
 trans_train = torchvision.transforms.Compose([
-    # torchvision.transforms.RandomHorizontalFlip(),
-    # torchvision.transforms.RandomVerticalFlip(),
-    torchvision.transforms.GaussianBlur(kernel_size=(3, 15), sigma=(0.1, 15.0)),  # 随机高斯模糊
-    SquarePad(),
-    torchvision.transforms.ColorJitter(brightness=(0.3, 1.5), contrast=(0.5, 1.5), saturation=0.9),  # 亮度、对比度、饱和度
     torchvision.transforms.Resize(input_size),
-    torchvision.transforms.RandomAffine(degrees=20, scale=[0.5, 1.3]),
-    # torchvision.transforms.RandomGrayscale(p=0.4),
-
+    torchvision.transforms.Pad(100, padding_mode='symmetric'),
+    torchvision.transforms.GaussianBlur(kernel_size=(3, 15), sigma=(0.1, 15.0)),  # 随机高斯模糊
+    torchvision.transforms.ColorJitter(brightness=(0.3, 1.5), contrast=(0.5, 1.5), saturation=0.9),  # 亮度、对比度、饱和度
+    torchvision.transforms.RandomRotation(10, expand=False, interpolation=InterpolationMode.BILINEAR),
+    torchvision.transforms.CenterCrop(input_size),
     torchvision.transforms.ToTensor(),
-
-    # torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
 trans_val = torchvision.transforms.Compose([
-    SquarePad(),
     torchvision.transforms.Resize(input_size),
     torchvision.transforms.ToTensor(),
     # torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])

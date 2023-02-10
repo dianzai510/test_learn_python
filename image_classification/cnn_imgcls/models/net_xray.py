@@ -11,11 +11,11 @@ class net_xray(Module):
         self.resnet.fc = Linear(512, cls_num, bias=True)
         # self.resnet = resnet101(pretrained=pretrained)
         #self.resnet.fc = Linear(2048, 2, bias=True)
-        self.softmax = torch.nn.Softmax()
+        # self.softmax = torch.nn.Softmax()
 
     def forward(self, x):
         x = self.resnet(x)
-        x = self.softmax(x)
+        # x = self.softmax(x)
         return x
 
 

@@ -1,6 +1,18 @@
 import torch
 import numpy as np
 import cv2
+import torchvision
+from PIL import Image
+
+
+def pil2mat(image):
+    mat = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
+    return mat
+
+
+def mat2pil(mat):
+    image = Image.fromarray(cv2.cvtColor(mat, cv2.COLOR_BGR2RGB))
+    return image
 
 
 def tensor2mat(data, dtype=np.uint8):
@@ -21,6 +33,11 @@ def tensor2mat(data, dtype=np.uint8):
     img = np.transpose(img, (1, 2, 0))  # c,h,w → h,w,c
     img = img.copy()
     return img
+
+
+def mat2tensor(mat, dtype=np.uint8):
+    tensor = torchvision.transforms.ToTensor()(mat)
+    return tensor
 
 
 def drawgrid(img, size, color=(0, 0, 255), linewidth=2):

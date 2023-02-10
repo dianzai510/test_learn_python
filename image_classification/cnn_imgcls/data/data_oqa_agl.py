@@ -4,6 +4,7 @@ import torchvision
 from PIL import Image
 from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader, Dataset
+from torchvision.transforms import InterpolationMode
 
 input_size = (200, 200)
 class_num = 2
@@ -58,16 +59,17 @@ class Dataset_agl(Dataset):
 
 
 trans_train = torchvision.transforms.Compose([
-    torchvision.transforms.GaussianBlur(kernel_size=(3, 15), sigma=(0.1, 15.0)),  # 随机高斯模糊
-    SquarePad(),
-    torchvision.transforms.ColorJitter(brightness=(0.3, 1.5), contrast=(0.5, 1.5), saturation=0.9),  # 亮度、对比度、饱和度
     torchvision.transforms.Resize(input_size),
-    torchvision.transforms.RandomAffine(degrees=20, scale=[0.5, 1.3]),
+    torchvision.transforms.Pad(100, padding_mode='symmetric'),
+    torchvision.transforms.GaussianBlur(kernel_size=(3, 15), sigma=(0.1, 15.0)),  # 随机高斯模糊
+    torchvision.transforms.ColorJitter(brightness=(0.3, 1.5), contrast=(0.5, 1.5), saturation=0.9),  # 亮度、对比度、饱和度
+    torchvision.transforms.RandomRotation(10, expand=False, interpolation=InterpolationMode.BILINEAR),
+    torchvision.transforms.CenterCrop(input_size),
     torchvision.transforms.ToTensor(),
 ])
 
 trans_val = torchvision.transforms.Compose([
-    SquarePad(),
+    # SquarePad(),
     torchvision.transforms.Resize(input_size),
     torchvision.transforms.ToTensor(),
 ])

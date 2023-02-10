@@ -3,7 +3,7 @@ import onnx
 import torch.onnx.utils
 from image_classification.cnn_imgcls.data import data_xray_sot23, data_xray_sc88, data_xray_sc70, data_xray_sc89, \
     data_xray_sod123, data_xray_sod323, data_xray_sot23_juanpan, data_xray_sod523, data_xray_sod723, data_xray_sot25, \
-    data_xray_sot26, data_xray_sot23e, data_oqa_chr
+    data_xray_sot26, data_xray_sot23e, data_oqa_chr, data_oqa_agl
 from image_classification.cnn_imgcls.models.net_xray import net_xray
 
 
@@ -15,7 +15,7 @@ def export(opt):
     x = torch.randn(input_size)
     checkpoint = torch.load(path)
 
-    net = net_xray(False, data_oqa_chr.class_num)  # classify_net1()
+    net = net_xray(False, opt.data.class_num)  # classify_net1()
     net.load_state_dict(checkpoint['net'])
     net.eval()
     torch.onnx.export(net,
