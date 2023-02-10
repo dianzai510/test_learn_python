@@ -36,8 +36,8 @@ def export(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='./run/train/oqa_chr/weights/best.pth')  # 修改
-    parser.add_argument('--data', default=data_oqa_chr, type=dict)  # 修改
+    parser.add_argument('--weights', default='./run/train/oqa_agl/weights/best.pth')  # 修改
+    parser.add_argument('--data', default=data_oqa_agl, type=dict)  # 修改
 
     opt = parser.parse_args()
     export(opt)

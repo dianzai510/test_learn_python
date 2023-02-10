@@ -74,7 +74,7 @@ trans_train = torchvision.transforms.Compose([
     torchvision.transforms.Resize(input_size),
     torchvision.transforms.Pad(100, padding_mode='symmetric'),
     torchvision.transforms.GaussianBlur(kernel_size=(3, 15), sigma=(0.1, 15.0)),  # 随机高斯模糊
-    torchvision.transforms.ColorJitter(brightness=(0.3, 1.5), contrast=(0.5, 1.5), saturation=0.9),  # 亮度、对比度、饱和度
+    torchvision.transforms.ColorJitter(brightness=(0.5, 1.5), contrast=(0.5, 1.5), saturation=0.9),  # 亮度、对比度、饱和度
     torchvision.transforms.RandomRotation(10, expand=False, interpolation=InterpolationMode.BILINEAR),
     torchvision.transforms.CenterCrop(input_size),
     torchvision.transforms.ToTensor(),
@@ -89,16 +89,13 @@ trans_val = torchvision.transforms.Compose([
 datasets_train = ImageFolder('d:/work/files/deeplearn_datasets/OQA/cls', transform=trans_train)
 datasets_val = ImageFolder('d:/work/files/deeplearn_datasets/OQA/cls', transform=trans_val)
 
-dataloader_train = DataLoader(datasets_train, 10, shuffle=True)
-dataloader_val = DataLoader(datasets_val, 4, shuffle=True)
-
 if __name__ == '__main__':
-    # datasets = ImageFolder('C:/Users/pc/Desktop/ocr', torchvision.transforms.ToTensor())
-    # dataloader_test = DataLoader(datasets, batch_size=1)
-    # dataloader_test = DataLoader(datasets_train, batch_size=1)
+    dataloader_train = DataLoader(datasets_train, 1, shuffle=True)
+    dataloader_val = DataLoader(datasets_val, 1, shuffle=True)
+
     max_width = 0
     max_height = 0
-    for imgs, labels in dataloader_train:
+    for imgs, labels in dataloader_val:
         img1 = imgs[0, :, :, :]
         img1 = torchvision.transforms.ToPILImage()(img1)
         img1.show()
