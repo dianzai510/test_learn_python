@@ -17,7 +17,7 @@ def train(opt):
     # 训练轮数
     epoch_count = opt.epoch
     # 网络
-    net = fcn_resnet50(pretrained=True, num_classes=1)
+    net = unet(pretrained=True, num_classes=1)
 
     # 初始化网络权重
     if opt.weights != "":
