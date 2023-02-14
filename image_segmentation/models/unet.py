@@ -1,3 +1,4 @@
+import torch
 from torch import nn
 from torchvision.models import resnet50
 
@@ -8,7 +9,6 @@ class Unet(nn.Module):
 
         self.backbone = resnet50(pretrained=pretrained)
         in_filters = [192, 512, 1024, 3072]
-
         out_filters = [64, 128, 256, 512]
 
         # upsampling
