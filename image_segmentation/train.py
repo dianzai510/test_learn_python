@@ -9,7 +9,10 @@ from torch import nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from torchvision.models.segmentation import fcn_resnet50
-from image_segmentation.data.data_oqa import data_oqa
+
+from image_segmentation.Loss_Fn import Loss_Fn
+from image_segmentation.data import data_segment
+from image_segmentation.data.data_segment import data_oqa
 from image_segmentation.models.unet import UNet
 from utils import utils
 
@@ -27,9 +30,9 @@ def train(opt):
         net.load_state_dict(checkpoint['net'])  # 加载checkpoint的网络权重
 
     net.to(device)
-    loss_fn = nn.CrossEntropyLoss()  # 定义损失函数
+    loss_fn = Loss_Fn()  # 定义损失函数
     optimizer = torch.optim.SGD(net.parameters(), lr=opt.lr)  # 定义优化器 momentum=0.99
-    # optimizer = torch.optim.Adam(net.parameters(), lr=opt.lr)
+    #optimizer = torch.optim.Adam(net.parameters(), lr=opt.lr)
 
     start_epoch = 0
     if opt.resume:
@@ -93,31 +96,31 @@ def train(opt):
             loss_train += loss
 
             # region 保存指定数量的训练图像
-            path = f'{opt.out_path}/img'
-            if os.path.exists(path) is not True:
-                os.makedirs(path)
-
-            img_count = len(os.listdir(path))
-            if img_count < opt.train_img:
-                for i in range(imgs.shape[0]):
-                    img = imgs[i, :, :, :]
-                    img = torchvision.transforms.ToPILImage()(img)
-                    img.save(f'{opt.out_path}/img/{datetime.now().strftime("%Y.%m.%d_%H.%M.%S.%f")}.png', 'png')
+            # path = f'{opt.out_path}/img'
+            # if os.path.exists(path) is not True:
+            #     os.makedirs(path)
+            #
+            # img_count = len(os.listdir(path))
+            # if img_count < opt.train_img:
+            #     for i in range(imgs.shape[0]):
+            #         img = imgs[i, :, :, :]
+            #         img = torchvision.transforms.ToPILImage()(img)
+            #         img.save(f'{opt.out_path}/img/{datetime.now().strftime("%Y.%m.%d_%H.%M.%S.%f")}.png', 'png')
             # endregion
 
             # region 保存训练失败的图像
-            path_train_fial_img = f'{opt.out_path}/train_fial_img'
-            img_count = len(os.listdir(path_train_fial_img))
-            if img_count < 30:
-                check_result = out.argmax(1) == labels
-                for i in range(check_result.shape[0]):
-                    f = check_result[i]
-                    if f == False:
-                        img = imgs[i, :, :, :]
-                        img = torchvision.transforms.ToPILImage()(img)
-                        img.save(
-                            f'{path_train_fial_img}/label_{str(labels[i].item())}_out_{out[i].tolist()}_{datetime.now().strftime("%Y.%m.%d_%H.%M.%S.%f")}.png',
-                            'png')
+            # path_train_fial_img = f'{opt.out_path}/train_fial_img'
+            # img_count = len(os.listdir(path_train_fial_img))
+            # if img_count < 30:
+            #     check_result = out.argmax(1) == labels
+            #     for i in range(check_result.shape[0]):
+            #         f = check_result[i]
+            #         if f == False:
+            #             img = imgs[i, :, :, :]
+            #             img = torchvision.transforms.ToPILImage()(img)
+            #             img.save(
+            #                 f'{path_train_fial_img}/label_{str(labels[i].item())}_out_{out[i].tolist()}_{datetime.now().strftime("%Y.%m.%d_%H.%M.%S.%f")}.png',
+            #                 'png')
             # endregion
 
         # 验证
@@ -136,32 +139,32 @@ def train(opt):
                 loss_val += loss
 
                 # region 保存验证失败的图像
-                path_val_fial_img = f'{opt.out_path}/val_fial_img'
-                img_count = len(os.listdir(path_val_fial_img))
-                if img_count < 30:
-                    check_result = out.argmax(1) == labels
-                    for i in range(check_result.shape[0]):
-                        f = check_result[i]
-                        if f == False:
-                            img = imgs[i, :, :, :]
-                            img = torchvision.transforms.ToPILImage()(img)
-                            img.save(
-                                f'{path_val_fial_img}/label_{str(labels[i].item())}_out_{out[i].tolist()}_{datetime.now().strftime("%Y.%m.%d_%H.%M.%S.%f")}.png',
-                                'png')
+                # path_val_fial_img = f'{opt.out_path}/val_fial_img'
+                # img_count = len(os.listdir(path_val_fial_img))
+                # if img_count < 30:
+                #     check_result = out.argmax(1) == labels
+                #     for i in range(check_result.shape[0]):
+                #         f = check_result[i]
+                #         if f == False:
+                #             img = imgs[i, :, :, :]
+                #             img = torchvision.transforms.ToPILImage()(img)
+                #             img.save(
+                #                 f'{path_val_fial_img}/label_{str(labels[i].item())}_out_{out[i].tolist()}_{datetime.now().strftime("%Y.%m.%d_%H.%M.%S.%f")}.png',
+                #                 'png')
                 # endregion
 
         '''************************************************分割线***************************************************'''
 
         # 打印一轮的训练结果
-        mean_acc_train = acc_train / len(data.datasets_train)
+        mean_acc_train = acc_train  # / len(data.datasets_train)
         mean_loss_train = loss_train
-        mean_acc_val = acc_val / len(data.datasets_val)
+        mean_acc_val = acc_val  # / len(data.datasets_val)
         mean_loss_val = loss_val
 
         result_epoch_str = f"epoch:{epoch}, " \
-                           f"acc_train:{mean_acc_train}({acc_train}/{len(data.datasets_train)}) " \
+                           f"acc_train:{(acc_train/(734. * 734 * len(data.datasets_train)))}({acc_train}/{734. * 734 * len(data.datasets_train)}) " \
                            f"loss_train:{mean_loss_train}, " \
-                           f"acc_val:{mean_acc_val}({acc_val}/{len(data.datasets_val)}) " \
+                           f"acc_val:{(mean_acc_val/(734. * 734 * len(data.datasets_val)))}({acc_val}/{734. * 734 * len(data.datasets_val)}) " \
                            f"loss_val:{mean_loss_val}"
 
         print(f"{result_epoch_str}\n")
@@ -179,23 +182,23 @@ def train(opt):
         # 保存best
         best_path = f'{opt.out_path}/weights/best.pth'
 
-        f = best_path if os.path.exists(best_path) else utils.getlastfile(opt.out_path + '/' + 'weights', '.pth')
-        if f is not None:
-            checkpoint = torch.load(f)
-            acc_last = checkpoint['acc']
-            loss_last = checkpoint['loss']
-            if mean_acc_train >= acc_last and mean_loss_train < loss_last:
-                # 保存训练模型
-                checkpoint = {'net': net.state_dict(),
-                              'optimizer': optimizer.state_dict(),
-                              'epoch': epoch,
-                              'acc': mean_acc_train,
-                              'loss': mean_loss_train}
-                torch.save(checkpoint, f'{opt.out_path}/weights/best.pth')
-                print(f"已保存为best.pth\n{result_epoch_str}")
-                # 写入best.txt
-                with result_best_path.open('w') as fp:
-                    fp.write(f'{result_epoch_str}\n')
+        # f = best_path if os.path.exists(best_path) else utils.getlastfile(opt.out_path + '/' + 'weights', '.pth')
+        # if f is not None:
+        #     checkpoint = torch.load(f)
+        #     acc_last = checkpoint['acc']
+        #     loss_last = checkpoint['loss']
+        #     if mean_acc_train >= acc_last and mean_loss_train < loss_last:
+        #         # 保存训练模型
+        #         checkpoint = {'net': net.state_dict(),
+        #                       'optimizer': optimizer.state_dict(),
+        #                       'epoch': epoch,
+        #                       'acc': mean_acc_train,
+        #                       'loss': mean_loss_train}
+        #         torch.save(checkpoint, f'{opt.out_path}/weights/best.pth')
+        #         print(f"已保存为best.pth\n{result_epoch_str}")
+        #         # 写入best.txt
+        #         with result_best_path.open('w') as fp:
+        #             fp.write(f'{result_epoch_str}\n')
 
         # 按周期保存模型
         if epoch % opt.save_period == 0:
@@ -214,16 +217,16 @@ def train(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='',  # 修改
+    parser.add_argument('--weights', default='./run/train/exp_oqa/weights/epoch=2640.pth',  # 修改
                         # run/train/exp_xray_sot23/weights/best.pth
                         help='指定权重文件，未指定则使用官方权重！')
-    parser.add_argument('--resume', default=False, type=bool,
+    parser.add_argument('--resume', default=True, type=bool,
                         help='True表示从--weights参数指定的epoch开始训练,False从0开始')
-    parser.add_argument('--data', default=data_oqa)  # 修改
+    parser.add_argument('--data', default=data_segment)  # 修改
 
-    parser.add_argument('--epoch', default='400', type=int)
-    parser.add_argument('--lr', default=0.01, type=float)
-    parser.add_argument('--batch_size', default=60, type=int)
+    parser.add_argument('--epoch', default='3000', type=int)
+    parser.add_argument('--lr', default=0.00001, type=float)
+    parser.add_argument('--batch_size', default=2, type=int)
     parser.add_argument('--out_path', default='run/train/exp_oqa', type=str)  # 修改
     parser.add_argument('--add_graph', default=False, type=bool)
     parser.add_argument('--save_period', default=20, type=int, help='多少轮保存一次，')
