@@ -28,8 +28,9 @@ def detect(opt):
         mask = torch.argmax(pred, -1)
 
         mat = utils.tensor2mat(mask)
+        a, tt = cv2.threshold(mat, 0, 255, cv2.THRESH_BINARY)
 
-        cv2.imshow("123", mat)
+        cv2.imshow("123", tt)
         cv2.waitKey()
 
 

@@ -217,10 +217,10 @@ def train(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='./run/train/exp_oqa/weights/epoch=2640.pth',  # 修改
+    parser.add_argument('--weights', default='./run/train/exp_oqa/weights/epoch=2960.pth',  # 修改
                         # run/train/exp_xray_sot23/weights/best.pth
                         help='指定权重文件，未指定则使用官方权重！')
-    parser.add_argument('--resume', default=True, type=bool,
+    parser.add_argument('--resume', default=False, type=bool,
                         help='True表示从--weights参数指定的epoch开始训练,False从0开始')
     parser.add_argument('--data', default=data_segment)  # 修改
 

@@ -5,7 +5,7 @@ from torch import nn
 class Loss_Fn(nn.Module):
     def __init__(self, class_num=2):
         super().__init__()
-        self.loss_fn = nn.CrossEntropyLoss()
+        self.loss_fn = nn.CrossEntropyLoss(weight=torch.tensor([1., 1.],device=torch.device('cuda')), ignore_index=2)
         pass
 
     def forward(self, _out, _labels):
