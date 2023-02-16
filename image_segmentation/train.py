@@ -217,7 +217,7 @@ def train(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='./run/train/exp_oqa/weights/epoch=2960.pth',  # 修改
+    parser.add_argument('--weights', default='./run/train/exp_oqa/weights/best.pth',  # 修改
                         # run/train/exp_xray_sot23/weights/best.pth
                         help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--resume', default=False, type=bool,
@@ -225,7 +225,7 @@ if __name__ == '__main__':
     parser.add_argument('--data', default=data_segment)  # 修改
 
     parser.add_argument('--epoch', default='3000', type=int)
-    parser.add_argument('--lr', default=0.00001, type=float)
+    parser.add_argument('--lr', default=0.01, type=float)
     parser.add_argument('--batch_size', default=2, type=int)
     parser.add_argument('--out_path', default='run/train/exp_oqa', type=str)  # 修改
     parser.add_argument('--add_graph', default=False, type=bool)
