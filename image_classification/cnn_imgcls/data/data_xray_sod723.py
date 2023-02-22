@@ -5,6 +5,7 @@ from torchvision.datasets import ImageFolder
 from torchvision.transforms import InterpolationMode
 
 input_size = (69, 111)  # rows,cols
+class_num = 2
 
 transform_train = torchvision.transforms.Compose([
     torchvision.transforms.Resize(input_size),
