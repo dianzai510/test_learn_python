@@ -36,8 +36,8 @@ def export(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='./run/train/cleaner/weights/best.pth')  # 修改
-    parser.add_argument('--data', default=data_cleaner, type=dict)  # 修改
+    parser.add_argument('--weights', default='./run/train/exp_xray_sot25/weights/best.pth')  # 修改
+    parser.add_argument('--data', default=data_xray_sot25, type=dict)  # 修改
 
     opt = parser.parse_args()
     export(opt)
