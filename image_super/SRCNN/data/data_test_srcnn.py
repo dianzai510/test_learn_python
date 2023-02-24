@@ -15,7 +15,8 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision.transforms import InterpolationMode
 import torch.nn.functional as f
 
-input_size = (256, 697)
+input_size = (214, 115)
+#input_size = (256, 697)
 class_num = 2
 
 # trans_train = torchvision.transforms.Compose([
@@ -57,13 +58,16 @@ class data_srcnn(Dataset):
         image = Image.open(image_path)
         label = Image.open(label_path)
 
+        image = image.convert("RGB")
+        label = label.convert("RGB")
+
         image = torchvision.transforms.ToTensor()(image)
         label = torchvision.transforms.ToTensor()(label)
         return image, label
 
 
-datasets_train = data_srcnn("D:/work/files/deeplearn_datasets/test_datasets/gen_xray/out/super_train")
-datasets_val = data_srcnn("D:/work/files/deeplearn_datasets/test_datasets/gen_xray/out/super_val")
+datasets_train = data_srcnn("D:/work/files/deeplearn_datasets/test_datasets/xray_super")
+datasets_val = data_srcnn("D:/work/files/deeplearn_datasets/test_datasets/xray_super")
 
 if __name__ == '__main__':
     dataloader_train = DataLoader(datasets_train, 1, shuffle=True)

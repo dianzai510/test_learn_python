@@ -2,10 +2,9 @@ import argparse
 import cv2
 import torch
 from torch.utils.data import DataLoader
-import numpy as np
 
-from image_segmentation.data.data_segment import data_oqa
-from image_segmentation.models.unet import UNet
+from image_segmentation.unet.data.data_segment import data_oqa
+from image_segmentation.unet.models.unet import UNet
 from utils import utils
 
 

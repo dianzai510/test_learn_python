@@ -7,6 +7,7 @@ from utils import utils
 from object_detection.手写yolov1.model import basic
 import numpy as np
 
+
 class data_test_yolov1(Dataset):
     def __init__(self, data_path, image_size=416, grid_size=7, num_bboxes=2, num_classes=2):
         self.image_size = image_size

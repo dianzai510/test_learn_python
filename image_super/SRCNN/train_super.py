@@ -29,10 +29,11 @@ def train(opt):
         net.load_state_dict(checkpoint['net'], strict=False)  # 加载checkpoint的网络权重
 
     net.to(device)
+    loss_fn = nn.L1Loss()
     # loss_fn = nn.MSELoss()  # 定义损失函数
-    loss_fn = nn.CrossEntropyLoss()  # 定义损失函数
+    #loss_fn = nn.CrossEntropyLoss()  # 定义损失函数
     optimizer = torch.optim.SGD(net.parameters(), lr=opt.lr)  # 定义优化器 momentum=0.99
-    # optimizer = torch.optim.Adam(net.parameters(), lr=opt.lr)
+    #optimizer = torch.optim.Adam(net.parameters(), lr=opt.lr, weight_decay=0.9)
 
     start_epoch = 0
     if opt.resume:
@@ -89,9 +90,6 @@ def train(opt):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-
-            # acc = (out.argmax(1) == labels).sum()
-            # acc_train += acc
             loss_train += loss
 
             # region 保存指定数量的训练图像
@@ -101,19 +99,6 @@ def train(opt):
                     img = imgs[i, :, :, :]
                     img = torchvision.transforms.ToPILImage()(img)
                     img.save(f'{path_img}/{datetime.now().strftime("%Y.%m.%d_%H.%M.%S.%f")}.png', 'png')
-            # endregion
-
-            # region 保存训练失败的图像
-            # img_count = len(os.listdir(path_train_fail_img))
-            # if img_count < 30:
-            #     check_result = out.argmax(1) == labels
-            #     for i in range(check_result.shape[0]):
-            #         f = check_result[i]
-            #         if f == False:
-            #             img = imgs[i, :, :, :]
-            #             img = torchvision.transforms.ToPILImage()(img)
-            #             img.save(f'{path_train_fail_img}/{datetime.now().strftime("%Y.%m.%d_%H.%M.%S.%f")}.png')
-
             # endregion
 
         # 验证
@@ -127,22 +112,7 @@ def train(opt):
 
                 out = net(imgs)
                 loss = loss_fn(out, labels)
-                # acc = (out.argmax(1) == labels).sum()
-                # acc_val += acc
                 loss_val += loss
-
-                # region 保存验证失败的图像
-                # img_count = len(os.listdir(path_val_fail_img))
-                # if img_count < 30:
-                #     check_result = out.argmax(1) == labels
-                #     for i in range(check_result.shape[0]):
-                #         f = check_result[i]
-                #         if f == False:
-                #             img = imgs[i, :, :, :]
-                #             img = torchvision.transforms.ToPILImage()(img)
-                #             img.save(f'{path_val_fail_img}/{datetime.now().strftime("%Y.%m.%d_%H.%M.%S.%f")}.png')
-                # endregion
-
         '''************************************************分割线***************************************************'''
 
         # 打印一轮的训练结果
@@ -206,12 +176,12 @@ if __name__ == '__main__':
                         help='True表示从--weights参数指定的epoch开始训练,False从0开始')
     parser.add_argument('--data', default=data_test_srcnn)  # 修改
 
-    parser.add_argument('--epoch', default='4000', type=int)
-    parser.add_argument('--lr', default=0.01, type=float)
+    parser.add_argument('--epoch', default='40000', type=int)
+    parser.add_argument('--lr', default=0.001, type=float)
     parser.add_argument('--batch_size', default=10, type=int)
     parser.add_argument('--out_path', default='run/train/srcnn', type=str)  # 修改
     parser.add_argument('--add_graph', default=False, type=bool)
-    parser.add_argument('--save_period', default=20, type=int, help='多少轮保存一次，')
+    parser.add_argument('--save_period', default=4000, type=int, help='多少轮保存一次，')
     parser.add_argument('--train_img', default=200, type=int, help='保存指定数量的训练图像')
 
     opt = parser.parse_args()

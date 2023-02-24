@@ -1,20 +1,13 @@
 import argparse
-import os.path
 import pathlib
-from datetime import datetime
 import numpy as np
 import torch
-import torchvision.transforms
-from torch import nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-from torchvision.models.segmentation import fcn_resnet50
 
-from image_segmentation.Loss_Fn import Loss_Fn
-from image_segmentation.data import data_segment
-from image_segmentation.data.data_segment import data_oqa
-from image_segmentation.models.unet import UNet
-from utils import utils
+from image_segmentation.unet.Loss_Fn import Loss_Fn
+from image_segmentation.unet.data import data_segment
+from image_segmentation.unet.models.unet import UNet
 
 
 def train(opt):
