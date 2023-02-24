@@ -1,8 +1,11 @@
+import os
+
 import torch
 import numpy as np
 import cv2
 import torchvision
 from PIL import Image
+from torch.nn import Module
 
 
 def pil2mat(image):
@@ -93,3 +96,42 @@ def rectangle(img, center, wh, color, thickness):
     pt2 = pt2.astype(np.int)
     cv2.rectangle(img, pt1, pt2, color, thickness)
     return img
+
+
+# 按比例将长边缩放至目标尺寸
+class Resize(Module):
+    def __init__(self):
+        self.resize = torchvision.transforms.Resize()
+
+    def forward(self, x, width):
+        """
+        Args:
+            x 图像
+            width 目标尺寸
+
+        Returns:
+            PIL Image or Tensor: Rescaled image.
+        """
+        w, h = x.Size()
+        scale = width / max(w, h)
+        W = w * scale
+        H = h * scale
+        x = self.resize(x, (W, H))
+        return x
+
+
+#获取按时间排序的最后一个文件
+def getlastfile(path, ext):
+    if os.path.exists(path) is not True: return None
+    list_file = [path + '/' + f for f in os.listdir(path) if f.endswith(".pth")]  # 列表解析
+    if len(list_file) > 0:
+        list_file.sort(key=lambda fn: os.path.getmtime(fn))
+        return list_file[-1]
+    else:
+        return None
+
+
+if __name__ == '__main__':
+    a = getlastfile('D:/work/proj/xray/test_learn_python/image_classification/cnn_imgcls/run/train/oqa_agl/weights',
+                    '.pth')
+    pass

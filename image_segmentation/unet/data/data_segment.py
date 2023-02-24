@@ -47,25 +47,36 @@ class data_oqa(Dataset):
         max = torch.max(label)
         min = torch.min(label)
 
-
         return image, label
 
 
-datasets_train = data_oqa("D:/work/files/deeplearn_datasets/test_datasets/自动生成数据集/out")
-datasets_val = data_oqa("D:/work/files/deeplearn_datasets/test_datasets/自动生成数据集/out")
+datasets_train = data_oqa("D:/work/files/deeplearn_datasets/test_datasets/gen_oqa/out/val")
+datasets_val = data_oqa("D:/work/files/deeplearn_datasets/test_datasets/gen_oqa/out/val")
 
 if __name__ == '__main__':
-    data = data_oqa("D:/work/files/deeplearn_datasets/test_datasets/自动生成数据集/out")
+    data = data_oqa("D:/work/files/deeplearn_datasets/test_datasets/gen_oqa/out/val")
     loader = DataLoader(data, 1, True)
     for i, (image, label) in enumerate(loader):
-        img1 = image[0, :, :, :]
-        img1 = torchvision.transforms.ToPILImage()(img1)
-        img1.show()
+        img1 = image[0, ...]
+        label1 = label#label[0, ...]
 
-        # lbl1 = label[0, ...]
-        mat = utils.utils.tensor2mat(label)
-        lbl1 = torchvision.transforms.ToPILImage()(mat)
-        lbl1.show()
+        # m1 = torch.max(label1)
+        # m2 = torch.min(label1)
+
+        # label1 = torch.unsqueeze(label1, dim=0)
+        label1 = label1.expand(3, 512, 512)
+
+        m1 = torch.max(label1)
+        m2 = torch.min(label1)
+
+        aa = img1 + label1
+        aa = (aa-torch.min(aa)) / (torch.max(aa)-torch.min(aa))
+
+        dd = torchvision.transforms.ToPILImage()(aa)
+        dd.show()
+
+        m1 = torch.max(aa)
+        m2 = torch.min(aa)
         # if img1.size[0] > max_height:
         #     max_height = img1.size[0]
         # if img1.size[1] > max_width:
