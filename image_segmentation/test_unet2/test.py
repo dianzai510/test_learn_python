@@ -7,7 +7,6 @@ from image_segmentation.test_unet2.data import data_seg
 from image_segmentation.test_unet2.model import UNet
 
 
-
 def detect(opt):
     datasets_test = data_seg('D:/work/files/deeplearn_datasets/test_datasets/xray_real')
     dataloader_test = DataLoader(datasets_test, batch_size=1, shuffle=True, num_workers=1, drop_last=True)
@@ -19,8 +18,7 @@ def detect(opt):
 
     for img, label in dataloader_test:
         out = net(img)
-        #aa = myutils.myutils.tensor2mat(out[0])
-
+        # aa = myutils.myutils.tensor2mat(out[0])
 
         img1 = torchvision.transforms.ToPILImage()(out[0])
         img1.show()
