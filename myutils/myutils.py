@@ -1,7 +1,6 @@
 import os
-import torch
-import numpy as np
 import cv2
+import numpy as np
 import torchvision
 from PIL import Image
 from torch.nn import Module
@@ -24,6 +23,7 @@ def tensor2mat(data, dtype=np.uint8):
     :param dtype:模板数据类型，默认np.uint8
     :return:OpenCV Mat，三个维度，[h,w,c]
     """
+
     size = data.size()
     if len(size) != 3:
         assert "张量维度不为3！"
