@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 import numpy as np
 from object_detection.手写yolov1.model.yolov1 import yolov1
 from object_detection.手写yolov1.datasets.data_test_yolov1 import data_test_yolov1
-from utils import utils
+from utils123 import utils
 
 
 def detect(opt):

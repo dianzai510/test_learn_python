@@ -16,7 +16,7 @@ from torch.utils.data import DataLoader
 import torch.nn.functional as f
 from torchvision.transforms import InterpolationMode
 
-import utils.utils
+import myutils.myutils
 
 input_size = (200, 200)
 class_num = 36
@@ -41,11 +41,11 @@ class SquarePad3:
 class SquarePad2:
     def __call__(self, image):
         max_wh = 200  # max(w, h)
-        img = utils.utils.pil2mat(image)
+        img = myutils.pil2mat(image)
         h, w, c = img.shape
         f = max_wh / max(h, w)
         resize_img = cv2.resize(img, (0, 0), fx=f, fy=f)
-        image = utils.utils.mat2pil(resize_img)
+        image = myutils.mat2pil(resize_img)
 
         # image = torchvision.transforms.Pad()
         w, h = image.size

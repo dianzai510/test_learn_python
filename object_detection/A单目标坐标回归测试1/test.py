@@ -8,22 +8,14 @@
 import argparse
 import os
 import pathlib
-import time
-from datetime import datetime
-
-import PIL
 import cv2
-import torch
-import torchvision
-from PIL.Image import Image
-from torch.utils.data import DataLoader
-from torch.utils.tensorboard.writer import SummaryWriter
-from torch import nn
-
-from data.MyData import data_ic
-from models.net_resnet18 import net_resnet18
 import numpy
 import numpy as np
+import torch
+from torch import nn
+from torch.utils.data import DataLoader
+from models.net_resnet18 import net_resnet18
+from object_detection.A单目标坐标回归测试1.data.MyData import data_ic
 
 
 def test(opt):

@@ -1,9 +1,13 @@
 import argparse
+import sys
 import torch
 import torchvision
 from torch.utils.data import DataLoader
+
+import utils123
 from image_segmentation.test_unet2.data import data_seg
 from image_segmentation.test_unet2.model import UNet
+
 
 
 def detect(opt):
@@ -17,6 +21,8 @@ def detect(opt):
 
     for img, label in dataloader_test:
         out = net(img)
+        aa = utils123.tensor2mat(out)
+        #image = myutils.tensor2mat(out[0])
         img1 = torchvision.transforms.ToPILImage()(out[0])
         img1.show()
 
@@ -27,7 +33,7 @@ if __name__ == '__main__':
     parser.add_argument('--img_path',
                         default='D:/work/files/deeplearn_datasets/test_datasets/gen_xray/out/super_test/images',
                         type=str)
-    parser.add_argument('--out_path', default='run/detect/exp', type=str)
+    parser.add_argument('--out_path', default='./run/detect/exp', type=str)
 
     opt = parser.parse_args()
     detect(opt)

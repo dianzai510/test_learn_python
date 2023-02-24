@@ -10,13 +10,27 @@ from torchvision.transforms import InterpolationMode
 input_size = (512, 512)
 
 trans_train = torchvision.transforms.Compose([
-    torchvision.transforms.Resize(input_size),
-    torchvision.transforms.Pad(100, padding_mode='symmetric'),
+    torchvision.transforms.Pad(300, padding_mode='symmetric'),
     torchvision.transforms.GaussianBlur(kernel_size=(3, 15), sigma=(0.1, 15.0)),  # 随机高斯模糊
     torchvision.transforms.ColorJitter(brightness=(0.5, 1.5), contrast=(0.5, 1.5), saturation=0.9),  # 亮度、对比度、饱和度
-    torchvision.transforms.RandomRotation(10, expand=False, interpolation=InterpolationMode.BILINEAR),
+    torchvision.transforms.RandomRotation(90, expand=False, interpolation=InterpolationMode.BILINEAR),
     torchvision.transforms.CenterCrop(input_size),
-    torchvision.transforms.ToTensor(),
+    torchvision.transforms.RandomVerticalFlip(),
+    torchvision.transforms.RandomHorizontalFlip(),
+    # torchvision.transforms.ToTensor(),
+])
+
+transform_train = torchvision.transforms.Compose([
+    torchvision.transforms.Resize(input_size),
+    torchvision.transforms.Pad(100, padding_mode='symmetric'),
+    torchvision.transforms.RandomVerticalFlip(0.5),
+    torchvision.transforms.RandomHorizontalFlip(0.5),
+    # torchvision.transforms.GaussianBlur(kernel_size=(3, 5), sigma=(0.1, 2.0)),
+    torchvision.transforms.RandomRotation(10, expand=False, interpolation=InterpolationMode.BILINEAR),
+    torchvision.transforms.RandomAffine(degrees=0, translate=(0.02, 0.01)),
+    torchvision.transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1),  # 亮度、对比度、饱和度
+    # torchvision.transforms.ToTensor(),
+    torchvision.transforms.CenterCrop(input_size),
 ])
 
 
@@ -72,10 +86,9 @@ class data_seg(Dataset):
         image = torchvision.transforms.ToTensor()(image)
         label = torchvision.transforms.ToTensor()(label)
 
-        m1 = torch.max(image)
-        m2 = torch.min(image)
-        m3 = torch.max(label)
-        m4 = torch.min(label)
+        # image = trans_train(image)
+        # img = torchvision.transforms.ToPILImage()(image)  # type:PIL.Image.Image
+        # img.show()
 
         return image, label
 
@@ -85,8 +98,8 @@ class SEGData(Dataset):
         '''
         根据标注文件去取图片
         '''
-        IMG_PATH =data_path+'/images'
-        SEGLABE_PATH =data_path+'/masks'
+        IMG_PATH = data_path + '/images'
+        SEGLABE_PATH = data_path + '/masks'
         self.img_path = IMG_PATH
         self.label_path = SEGLABE_PATH
         # print(self.label_path)

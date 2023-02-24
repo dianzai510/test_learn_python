@@ -13,7 +13,7 @@ from image_classification.cnn_imgcls.data import data_xray_sot23, data_xray_sc88
     data_xray_sod123, data_xray_sod323, data_xray_sot23_juanpan, data_xray_sod523, data_xray_sod723, data_xray_sot25, \
     data_xray_sot26, data_xray_sot23e, data_oqa_chr, data_oqa_agl, data_cleaner
 from image_classification.cnn_imgcls.models.net_xray import net_xray
-from image_classification.cnn_imgcls.utils import utils
+from myutils import myutils
 
 
 def train(opt):
@@ -170,7 +170,7 @@ def train(opt):
 
         # region 保存模型
         # 保存best
-        f = utils.getlastfile(path_weights, ".pth")
+        f = myutils.getlastfile(path_weights, ".pth")
         if f is not None:
             checkpoint = torch.load(f)
             acc_last = checkpoint['acc']

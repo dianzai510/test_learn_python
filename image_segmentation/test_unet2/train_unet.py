@@ -1,7 +1,5 @@
 import argparse
 import os
-import sys
-
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
@@ -22,8 +20,8 @@ def train(opt):
     net.to(device)
 
     loss_fn = nn.BCELoss()
-    # optimizer = torch.optim.SGD(net.parameters(), lr=0.001)  # 定义优化器 momentum=0.99
-    optimizer = torch.optim.Adam(net.parameters(), lr=0.01)  # 定义优化器 momentum=0.99
+    optimizer = torch.optim.SGD(net.parameters(), lr=0.01)  # 定义优化器 momentum=0.99
+    # optimizer = torch.optim.Adam(net.parameters(), lr=0.001)  # 定义优化器 momentum=0.99
 
     # 加载预训练模型
     if os.path.exists(opt.weights):
@@ -31,9 +29,8 @@ def train(opt):
         net.load_state_dict(checkpoint['net'])
         optimizer.load_state_dict(checkpoint['optimizer'])
 
-    cnt = 0
     for epoch in range(0, 1000):
-        print(f"----第{epoch}轮训练----")
+        # print(f"----第{epoch}轮训练----")
 
         # 训练
         net.train()
@@ -50,31 +47,28 @@ def train(opt):
             optimizer.step()
             loss_train += loss
 
+        if epoch % 50 == 0:
+            # 验证
+            net.eval()
+            loss_val = 0
+            with torch.no_grad():
+                for images, labels in dataloader_val:
+                    images = images.to(device)
+                    labels = labels.to(device)
+
+                    out = net(images)
+                    loss = loss_fn(out, labels)
+                    loss_val += loss
+                    mean_loss_val = loss_val / len(dataloader_val.dataset)
+                print(f"epoch:{epoch}, loss_val:{mean_loss_val}")
+
         # 打印一轮的训练结果
-        mean_loss_train = loss_train
+        mean_loss_train = loss_train / len(dataloader_train.dataset)
+        print(f"epoch:{epoch}, loss_train:{mean_loss_train}")
 
-        result_epoch_str = f"epoch:{epoch}, " \
-                           f"loss_train:{mean_loss_train}"
-
-        print(f"{result_epoch_str}\n")
-
-        # if epoch % 10 == 0:
-        #     checkpoint = {'net': net.state_dict(),
-        #                   'optimizer': optimizer.state_dict(),
-        #                   'epoch': epoch,
-        #                   'loss': mean_loss_train}
-        #     torch.save(checkpoint, f'./epoch={epoch}.pth')
-
+        # 保存best.pth
         path_best = './run/best.pth'
-        if os.path.exists(path_best):
-            checkpoint = torch.load(path_best)
-            if mean_loss_train < checkpoint['loss']:
-                checkpoint = {'net': net.state_dict(),
-                              'optimizer': optimizer.state_dict(),
-                              'epoch': epoch,
-                              'loss': mean_loss_train}
-                torch.save(checkpoint, path_best)
-        else:
+        if not os.path.exists(path_best) or (os.path.exists(path_best) and mean_loss_train < checkpoint['loss']):
             checkpoint = {'net': net.state_dict(),
                           'optimizer': optimizer.state_dict(),
                           'epoch': epoch,

@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 
 from image_segmentation.unet.data.data_segment import data_oqa
 from image_segmentation.unet.models.unet import UNet
-from utils import utils
+from utils123 import utils
 
 
 def detect(opt):

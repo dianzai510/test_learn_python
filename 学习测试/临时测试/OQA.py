@@ -70,8 +70,8 @@ n = len(datasets)
 n_test = random.sample(range(1, n), int(0.2 * n))  #按比例取随机数列表 https://blog.csdn.net/TycoonL/article/details/125667592
 dataset_mnist_test = torch.utils.data.Subset(datasets, n_test)
 dataset_mnist_train = torch.utils.data.Subset(datasets, list(set(range(1, n)).difference(set(n_test))))
-# dataset_mnist_train = torch.utils.data.Subset(data, range(int(0.8 * len(data))))
-# dataset_mnist_test = torch.utils.data.Subset(data, range(int(0.2 * len(data))))
+# dataset_mnist_train = torch.myutils.data.Subset(data, range(int(0.8 * len(data))))
+# dataset_mnist_test = torch.myutils.data.Subset(data, range(int(0.2 * len(data))))
 
 print(len(dataset_mnist_train))
 print(len(dataset_mnist_test))

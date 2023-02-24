@@ -74,8 +74,8 @@ def weight_init(net):
 # ]))
 # n = len(datasets)
 # n_test = random.sample(range(1, n), int(0.2 * n))  # 按比例取随机数列表 https://blog.csdn.net/TycoonL/article/details/125667592
-# dataset_test = torch.utils.data.Subset(datasets, n_test)
-# dataset_train = torch.utils.data.Subset(datasets, list(set(range(1, n)).difference(set(n_test))))
+# dataset_test = torch.myutils.data.Subset(datasets, n_test)
+# dataset_train = torch.myutils.data.Subset(datasets, list(set(range(1, n)).difference(set(n_test))))
 #
 # dataloader_train = DataLoader(dataset_train, 8, shuffle=True)
 # dataloader_test = DataLoader(dataset_test, 5, shuffle=True)
