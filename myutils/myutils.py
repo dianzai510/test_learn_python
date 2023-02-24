@@ -28,7 +28,7 @@ def tensor2mat(data, dtype=np.uint8):
     if len(size) != 3:
         assert "张量维度不为3！"
         return None
-    img = data.numpy()  # type:np.ndarray
+    img = data.detach().numpy()  # type:np.ndarray
     img = img.copy()  # 没有这句会报错：Layout of the output array img is incompatible with cv::Mat
     img *= 255
     img = img.astype(np.uint8)

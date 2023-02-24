@@ -20,14 +20,18 @@ def train(opt):
     net.to(device)
 
     loss_fn = nn.BCELoss()
-    optimizer = torch.optim.SGD(net.parameters(), lr=0.01)  # 定义优化器 momentum=0.99
-    # optimizer = torch.optim.Adam(net.parameters(), lr=0.001)  # 定义优化器 momentum=0.99
+    #optimizer = torch.optim.SGD(net.parameters(), lr=0.0001, momentum=0.99)  # 定义优化器 momentum=0.99
+    optimizer = torch.optim.Adam(net.parameters(), lr=0.0001)  # 定义优化器 momentum=0.99
 
     # 加载预训练模型
     if os.path.exists(opt.weights):
         checkpoint = torch.load(opt.weights)
         net.load_state_dict(checkpoint['net'])
         optimizer.load_state_dict(checkpoint['optimizer'])
+
+        epoch = checkpoint['epoch']
+        loss = checkpoint['loss']
+        print(f"best.pth epoch: {epoch}, loss: {loss}")
 
     for epoch in range(0, 1000):
         # print(f"----第{epoch}轮训练----")
@@ -72,7 +76,7 @@ def train(opt):
             checkpoint = {'net': net.state_dict(),
                           'optimizer': optimizer.state_dict(),
                           'epoch': epoch,
-                          'loss': mean_loss_train}
+                          'loss': mean_loss_train.item()}
             torch.save(checkpoint, path_best)
 
 
