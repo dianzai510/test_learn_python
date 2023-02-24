@@ -1,16 +1,22 @@
 import argparse
 import os
+from random import random
+
+import PIL
 import torch
+import torchvision.transforms
 from torch import nn
 from torch.utils.data import DataLoader
-from image_segmentation.test_unet2.data import data_seg, SEGData
+from image_segmentation.test_unet2.data import data_seg, trans_train_mask, trans_train_image
 from image_segmentation.test_unet2.model import UNet
 
 
 def train(opt):
+    os.makedirs("./run/images", exist_ok=True)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    datasets_train = data_seg('D:/work/files/deeplearn_datasets/test_datasets/xray_real')
+    datasets_train = data_seg('D:/work/files/deeplearn_datasets/test_datasets/xray_real', trans_train_image,
+                              trans_train_mask)
     datasets_val = data_seg('D:/work/files/deeplearn_datasets/test_datasets/xray_real')
 
     dataloader_train = DataLoader(datasets_train, batch_size=4, shuffle=True, num_workers=1, drop_last=True)
@@ -20,7 +26,7 @@ def train(opt):
     net.to(device)
 
     loss_fn = nn.BCELoss()
-    #optimizer = torch.optim.SGD(net.parameters(), lr=0.0001, momentum=0.99)  # 定义优化器 momentum=0.99
+    # optimizer = torch.optim.SGD(net.parameters(), lr=0.0001, momentum=0.99)  # 定义优化器 momentum=0.99
     optimizer = torch.optim.Adam(net.parameters(), lr=0.0001)  # 定义优化器 momentum=0.99
 
     # 加载预训练模型
@@ -32,15 +38,32 @@ def train(opt):
         epoch = checkpoint['epoch']
         loss = checkpoint['loss']
         print(f"best.pth epoch: {epoch}, loss: {loss}")
-
-    for epoch in range(0, 1000):
+    index = 0
+    for epoch in range(1, 1000):
         # print(f"----第{epoch}轮训练----")
 
         # 训练
         net.train()
         loss_train = 0
 
+        #region 设置随机种子
+        seed = round(random() * 1000000000)
+        torch.manual_seed(seed)
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+        #endregion
+
         for images, labels in dataloader_train:
+
+            #region 打印训练图像
+            for im, la in zip(images, labels):
+                b = im + la
+                a = (b - torch.min(b)) / (torch.max(b) - torch.min(b))
+                c = torchvision.transforms.ToPILImage()(a)  # type: PIL.Image
+                c.save(f"run/images/{index}.png")
+                index += 1
+            # endregion
+
             images = images.to(device)
             labels = labels.to(device)
 
@@ -51,7 +74,7 @@ def train(opt):
             optimizer.step()
             loss_train += loss
 
-        if epoch % 50 == 0:
+        if epoch % 50000000000000 == 0:
             # 验证
             net.eval()
             loss_val = 0

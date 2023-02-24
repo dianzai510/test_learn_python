@@ -99,10 +99,11 @@ def rectangle(img, center, wh, color, thickness):
 
 # 按比例将长边缩放至目标尺寸
 class Resize(Module):
-    def __init__(self):
-        self.resize = torchvision.transforms.Resize()
+    def __init__(self, width):
+        #self.resize = torchvision.transforms.Resize()
+        self.width = width
 
-    def forward(self, x, width):
+    def forward(self, x):
         """
         Args:
             x 图像
@@ -112,7 +113,7 @@ class Resize(Module):
             PIL Image or Tensor: Rescaled image.
         """
         w, h = x.Size()
-        scale = width / max(w, h)
+        scale = self.width / max(w, h)
         W = w * scale
         H = h * scale
         x = self.resize(x, (W, H))
