@@ -24,7 +24,7 @@ def detect(opt):
         img1 = torchvision.transforms.ToPILImage()(aa)
         img1.show()
         img1.save(f"D:\desktop\{index}.png")
-        index+=1
+        index += 1
 
 
 if __name__ == '__main__':
