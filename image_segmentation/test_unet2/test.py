@@ -15,6 +15,7 @@ def detect(opt):
     checkpoint = torch.load(opt.weights)
     net.load_state_dict(checkpoint['net'], strict=False)  # 加载checkpoint的网络权重
 
+    index = 0
     for img, label in dataloader_test:
         out = net(img)
         aa = out[0] + img[0]
@@ -22,6 +23,8 @@ def detect(opt):
         aa = (aa - torch.min(aa)) / (torch.max(aa) - torch.min(aa))
         img1 = torchvision.transforms.ToPILImage()(aa)
         img1.show()
+        img1.save(f"D:\desktop\{index}.png")
+        index+=1
 
 
 if __name__ == '__main__':

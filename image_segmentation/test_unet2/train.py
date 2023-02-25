@@ -1,14 +1,15 @@
 import argparse
 import os
 from random import random
-
 import PIL
 import torch
 import torchvision.transforms
 from torch import nn
 from torch.utils.data import DataLoader
 from image_segmentation.test_unet2.data import data_seg, trans_train_mask, trans_train_image
+from image_segmentation.test_unet2.global_val import seed
 from image_segmentation.test_unet2.model import UNet
+
 
 
 def train(opt):
@@ -47,10 +48,9 @@ def train(opt):
         loss_train = 0
 
         #region 设置随机种子
-        seed = round(random() * 1000000000)
-        torch.manual_seed(seed)
-        torch.cuda.manual_seed(seed)
-        torch.cuda.manual_seed_all(seed)
+        #global_val.seed = round(random() * 1000000000)
+        #gl.set_seed(round(random() * 1000000000))
+        seed.set_seed(round(random() * 1000000000))
         #endregion
 
         for images, labels in dataloader_train:
@@ -119,4 +119,5 @@ if __name__ == '__main__':
     parser.add_argument('--train_img', default=200, type=int, help='保存指定数量的训练图像')
 
     opt = parser.parse_args()
+
     train(opt)

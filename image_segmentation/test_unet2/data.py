@@ -1,15 +1,14 @@
-import time
-from random import random
+import random
 from torch.utils.data import Dataset, DataLoader
 import torch
 import os
 import torchvision
 from PIL import Image
 import cv2
-from torchvision.transforms import InterpolationMode
+
+from image_segmentation.test_unet2.global_val import seed
 
 input_size = (512, 512)
-seed = 1113
 
 
 # 将奇数尺寸图像更改为偶数尺寸
@@ -71,8 +70,9 @@ transform_basic = [
     Resize2(300),  # 按比例缩放
     PadCenter(input_size),  # 四周补零
     torchvision.transforms.ToTensor(),
-    # torchvision.transforms.RandomVerticalFlip(0.5),
-    # torchvision.transforms.RandomHorizontalFlip(0.5),
+
+    torchvision.transforms.RandomVerticalFlip(0.5),
+    torchvision.transforms.RandomHorizontalFlip(0.5),
     # torchvision.transforms.RandomRotation(90, expand=False, interpolation=InterpolationMode.BILINEAR),
     # torchvision.transforms.CenterCrop(input_size),
 ]
@@ -80,7 +80,8 @@ transform_basic = [
 transform_advan = [
     # torchvision.transforms.Pad(300, padding_mode='symmetric'),
     # torchvision.transforms.GaussianBlur(kernel_size=(3, 15), sigma=(0.5, 5.0)),  # 随机高斯模糊
-    torchvision.transforms.ColorJitter(brightness=(0.5, 1.5))#, contrast=(0.8, 1.2), saturation=(0.8, 1.2)),  # 亮度、对比度、饱和度
+    torchvision.transforms.ColorJitter(brightness=(0.5, 1.5))
+    # , contrast=(0.8, 1.2), saturation=(0.8, 1.2)),  # 亮度、对比度、饱和度
     # torchvision.transforms.ToTensor()
 ]
 
@@ -139,10 +140,13 @@ class data_seg(Dataset):
         image = cv2.imread(image_path, cv2.IMREAD_COLOR)  # type:cv2.Mat
         label = cv2.imread(label_path, cv2.IMREAD_COLOR)  # type:cv2.Mat
 
+        s = seed.get_seed()
+        torch.manual_seed(s)
         if self.transform_image is not None:
             image = self.transform_image(image)
-            if self.transform_mask is not None:
-                label = self.transform_mask(label)
+        torch.manual_seed(s)
+        if self.transform_mask is not None:
+            label = self.transform_mask(label)
         # else:
         #     h, w, c = image.shape
         #     scale = input_size[0] / max(h, w)
@@ -262,5 +266,7 @@ if __name__ == '__main__':
         # torchvision.transforms.ToPILImage()(label[0]).show()
         # time.sleep(0.1)
 
-        a = (b - torch.min(b)) / (torch.max(b) - torch.min(b))
+        # a = (b - torch.min(b)) / (torch.max(b) - torch.min(b))
+
+        #seed = round(random.random() * 1000000000)
         torchvision.transforms.ToPILImage()(img[0] + 0.3 * label[0]).show()
