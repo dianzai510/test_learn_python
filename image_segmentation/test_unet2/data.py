@@ -145,7 +145,7 @@ class data_seg(Dataset):
         label = cv2.imread(label_path, cv2.IMREAD_COLOR)  # type:cv2.Mat
 
         seed = []
-        result_epoch_path = pathlib.Path(f'run/seed.txt')
+        result_epoch_path = pathlib.Path(f'./run/train/seed.txt')
         with result_epoch_path.open('r') as fp:
             seed = int(fp.read())
 
