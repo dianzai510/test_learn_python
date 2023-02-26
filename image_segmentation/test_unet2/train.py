@@ -1,5 +1,6 @@
 import argparse
 import os
+import pathlib
 from random import random
 import PIL
 import torch
@@ -48,9 +49,9 @@ def train(opt):
         loss_train = 0
 
         #region 设置随机种子
-        #global_val.seed = round(random() * 1000000000)
-        #gl.set_seed(round(random() * 1000000000))
-        seed.set_seed(round(random() * 1000000000))
+        result_epoch_path = pathlib.Path(f'run/seed.txt')
+        with result_epoch_path.open('w') as fp:
+            fp.write(f"{round(random() * 1000000000)}")
         #endregion
 
         for images, labels in dataloader_train:
@@ -101,6 +102,7 @@ def train(opt):
                           'epoch': epoch,
                           'loss': mean_loss_train.item()}
             torch.save(checkpoint, path_best)
+            print('已保存best.pth')
 
 
 if __name__ == '__main__':

@@ -1,3 +1,4 @@
+import pathlib
 import random
 from torch.utils.data import Dataset, DataLoader
 import torch
@@ -5,6 +6,7 @@ import os
 import torchvision
 from PIL import Image
 import cv2
+from torchvision.transforms import InterpolationMode
 
 from image_segmentation.test_unet2.global_val import seed
 
@@ -73,13 +75,15 @@ transform_basic = [
 
     torchvision.transforms.RandomVerticalFlip(0.5),
     torchvision.transforms.RandomHorizontalFlip(0.5),
+
+    torchvision.transforms.RandomRotation(90, interpolation=InterpolationMode.NEAREST)
     # torchvision.transforms.RandomRotation(90, expand=False, interpolation=InterpolationMode.BILINEAR),
     # torchvision.transforms.CenterCrop(input_size),
 ]
 
 transform_advan = [
     # torchvision.transforms.Pad(300, padding_mode='symmetric'),
-    # torchvision.transforms.GaussianBlur(kernel_size=(3, 15), sigma=(0.5, 5.0)),  # 随机高斯模糊
+    torchvision.transforms.GaussianBlur(kernel_size=(3, 7)),  # 随机高斯模糊
     torchvision.transforms.ColorJitter(brightness=(0.5, 1.5))
     # , contrast=(0.8, 1.2), saturation=(0.8, 1.2)),  # 亮度、对比度、饱和度
     # torchvision.transforms.ToTensor()
@@ -132,19 +136,23 @@ class data_seg(Dataset):
         由于输出的图片的尺寸不同，我们需要转换为相同大小的图片。首先转换为正方形图片，然后缩放的同样尺度(256*256)。
         否则dataloader会报错。
         '''
-        # 取出图片路径
 
+        # 取出图片路径
         image_path = self.Images[item]
         label_path = self.Labels[item]
 
         image = cv2.imread(image_path, cv2.IMREAD_COLOR)  # type:cv2.Mat
         label = cv2.imread(label_path, cv2.IMREAD_COLOR)  # type:cv2.Mat
 
-        s = seed.get_seed()
-        torch.manual_seed(s)
+        seed = []
+        result_epoch_path = pathlib.Path(f'run/seed.txt')
+        with result_epoch_path.open('r') as fp:
+            seed = int(fp.read())
+
+        torch.manual_seed(seed)
         if self.transform_image is not None:
             image = self.transform_image(image)
-        torch.manual_seed(s)
+        torch.manual_seed(seed)
         if self.transform_mask is not None:
             label = self.transform_mask(label)
         # else:

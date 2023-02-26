@@ -8,7 +8,7 @@ from image_segmentation.test_unet2.model import UNet
 
 
 def detect(opt):
-    datasets_test = data_seg('D:/work/files/deeplearn_datasets/test_datasets/xray_real', transform_val,
+    datasets_test = data_seg('D:/work/files/deeplearn_datasets/test_datasets/xray_real/val', transform_val,
                              transform_val)
     dataloader_test = DataLoader(datasets_test, batch_size=1, shuffle=True, num_workers=1, drop_last=True)
     net = UNet()
@@ -29,7 +29,7 @@ def detect(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='./run/best.pth')
+    parser.add_argument('--weights', default='./run/best0.pth')
     parser.add_argument('--img_path',
                         default='D:/work/files/deeplearn_datasets/test_datasets/gen_xray/out/super_test/images',
                         type=str)
