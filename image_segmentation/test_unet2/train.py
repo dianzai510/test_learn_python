@@ -10,14 +10,12 @@ from torch import nn
 from torch.utils.data import DataLoader
 from image_segmentation.test_unet2.data import data_seg, trans_train_mask, trans_train_image
 from image_segmentation.test_unet2.dice_losee import dice_loss
-from image_segmentation.test_unet2.global_val import seed
 from image_segmentation.test_unet2.model import UNet
 
 
 def train(opt):
     os.makedirs(opt.out_path, exist_ok=True)
     os.makedirs(f"{opt.out_path}/images", exist_ok=True)
-
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -32,9 +30,15 @@ def train(opt):
     net.to(device)
 
     loss_fn = nn.BCELoss()
-    #loss_fn = dice_loss()
+    # loss_fn = dice_loss()
     # optimizer = torch.optim.SGD(net.parameters(), lr=0.0001, momentum=0.99)  # 定义优化器 momentum=0.99
-    optimizer = torch.optim.Adam(net.parameters(), lr=0.0001)  # 定义优化器 momentum=0.99
+    optimizer = torch.optim.Adam(net.parameters(), opt.lr)  # 定义优化器 momentum=0.99
+
+    # 学习率更新策略
+    # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.98)
+    # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20)
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=0.1)
+    # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
 
     # 加载预训练模型
     path_best = f"{opt.out_path}/{opt.weights}"
@@ -80,6 +84,7 @@ def train(opt):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+            scheduler.step()
             loss_train += loss
 
         if epoch % 50000000000000 == 0:
@@ -99,7 +104,7 @@ def train(opt):
 
         # 打印一轮的训练结果
         mean_loss_train = loss_train / len(dataloader_train.dataset)
-        print(f"epoch:{epoch}, loss_train:{mean_loss_train}")
+        print(f"epoch:{epoch}, loss_train:{mean_loss_train}, lr:{optimizer.param_groups[0]['lr']}")
 
         # 保存best.pth
         if not os.path.exists(path_best) or (os.path.exists(path_best) and mean_loss_train < checkpoint['loss']):
@@ -121,8 +126,8 @@ if __name__ == '__main__':
                         help='True表示从--weights参数指定的epoch开始训练,False从0开始')
     parser.add_argument('--data', default='D:/work/files/deeplearn_datasets/test_datasets/xray_real')  # 修改
     parser.add_argument('--epoch', default=1000, type=int)
-    parser.add_argument('--lr', default=0.01, type=float)
-    parser.add_argument('--batch_size', default=60, type=int)
+    parser.add_argument('--lr', default=0.0001, type=float)
+    parser.add_argument('--batch_size', default=2, type=int)
 
     parser.add_argument('--add_graph', default=False, type=bool)
     parser.add_argument('--save_period', default=20, type=int, help='多少轮保存一次，')
