@@ -1,23 +1,21 @@
 import argparse
-import os
 from datetime import datetime
-
 import torch
 import torchvision
 from torch.utils.data import DataLoader
-import myutils.myutils
 from image_segmentation.test_unet2.data import data_seg, transform_val
 from image_segmentation.test_unet2.model import UNet
 
 
 def detect(opt):
-    os.makedirs(opt.out_path, exist_ok=True)
+    # os.makedirs(opt.out_path, exist_ok=True)
 
     datasets_test = data_seg('D:/work/files/deeplearn_datasets/test_datasets/xray_real/val', transform_val,
                              transform_val)
 
     dataloader_test = DataLoader(datasets_test, batch_size=1, shuffle=True, num_workers=1, drop_last=True)
     net = UNet()
+    print(opt.weights)
     checkpoint = torch.load(opt.weights)
     net.load_state_dict(checkpoint['net'], strict=False)  # 加载checkpoint的网络权重
 
