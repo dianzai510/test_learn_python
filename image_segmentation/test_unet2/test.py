@@ -15,9 +15,11 @@ def detect(opt):
 
     dataloader_test = DataLoader(datasets_test, batch_size=1, shuffle=True, num_workers=1, drop_last=True)
     net = UNet()
-    print(opt.weights)
     checkpoint = torch.load(opt.weights)
     net.load_state_dict(checkpoint['net'], strict=False)  # 加载checkpoint的网络权重
+    epoch = checkpoint['epoch']
+    loss = checkpoint['loss']
+    print(f"best.pth epoch: {epoch}, loss: {loss}")
 
     index = 0
     for img, label in dataloader_test:
@@ -34,7 +36,7 @@ def detect(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='./run/train/best.pth')
+    parser.add_argument('--weights', default='./run/train/best4.pth')
     parser.add_argument('--img_path',
                         default='D:/work/files/deeplearn_datasets/test_datasets/gen_xray/out/super_test/images',
                         type=str)
