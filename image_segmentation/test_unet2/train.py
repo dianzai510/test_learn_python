@@ -9,6 +9,7 @@ import torchvision.transforms
 from torch import nn
 from torch.utils.data import DataLoader
 from image_segmentation.test_unet2.data import data_seg, trans_train_mask, trans_train_image
+from image_segmentation.test_unet2.dice_losee import dice_loss
 from image_segmentation.test_unet2.global_val import seed
 from image_segmentation.test_unet2.model import UNet
 
@@ -31,6 +32,7 @@ def train(opt):
     net.to(device)
 
     loss_fn = nn.BCELoss()
+    #loss_fn = dice_loss()
     # optimizer = torch.optim.SGD(net.parameters(), lr=0.0001, momentum=0.99)  # 定义优化器 momentum=0.99
     optimizer = torch.optim.Adam(net.parameters(), lr=0.0001)  # 定义优化器 momentum=0.99
 
