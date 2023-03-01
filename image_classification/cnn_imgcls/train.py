@@ -106,13 +106,16 @@ def train(opt):
             # region 保存训练失败的图像
             img_count = len(os.listdir(path_train_fail_img))
             if img_count < 30:
-                check_result = out.argmax(1) == labels
+                out_arg = out.argmax(1)
+                check_result = out_arg == labels
+
+                #print(oo)
                 for i in range(check_result.shape[0]):
                     f = check_result[i]
                     if f == False:
                         img = imgs[i, :, :, :]
                         img = torchvision.transforms.ToPILImage()(img)
-                        img.save(f'{path_train_fail_img}/{datetime.now().strftime("%Y.%m.%d_%H.%M.%S.%f")}.png')
+                        img.save(f'{path_train_fail_img}/{datetime.now().strftime("%Y.%m.%d_%H.%M.%S.%f")}_out_{out_arg[i]}_label_{labels[i]}.png')
 
             # endregion
 
@@ -134,13 +137,14 @@ def train(opt):
                 # region 保存验证失败的图像
                 img_count = len(os.listdir(path_val_fail_img))
                 if img_count < 30:
-                    check_result = out.argmax(1) == labels
+                    out_arg = out.argmax(1)
+                    check_result = out_arg == labels
                     for i in range(check_result.shape[0]):
                         f = check_result[i]
                         if f == False:
                             img = imgs[i, :, :, :]
                             img = torchvision.transforms.ToPILImage()(img)
-                            img.save(f'{path_val_fail_img}/{datetime.now().strftime("%Y.%m.%d_%H.%M.%S.%f")}.png')
+                            img.save(f'{path_val_fail_img}/{datetime.now().strftime("%Y.%m.%d_%H.%M.%S.%f")}_out_{out_arg[i]}_label_{labels[i]}.png')
                 # endregion
 
         '''************************************************分割线***************************************************'''

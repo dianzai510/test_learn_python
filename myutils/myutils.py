@@ -98,7 +98,7 @@ def rectangle(img, center, wh, color, thickness):
 
 
 # 按比例将长边缩放至目标尺寸
-class Resize(Module):
+class Resize3(Module):
     def __init__(self, width):
         #self.resize = torchvision.transforms.Resize()
         self.width = width
