@@ -4,6 +4,7 @@ import sys
 import os
 
 import torch
+import torchvision.transforms
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 from torchvision.utils import save_image
@@ -18,6 +19,7 @@ parser.add_argument('--input_nc', type=int, default=3, help='number of channels 
 parser.add_argument('--output_nc', type=int, default=3, help='number of channels of output data')
 parser.add_argument('--size', type=int, default=256, help='size of the data (squared assumed)')
 parser.add_argument('--cuda', action='store_true', help='use GPU computation')
+parser.add_argument('--data', default='D:/work/files/deeplearn_datasets/test_datasets/cycle_gan/val')  # 修改
 parser.add_argument('--n_cpu', type=int, default=8, help='number of cpu threads to use during batch generation')
 parser.add_argument('--generator_A2B', type=str, default='output/netG_A2B.pth', help='A2B generator checkpoint file')
 parser.add_argument('--generator_B2A', type=str, default='output/netG_B2A.pth', help='B2A generator checkpoint file')
@@ -45,15 +47,17 @@ netG_A2B.eval()
 netG_B2A.eval()
 
 # Inputs & targets memory allocation
-Tensor = torch.cuda.FloatTensor if opt.cuda else torch.Tensor
-input_A = Tensor(1, 3, 256, 256)
-input_B = Tensor(1, 3, 256, 256)
+# Tensor = torch.cuda.FloatTensor if opt.cuda else torch.Tensor
+# input_A = Tensor(1, 3, 256, 256)
+# input_B = Tensor(1, 3, 256, 256)
+#
+# # Dataset loader
+# transforms_ = [transforms.ToTensor(),
+#                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
+# dataloader = DataLoader(data_cyclegan(opt.dataroot, transform_A=transform_A, transform_B=transform_B),
+#                         batch_size=1, shuffle=False)
 
-# Dataset loader
-transforms_ = [transforms.ToTensor(),
-               transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
-dataloader = DataLoader(data_cyclegan(opt.dataroot, transform_A=transform_A, transform_B=transform_B),
-                        batch_size=1, shuffle=False)
+datasets_train = data_cyclegan(opt.data, transform_B, transform_B)
 ###################################
 
 ###### Testing######
@@ -64,12 +68,15 @@ if not os.path.exists('output/A'):
 if not os.path.exists('output/B'):
     os.makedirs('output/B')
 
-for real_A, real_B in dataloader:
+for real_A, real_B in datasets_train:
     # Generate output
-    fake_B = 0.5 * (netG_A2B(real_A).data + 1.0)
-    fake_A = 0.5 * (netG_B2A(real_B).data + 1.0)
+    fake_B = (netG_A2B(real_A).data)
+    fake_A = (netG_B2A(real_B).data)
 
     # Save image files
+    torchvision.transforms.ToPILImage()(fake_B[0]).show()
+    torchvision.transforms.ToPILImage()(fake_A[0]).show()
+
     save_image(fake_A, 'output/A.png')
     save_image(fake_B, 'output/B.png')
     pass
