@@ -1,85 +1,56 @@
 #!/usr/bin/python3
 import argparse
-import sys
-import os
-
 import torch
 import torchvision.transforms
-import torchvision.transforms as transforms
-from torch.utils.data import DataLoader
 from torchvision.utils import save_image
-
 from gan.cyclegan.data import data_cyclegan, transform_A, transform_B
 from gan.cyclegan.models import Generator
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--batchSize', type=int, default=1, help='size of the batches')
-parser.add_argument('--dataroot', type=str, default='datasets/horse2zebra/', help='root directory of the dataset')
-parser.add_argument('--input_nc', type=int, default=3, help='number of channels of input data')
-parser.add_argument('--output_nc', type=int, default=3, help='number of channels of output data')
-parser.add_argument('--size', type=int, default=256, help='size of the data (squared assumed)')
-parser.add_argument('--cuda', action='store_true', help='use GPU computation')
-parser.add_argument('--data', default='D:/work/files/deeplearn_datasets/test_datasets/cycle_gan/val')  # 修改
-parser.add_argument('--n_cpu', type=int, default=8, help='number of cpu threads to use during batch generation')
-parser.add_argument('--generator_A2B', type=str, default='output/netG_A2B.pth', help='A2B generator checkpoint file')
-parser.add_argument('--generator_B2A', type=str, default='output/netG_B2A.pth', help='B2A generator checkpoint file')
-opt = parser.parse_args()
-print(opt)
 
-if torch.cuda.is_available() and not opt.cuda:
-    print("WARNING: You have a CUDA device, so you should probably run with --cuda")
+def test(opt):
+    # Networks
+    netG_A2B = Generator()
+    netG_B2A = Generator()
 
-###### Definition of variables ######
-# Networks
-netG_A2B = Generator()
-netG_B2A = Generator()
+    # Load state dicts
+    netG_A2B.load_state_dict(torch.load('output/netG_A2B.pth'))
+    netG_B2A.load_state_dict(torch.load('output/netG_B2A.pth'))
 
-if opt.cuda:
-    netG_A2B.cuda()
-    netG_B2A.cuda()
+    # Set model's test mode
+    netG_A2B.eval()
+    netG_B2A.eval()
 
-# Load state dicts
-netG_A2B.load_state_dict(torch.load(opt.generator_A2B))
-netG_B2A.load_state_dict(torch.load(opt.generator_B2A))
+    datasets_train = data_cyclegan(opt.data, transform_B, transform_B)
 
-# Set model's test mode
-netG_A2B.eval()
-netG_B2A.eval()
+    for real_A, real_B in datasets_train:
+        # Generate output
+        fake_B = netG_A2B(real_A).data
+        # fake_A = netG_B2A(real_B).data
 
-# Inputs & targets memory allocation
-# Tensor = torch.cuda.FloatTensor if opt.cuda else torch.Tensor
-# input_A = Tensor(1, 3, 256, 256)
-# input_B = Tensor(1, 3, 256, 256)
-#
-# # Dataset loader
-# transforms_ = [transforms.ToTensor(),
-#                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
-# dataloader = DataLoader(data_cyclegan(opt.dataroot, transform_A=transform_A, transform_B=transform_B),
-#                         batch_size=1, shuffle=False)
+        # Save image files
+        torchvision.transforms.ToPILImage()(fake_B[0]).show()
+        # torchvision.transforms.ToPILImage()(fake_A[0]).show()
 
-datasets_train = data_cyclegan(opt.data, transform_B, transform_B)
-###################################
+        # save_image(fake_A, 'output/A.png')
+        # save_image(fake_B, 'output/B.png')
+        pass
 
-###### Testing######
 
-# Create output dirs if they don't exist
-if not os.path.exists('output/A'):
-    os.makedirs('output/A')
-if not os.path.exists('output/B'):
-    os.makedirs('output/B')
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--weights', default='best.pth', help='指定权重文件，未指定则使用官方权重！')
+    parser.add_argument('--out_path', default='./', type=str)  # 修改
 
-for real_A, real_B in datasets_train:
-    # Generate output
-    fake_B = (netG_A2B(real_A).data)
-    fake_A = (netG_B2A(real_B).data)
+    parser.add_argument('--resume', default=False, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
+    parser.add_argument('--data', default='D:/work/files/deeplearn_datasets/test_datasets/cycle_gan/train')  # 修改
+    parser.add_argument('--epoch', default=1000, type=int)
+    parser.add_argument('--lr', default=0.0001, type=float)
+    parser.add_argument('--batch_size', default=2, type=int)
 
-    # Save image files
-    torchvision.transforms.ToPILImage()(fake_B[0]).show()
-    torchvision.transforms.ToPILImage()(fake_A[0]).show()
+    parser.add_argument('--add_graph', default=False, type=bool)
+    parser.add_argument('--save_period', default=20, type=int, help='多少轮保存一次，')
+    parser.add_argument('--train_img', default=200, type=int, help='保存指定数量的训练图像')
 
-    save_image(fake_A, 'output/A.png')
-    save_image(fake_B, 'output/B.png')
-    pass
+    opt = parser.parse_args()
 
-sys.stdout.write('\n')
-###################################
+    test(opt)

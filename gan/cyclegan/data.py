@@ -16,6 +16,7 @@ transform_basic = [
     Resize2(240),  # 按比例缩放
     PadCenter(input_size),  # 四周补零
     torchvision.transforms.ToTensor(),
+    torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
 
     # torchvision.transforms.RandomVerticalFlip(0.5),
     # torchvision.transforms.RandomHorizontalFlip(0.5),

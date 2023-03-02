@@ -31,7 +31,12 @@ def export(opt):
     onnx_model = onnx.load(f)  # load onnx model
     onnx.checker.check_model(onnx_model)  # check onnx model
 
-    print('export success!')
+    print('export onnx success!')
+
+    net_ = torch.jit.trace(net, x)
+    f = path.replace('.pth', '.pt')
+    net_.save(f)
+    print('export pt success!')
 
 
 if __name__ == '__main__':

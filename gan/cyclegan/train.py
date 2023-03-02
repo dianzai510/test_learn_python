@@ -7,11 +7,8 @@ import sys
 import time
 import numpy as np
 import torch
-import torchvision.transforms
-from torch.optim.lr_scheduler import LambdaLR
 from torch.utils.data import DataLoader
 from visdom import Visdom
-
 from gan.cyclegan.data import data_cyclegan, transform_A, transform_B
 from gan.cyclegan.models import Generator, Discriminator, weights_init_normal
 
@@ -65,7 +62,7 @@ def train(opt):
     # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
 
     # Inputs & targets memory allocation
-    #Tensor = torch.cuda.FloatTensor if opt.cuda else torch.Tensor
+    # Tensor = torch.cuda.FloatTensor if opt.cuda else torch.Tensor
     # input_A = Tensor(opt.batchSize, 3, 256, 256)
     # input_B = Tensor(opt.batchSize, 3, 256, 256)
     # target_real = Variable(Tensor(opt.batchSize).fill_(1.0), requires_grad=False)
@@ -102,17 +99,17 @@ def train(opt):
             # Identity loss
             # G_A2B(B) should equal B if real B is fed
             same_B = netG_A2B(real_B)
-            loss_identity_B = criterion_identity(same_B, real_B) * 5.0
+            loss_identity_B = criterion_identity(same_B, real_B) * 5.0  # 真实B迁移B的损失
             # G_B2A(A) should equal A if real A is fed
             same_A = netG_B2A(real_A)
-            loss_identity_A = criterion_identity(same_A, real_A) * 5.0
+            loss_identity_A = criterion_identity(same_A, real_A) * 5.0  # 真实A迁移A的损失
 
             # GAN loss
-            fake_B = netG_A2B(real_A)
+            fake_B = netG_A2B(real_A)  # 真实A迁移B
             pred_fake = netD_B(fake_B)
-            loss_GAN_A2B = criterion_GAN(pred_fake, target_real)
+            loss_GAN_A2B = criterion_GAN(pred_fake, target_real)  # 鉴别器鉴别fake_B损失
 
-            fake_A = netG_B2A(real_B)
+            fake_A = netG_B2A(real_B)  # 真实B迁移A
             pred_fake = netD_A(fake_A)
             loss_GAN_B2A = criterion_GAN(pred_fake, target_real)
 
@@ -168,15 +165,15 @@ def train(opt):
             optimizer_D_B.step()
             ###################################
 
-            #Progress report (http://localhost:8097)
+            # Progress report (http://localhost:8097)
             # logger.log({'loss_G': loss_G, 'loss_G_identity': (loss_identity_A + loss_identity_B),
             #             'loss_G_GAN': (loss_GAN_A2B + loss_GAN_B2A),
             #             'loss_G_cycle': (loss_cycle_ABA + loss_cycle_BAB), 'loss_D': (loss_D_A + loss_D_B)},
             #            images={'real_A': real_A, 'real_B': real_B, 'fake_A': fake_A, 'fake_B': fake_B})
 
             a = {'loss_G': loss_G, 'loss_G_identity': (loss_identity_A + loss_identity_B),
-                         'loss_G_GAN': (loss_GAN_A2B + loss_GAN_B2A),
-                         'loss_G_cycle': (loss_cycle_ABA + loss_cycle_BAB), 'loss_D': (loss_D_A + loss_D_B)}
+                 'loss_G_GAN': (loss_GAN_A2B + loss_GAN_B2A),
+                 'loss_G_cycle': (loss_cycle_ABA + loss_cycle_BAB), 'loss_D': (loss_D_A + loss_D_B)}
             print(a)
 
         # Update learning rates
@@ -205,13 +202,15 @@ class ReplayBuffer():
                 self.data.append(element)
                 to_return.append(element)
             else:
-                if random.uniform(0,1) > 0.5:
-                    i = random.randint(0, self.max_size-1)
+                if random.uniform(0, 1) > 0.5:
+                    i = random.randint(0, self.max_size - 1)
                     to_return.append(self.data[i].clone())
                     self.data[i] = element
                 else:
                     to_return.append(element)
         return torch.cat(to_return)
+
+
 class Logger():
     def __init__(self, n_epochs, batches_epoch):
         self.viz = Visdom()
@@ -225,12 +224,12 @@ class Logger():
         self.loss_windows = {}
         self.image_windows = {}
 
-
     def log(self, losses=None, images=None):
         self.mean_period += (time.time() - self.prev_time)
         self.prev_time = time.time()
 
-        sys.stdout.write('\rEpoch %03d/%03d [%04d/%04d] -- ' % (self.epoch, self.n_epochs, self.batch, self.batches_epoch))
+        sys.stdout.write(
+            '\rEpoch %03d/%03d [%04d/%04d] -- ' % (self.epoch, self.n_epochs, self.batch, self.batches_epoch))
 
         for i, loss_name in enumerate(losses.keys()):
             if loss_name not in self.losses:
@@ -238,31 +237,35 @@ class Logger():
             else:
                 self.losses[loss_name] += losses[loss_name].data[0]
 
-            if (i+1) == len(losses.keys()):
-                sys.stdout.write('%s: %.4f -- ' % (loss_name, self.losses[loss_name]/self.batch))
+            if (i + 1) == len(losses.keys()):
+                sys.stdout.write('%s: %.4f -- ' % (loss_name, self.losses[loss_name] / self.batch))
             else:
-                sys.stdout.write('%s: %.4f | ' % (loss_name, self.losses[loss_name]/self.batch))
+                sys.stdout.write('%s: %.4f | ' % (loss_name, self.losses[loss_name] / self.batch))
 
-        batches_done = self.batches_epoch*(self.epoch - 1) + self.batch
-        batches_left = self.batches_epoch*(self.n_epochs - self.epoch) + self.batches_epoch - self.batch
-        sys.stdout.write('ETA: %s' % (datetime.timedelta(seconds=batches_left*self.mean_period/batches_done)))
+        batches_done = self.batches_epoch * (self.epoch - 1) + self.batch
+        batches_left = self.batches_epoch * (self.n_epochs - self.epoch) + self.batches_epoch - self.batch
+        sys.stdout.write('ETA: %s' % (datetime.timedelta(seconds=batches_left * self.mean_period / batches_done)))
 
         # Draw images
         for image_name, tensor in images.items():
             if image_name not in self.image_windows:
-                self.image_windows[image_name] = self.viz.image(tensor2image(tensor.data), opts={'title':image_name})
+                self.image_windows[image_name] = self.viz.image(tensor2image(tensor.data), opts={'title': image_name})
             else:
-                self.viz.image(tensor2image(tensor.data), win=self.image_windows[image_name], opts={'title':image_name})
+                self.viz.image(tensor2image(tensor.data), win=self.image_windows[image_name],
+                               opts={'title': image_name})
 
         # End of epoch
         if (self.batch % self.batches_epoch) == 0:
             # Plot losses
             for loss_name, loss in self.losses.items():
                 if loss_name not in self.loss_windows:
-                    self.loss_windows[loss_name] = self.viz.line(X=np.array([self.epoch]), Y=np.array([loss/self.batch]),
-                                                                    opts={'xlabel': 'epochs', 'ylabel': loss_name, 'title': loss_name})
+                    self.loss_windows[loss_name] = self.viz.line(X=np.array([self.epoch]),
+                                                                 Y=np.array([loss / self.batch]),
+                                                                 opts={'xlabel': 'epochs', 'ylabel': loss_name,
+                                                                       'title': loss_name})
                 else:
-                    self.viz.line(X=np.array([self.epoch]), Y=np.array([loss/self.batch]), win=self.loss_windows[loss_name], update='append')
+                    self.viz.line(X=np.array([self.epoch]), Y=np.array([loss / self.batch]),
+                                  win=self.loss_windows[loss_name], update='append')
                 # Reset losses for next epoch
                 self.losses[loss_name] = 0.0
 
@@ -272,11 +275,13 @@ class Logger():
         else:
             self.batch += 1
 
+
 def tensor2image(tensor):
-    image = 127.5*(tensor[0].cpu().float().numpy() + 1.0)
+    image = 127.5 * (tensor[0].cpu().float().numpy() + 1.0)
     if image.shape[0] == 1:
-        image = np.tile(image, (3,1,1))
+        image = np.tile(image, (3, 1, 1))
     return image.astype(np.uint8)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
