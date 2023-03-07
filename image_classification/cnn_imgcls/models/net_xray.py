@@ -9,9 +9,6 @@ class net_xray(Module):
         super(net_xray, self).__init__()
         self.resnet = resnet18(pretrained=pretrained)
         self.resnet.fc = Linear(512, cls_num, bias=True)
-        # self.resnet = resnet101(pretrained=pretrained)
-        #self.resnet.fc = Linear(2048, 2, bias=True)
-        # self.softmax = torch.nn.Softmax()
 
     def forward(self, x):
         x = self.resnet(x)
@@ -26,6 +23,4 @@ if __name__ == '__main__':
     net = net_xray(True)
     print(net)
     out = net(img)
-    print(f'out shape: {out.shape}')
-
-    
+    # print(f'out shape: {out.shape}')

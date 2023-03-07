@@ -5,6 +5,7 @@ from image_classification.cnn_imgcls.data import data_xray_sot23, data_xray_sc88
     data_xray_sod123, data_xray_sod323, data_xray_sot23_juanpan, data_xray_sod523, data_xray_sod723, data_xray_sot25, \
     data_xray_sot26, data_xray_sot23e, data_oqa_chr, data_oqa_agl, data_cleaner
 from image_classification.cnn_imgcls.models.net_xray import net_xray
+from myutils import exportsd, importsd
 
 
 def export(opt):
@@ -33,10 +34,26 @@ def export(opt):
 
     print('export onnx success!')
 
+    # 导出pt,用于torchSharp
     net_ = torch.jit.trace(net, x)
     f = path.replace('.pth', '.pt')
     net_.save(f)
     print('export pt success!')
+
+    # Saving a TorchSharp format model in Python
+    save_path = path.replace('.pth', '.dat')
+    f = open(save_path, "wb")
+    exportsd.save_state_dict(net.to("cpu").state_dict(), f)
+    f.close()
+    # Loading a TorchSharp format model in Python
+    f = open(save_path, "rb")
+    net.load_state_dict(importsd.load_state_dict(f))
+    f.close()
+    print('export TorchSharp model success!')
+
+    optimizer = torch.optim.SGD(net.parameters(), lr=opt.lr)
+
+    net.load_state_dict(checkpoint['optimizer'])
 
 
 if __name__ == '__main__':
