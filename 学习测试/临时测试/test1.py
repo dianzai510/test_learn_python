@@ -1,4 +1,5 @@
 import pathlib
+from torchvision.models import resnet18
 
 #
 # result_path = pathlib.Path('results.txt')
@@ -9,7 +10,7 @@ import pathlib
 import torch
 from torch import nn
 
-from myutils import exportsd
+from myutils import exportsd, myutils
 
 
 class mynet(nn.Module):
