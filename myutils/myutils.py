@@ -1,6 +1,7 @@
 import os
 import cv2
 import numpy as np
+import torch
 import torchvision
 from PIL import Image
 from torch.nn import Module
@@ -98,29 +99,45 @@ def rectangle(img, center, wh, color, thickness):
 
 
 # 按比例将长边缩放至目标尺寸
-class Resize3(Module):
+class Resize3:
     def __init__(self, width):
-        #self.resize = torchvision.transforms.Resize()
+        # self.resize = torchvision.transforms.Resize()
         self.width = width
 
-    def forward(self, x):
-        """
-        Args:
-            x 图像
-            width 目标尺寸
-
-        Returns:
-            PIL Image or Tensor: Rescaled image.
-        """
-        w, h = x.Size()
+    def __call__(self, x):
+        _, h, w = x.shape
         scale = self.width / max(w, h)
-        W = w * scale
-        H = h * scale
-        x = self.resize(x, (W, H))
+        W = round(w * scale)
+        H = round(h * scale)
+        x = torchvision.transforms.Resize((H, W))(x)
         return x
 
 
-#获取按时间排序的最后一个文件
+# class Resize2():
+#     def __init__(self, width):
+#         self.width = width
+#
+#     def __call__(self, img):
+#         h, w, c = img.shape
+#         scale = self.width / max(w, h)
+#         W, H = round(scale * w), round(scale * h)
+#         dst = cv2.resize(img, (W, H), interpolation=cv2.INTER_LINEAR)
+#         return dst
+
+
+class PadSquare:
+    def __call__(self, x):
+        _, h, w = x.shape
+        width = max(w, h)
+        pad_left = round((width - w) / 2.0)
+        pad_right = width - w - pad_left
+        pad_up = round((width - h) / 2.0)
+        pad_down = width - h - pad_up
+        x = torchvision.transforms.Pad((pad_left, pad_up, pad_right, pad_down))(x)
+        return x
+
+
+# 获取按时间排序的最后一个文件
 def getlastfile(path, ext):
     if os.path.exists(path) is not True: return None
     list_file = [path + '/' + f for f in os.listdir(path) if f.endswith(".pth")]  # 列表解析
@@ -134,4 +151,10 @@ def getlastfile(path, ext):
 if __name__ == '__main__':
     a = getlastfile('D:/work/proj/xray/test_learn_python/image_classification/cnn_imgcls/run/train/oqa_agl/weights',
                     '.pth')
+    x = torch.rand((1, 3, 110, 310))
+    x = Resize3(330)(x)
+    x = PadSquare()(x)
+
+    resize = torchvision.transforms.Resize((100, 100))
+    x = resize(x)
     pass
