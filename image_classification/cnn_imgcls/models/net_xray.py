@@ -9,7 +9,6 @@ class net_xray(Module):
     def __init__(self, pretrained, cls_num=2):
         super(net_xray, self).__init__()
         self.resnet = resnet18(pretrained=pretrained)
-        print(self.resnet)
         self.resnet.fc = Linear(512, cls_num, bias=True)
 
     def forward(self, x):

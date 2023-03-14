@@ -151,11 +151,14 @@ def train(opt):
 
         # 打印一轮的训练结果
         mean_acc_train = acc_train / len(data.datasets_train)
-        mean_loss_train = loss_train
+        mean_loss_train = loss_train / len(data.datasets_train)
         mean_acc_val = acc_val / len(data.datasets_val)
-        mean_loss_val = loss_val
+        mean_loss_val = loss_val / len(data.datasets_val)
 
+        # f"lr:{net.optimizer.state_dict()['param_groups'][0]['lr']}", \
+        #print(optimizer.state_dict()['param_groups'][0]['lr'])
         result_epoch_str = f"epoch:{epoch}, " \
+                           f"lr:{optimizer.state_dict()['param_groups'][0]['lr']} " \
                            f"acc_train:{mean_acc_train}({acc_train}/{len(data.datasets_train)}) " \
                            f"loss_train:{mean_loss_train}, " \
                            f"acc_val:{mean_acc_val}({acc_val}/{len(data.datasets_val)}) " \
@@ -208,16 +211,16 @@ def train(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='./run/train/new_xray_sot23/weights/best.pth',  # 修改
+    parser.add_argument('--weights', default='./run/train/cleaner/weights/best.pth',  # 修改
                         help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--resume', default=False, type=bool,
                         help='True表示从--weights参数指定的epoch开始训练,False从0开始')
-    parser.add_argument('--data', default=data_xray_allone)  # 修改
+    parser.add_argument('--data', default=data_cleaner)  # 修改
 
     parser.add_argument('--epoch', default=400, type=int)
-    parser.add_argument('--lr', default=0.01, type=float)
-    parser.add_argument('--batch_size', default=20, type=int)
-    parser.add_argument('--out_path', default='run/train/new_xray_sot23', type=str)  # 修改
+    parser.add_argument('--lr', default=0.001, type=float)
+    parser.add_argument('--batch_size', default=60, type=int)
+    parser.add_argument('--out_path', default='run/train/cleaner', type=str)  # 修改
     parser.add_argument('--add_graph', default=False, type=bool)
     parser.add_argument('--save_period', default=20, type=int, help='多少轮保存一次，')
     parser.add_argument('--train_img', default=200, type=int, help='保存指定数量的训练图像')
