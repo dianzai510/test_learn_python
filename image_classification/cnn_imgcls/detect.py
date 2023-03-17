@@ -1,21 +1,26 @@
 import argparse
 import os
-from PIL.Image import Image
+
+import torch
+from PIL import Image
 from image_classification.cnn_imgcls.data import data_xray_sot23
+from image_classification.cnn_imgcls.models.net_xray import net_xray
 
 
 def detect(opt):
-    list_files = os.listdir(opt.img_path)
-    for f in list_files:
-        img = Image.load(f)
+    path = 'D:/work/files/deeplearn_datasets/x-ray/cls-dataset/sot23/train/ok/2023-03-15_09.42.39-161.png'
+    img = Image.open(path)
+    net = net_xray()
+    checkpoint = torch.load()
+    img.show()
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='run/train/exp/weights/best.pth')
-    parser.add_argument('--input_size', default=data_xray_sot23.input_size, type=dict)  # 修改
-    parser.add_argument('--img_path', default='', type=str)
-    parser.add_argument('--out_path', default='run/detect/exp', type=str)
+    # parser.add_argument('--weights', default='run/train/exp/weights/best.pth')
+    # parser.add_argument('--input_size', default=data_xray_sot23.input_size, type=dict)  # 修改
+    # parser.add_argument('--img_path', default='', type=str)
+    # parser.add_argument('--out_path', default='run/detect/exp_xray_sot23', type=str)
 
     opt = parser.parse_args()
     detect(opt)
