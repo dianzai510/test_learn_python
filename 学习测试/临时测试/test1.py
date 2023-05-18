@@ -1,4 +1,6 @@
 import pathlib
+
+import torchvision.models.vision_transformer
 from torchvision.models import resnet18
 
 #

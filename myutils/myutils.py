@@ -148,6 +148,21 @@ def getlastfile(path, ext):
         return None
 
 
+def yolostr2data(yolostr: str):
+    data = []
+    yolostr = yolostr.strip()
+    arr = yolostr.split('\n')
+    arr = [f.strip() for f in arr]
+    arr = [f for f in arr if f != ""]
+
+    for s in arr:
+        a = s.split(' ')
+        a = [f.strip() for f in a]
+        a = [f for f in a if f != ""]
+        data.append((int(a[0]), float(a[1]), float(a[2]), float(a[3]), float(a[4])))
+    return data
+
+
 if __name__ == '__main__':
     a = getlastfile('D:/work/proj/xray/test_learn_python/image_classification/cnn_imgcls/run/train/oqa_agl/weights',
                     '.pth')

@@ -13,6 +13,7 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard.writer import SummaryWriter
 from models.net_resnet18 import net_resnet18
 from object_detection.A单目标坐标回归测试1.data.MyData import data_ic
+from object_detection.A单目标坐标回归测试1.data.data_xray_毛刺 import data_xray_毛刺
 
 
 def train(opt):
@@ -21,9 +22,12 @@ def train(opt):
     # device = torch.device("cpu")
 
     # 读取数据
-    mydata = data_ic('d:/work/files/deeplearn_datasets/test_datasets/单目标回归测试/train')
-    datasets_train = DataLoader(mydata, batch_size=5, shuffle=True)
-    datasets_val = DataLoader(mydata, batch_size=5, shuffle=True)
+    # mydata = data_ic('d:/work/files/deeplearn_datasets/test_datasets/单目标回归测试/train')
+    mydata_train = data_xray_毛刺('D:\desktop\XRay毛刺检测\TO252样品图片\TO252编带好品\ROI\out1/train', None)
+    datasets_train = DataLoader(mydata_train, batch_size=5, shuffle=True)
+
+    mydata_train = data_xray_毛刺('D:\desktop\XRay毛刺检测\TO252样品图片\TO252编带好品\ROI\out1/val', None)
+    datasets_val = DataLoader(mydata_train, batch_size=5, shuffle=True)
 
     # 训练轮数
     epoch_count = 500
@@ -94,10 +98,14 @@ def train(opt):
         # 保存训练模型
         state_dict = {'net': net.state_dict(),
                       # 'optimizer': optimizer.state_dict(),# 不保存优化器权重文件体积非常小，可以上传至github
-                      'epoch': epoch}
+                      'epoch': epoch,
+                      'loss': val_loss}
 
         pathlib.Path(f'{opt.model_save_path}/weights').mkdir(parents=True,
                                                              exist_ok=True)  # https://zhuanlan.zhihu.com/p/317254621
+
+        best_model_path = f'{opt.model_save_path}/weights/best.pth'
+        torch.load()
         f = f'{opt.model_save_path}/weights/epoch={epoch}-train_acc={str(train_acc.item())}.pth'
         torch.save(state_dict, f)
         print(f"第{epoch}轮模型参数已保存")

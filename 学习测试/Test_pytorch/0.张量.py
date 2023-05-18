@@ -1,7 +1,7 @@
 import torch
 from torch import *
 
-t2 = torch.Tensor([[1, 2, 3, 4, 5, 6]])
+t2 = torch.Tensor([[1, 2, 3, 4, 5, 6]])  # type:torch.Tensor
 print(t2)
 
 print(t2.size(-1))
@@ -17,3 +17,5 @@ print(torch.tensor(2).size())
 print(t2.permute(0, 1))  # permute可以重新排列维度
 print(t2.permute(1, 0))
 pass
+
+
