@@ -1,5 +1,7 @@
 import cv2
+import numpy as np
 import torch
+import torchvision
 from torch import nn
 
 from anomalydetect.data import data1
