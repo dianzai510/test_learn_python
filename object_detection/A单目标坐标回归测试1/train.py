@@ -108,7 +108,6 @@ def train(opt):
                                                              exist_ok=True)  # https://zhuanlan.zhihu.com/p/317254621
 
         best_model_path = f'{opt.model_save_path}/weights/best.pth'
-        torch.load()
         f = f'{opt.model_save_path}/weights/epoch={epoch}-train_acc={str(train_acc.item())}.pth'
         torch.save(state_dict, f)
         print(f"第{epoch}轮模型参数已保存")
