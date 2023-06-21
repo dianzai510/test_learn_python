@@ -12,6 +12,9 @@ from torch import nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard.writer import SummaryWriter
 from models.net_resnet18 import net_resnet18
+
+import sys
+sys.path.append("D:/work/program/Python/DeepLearning/test_learn_python")
 from object_detection.A单目标坐标回归测试1.data.MyData import data_ic
 from object_detection.A单目标坐标回归测试1.data.data_xray_毛刺 import data_xray_毛刺
 
@@ -22,12 +25,12 @@ def train(opt):
     # device = torch.device("cpu")
 
     # 读取数据
-    # mydata = data_ic('d:/work/files/deeplearn_datasets/test_datasets/单目标回归测试/train')
-    mydata_train = data_xray_毛刺('D:\desktop\XRay毛刺检测\TO252样品图片\TO252编带好品\ROI\out1/train', None)
-    datasets_train = DataLoader(mydata_train, batch_size=5, shuffle=True)
+    mydata = data_ic('d:/work/files/deeplearn_datasets/test_datasets/单目标回归测试/train')
+    #mydata_train = data_xray_毛刺('D:\desktop\XRay毛刺检测\TO252样品图片\TO252编带好品\ROI\out1/train', None)
+    datasets_train = DataLoader(mydata, batch_size=5, shuffle=True)
 
-    mydata_train = data_xray_毛刺('D:\desktop\XRay毛刺检测\TO252样品图片\TO252编带好品\ROI\out1/val', None)
-    datasets_val = DataLoader(mydata_train, batch_size=5, shuffle=True)
+    #mydata_train = data_xray_毛刺('D:\desktop\XRay毛刺检测\TO252样品图片\TO252编带好品\ROI\out1/val', None)
+    datasets_val = DataLoader(mydata, batch_size=5, shuffle=True)
 
     # 训练轮数
     epoch_count = 500
