@@ -8,28 +8,29 @@
 import argparse
 import pathlib
 import torch
+import os
 from torch import nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard.writer import SummaryWriter
 from models.net_resnet18 import net_resnet18
-
-import sys
-sys.path.append("D:/work/program/Python/DeepLearning/test_learn_python")
-from object_detection.A单目标坐标回归测试1.data.MyData import data_ic
-from object_detection.A单目标坐标回归测试1.data.data_xray_毛刺 import data_xray_毛刺
+from data.MyData import data_ic
+from data.data_xray_毛刺 import data_xray_毛刺
+# import sys
+# sys.path.append('/home/liu/work/test_learn_python')
 
 
 def train(opt):
+    print(f"当前程序路径：{os.getcwd()}")
     # 定义设备
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # device = torch.device("cpu")
 
     # 读取数据
     mydata = data_ic('d:/work/files/deeplearn_datasets/test_datasets/单目标回归测试/train')
-    #mydata_train = data_xray_毛刺('D:\desktop\XRay毛刺检测\TO252样品图片\TO252编带好品\ROI\out1/train', None)
+    #mydata_train = data_xray_毛刺('/mnt/d/work/files/deeplearn_datasets/xray-maoci/train', None)
     datasets_train = DataLoader(mydata, batch_size=5, shuffle=True)
 
-    #mydata_train = data_xray_毛刺('D:\desktop\XRay毛刺检测\TO252样品图片\TO252编带好品\ROI\out1/val', None)
+    #mydata_train = data_xray_毛刺('/mnt/d/work/files/deeplearn_datasets/xray-maoci/val', None)
     datasets_val = DataLoader(mydata, batch_size=5, shuffle=True)
 
     # 训练轮数
@@ -42,17 +43,24 @@ def train(opt):
     optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
     writer = SummaryWriter(f"{opt.model_save_path}/logs")
 
+    # 加载预训练模型
+    total_loss = 1000
+    best_model_path = f'{opt.model_save_path}/weights/best.pth'
+    if os.path.exists(best_model_path):
+        checkpoint = torch.load(best_model_path)
+        net.load_state_dict(checkpoint['net'])
+        total_loss = checkpoint['loss']
+        optimizer.load_state_dict(checkpoint['optimizer'])
+        print(f"当前损失值：{total_loss}")
+
+
     start_epoch = 0
     print(f"训练集的数量:{len(datasets_train)}")
     print(f"验证集的数量:{len(datasets_val)}")
-
+    
     for epoch in range(start_epoch, epoch_count):
-        print(f"----第{epoch}轮训练开始----")
-
         # 训练
         net.train()
-        total_train_accuracy = 0
-        total_train_loss = 0
 
         for imgs, labels in datasets_train:
             imgs = imgs.to(device)
@@ -65,14 +73,9 @@ def train(opt):
             loss.backward()
             optimizer.step()
 
-            acc = loss
-            total_train_accuracy += acc
-            total_train_loss += loss
-
         # 验证
         net.eval()
-        total_val_loss = 0
-        total_val_accuracy = 0
+        val_loss = 0
         with torch.no_grad():
             for imgs, labels in datasets_val:
                 imgs = imgs.to(device)
@@ -81,44 +84,30 @@ def train(opt):
                 out = net(imgs)
 
                 loss = loss_fn(out, labels)
-                total_val_loss += loss
+                val_loss += loss
 
-                acc = loss
-                total_val_accuracy += acc
 
-        train_acc = 1 - total_train_accuracy / len(datasets_train)
-        train_loss = total_train_loss
-        val_acc = total_val_accuracy / len(datasets_val)
-        val_loss = total_val_loss
+        print(f"epoch:{epoch}, val_loss={val_loss}")
 
-        print(f"epoch:{epoch}, train_acc={train_acc}, train_loss={train_loss}, val_acc={val_acc}, val_loss={val_loss}")
-
-        writer.add_scalar("train_acc", train_acc, epoch)
-        writer.add_scalar("train_loss", train_loss, epoch)
-        writer.add_scalar("val_acc", val_acc, epoch)
-        writer.add_scalar("val_loss", val_loss, epoch)
-
-        # 保存训练模型
-        state_dict = {'net': net.state_dict(),
-                      # 'optimizer': optimizer.state_dict(),# 不保存优化器权重文件体积非常小，可以上传至github
-                      'epoch': epoch,
-                      'loss': val_loss}
-
-        pathlib.Path(f'{opt.model_save_path}/weights').mkdir(parents=True,
-                                                             exist_ok=True)  # https://zhuanlan.zhihu.com/p/317254621
-
-        best_model_path = f'{opt.model_save_path}/weights/best.pth'
-        f = f'{opt.model_save_path}/weights/epoch={epoch}-train_acc={str(train_acc.item())}.pth'
-        torch.save(state_dict, f)
-        print(f"第{epoch}轮模型参数已保存")
+        if val_loss < total_loss:
+            total_loss = val_loss
+            pathlib.Path(f'{opt.model_save_path}/weights').mkdir(parents=True, exist_ok=True)  # https://zhuanlan.zhihu.com/p/317254621
+            
+            # 保存训练模型
+            state_dict = {'net': net.state_dict(),
+                            'optimizer': optimizer.state_dict(),# 不保存优化器权重文件体积非常小，可以上传至github
+                            'epoch': epoch,
+                            'loss': val_loss}
+            torch.save(state_dict, best_model_path)
+            print(f"模型参数已保存至：{best_model_path}")
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', nargs='?', default='run/train/weights/best.pth', help='')
+    parser.add_argument('--model', nargs='?', default='object_detection/A单目标坐标回归测试1/run/train/weights/best.pth', help='')
     parser.add_argument('--resume', nargs='?', const=True, default=True, help='resume most recent training')
     parser.add_argument('--save_period', type=int, default=-1, help='Log model after every "save_period" epoch')
-    parser.add_argument('--model_save_path', default='run/train', help='save to project/name')
+    parser.add_argument('--model_save_path', default='./run/train', help='save to project/name')
 
     opt = parser.parse_args()
     train(opt)

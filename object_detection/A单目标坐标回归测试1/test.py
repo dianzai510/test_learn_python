@@ -15,8 +15,8 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from models.net_resnet18 import net_resnet18
-from object_detection.A单目标坐标回归测试1.data.MyData import data_ic
-from object_detection.A单目标坐标回归测试1.data.data_xray_毛刺 import data_xray_毛刺
+from data.MyData import data_ic
+from data.data_xray_毛刺 import data_xray_毛刺
 
 
 def test(opt):
@@ -24,11 +24,12 @@ def test(opt):
     # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     device = torch.device("cpu")
     loss_fn = nn.MSELoss()
-    mydata = data_xray_毛刺('D:\desktop\XRay毛刺检测\TO252样品图片\TO252编带好品\ROI\out1/val', None)
+    #mydata = data_xray_毛刺('D:\desktop\XRay毛刺检测\TO252样品图片\TO252编带好品\ROI\out1/val', None)
+    mydata = data_ic('d:/work/files/deeplearn_datasets/test_datasets/单目标回归测试/train')
     datasets_val = DataLoader(mydata, batch_size=1, shuffle=True)
 
     net = net_resnet18()
-    path = './run/train\weights\epoch=493-train_acc=0.9998369812965393.pth'
+    path = './run/train/weights/best.pth'
     checkpoint = torch.load(path)
     net.load_state_dict(checkpoint['net'])
     net.to(device)
