@@ -2,9 +2,11 @@ import cv2
 import torch
 from torch import nn, optim
 from torch.utils.data import DataLoader
+from data import data1
+from mvtecCAE import mvtecCAE
+import sys
+sys.path.append("D:/work/program/Python/DeepLearning/test_learn_python")
 import myutils.myutils
-from anomalydetect.data import data1
-from anomalydetect.mvtecCAE import mvtecCAE
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
