@@ -9,10 +9,10 @@ import torchvision.transforms
 from torch import nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-from image_classification.cnn_imgcls.data import data_xray_sot23, data_xray_sc88, data_xray_sc70, data_xray_sc89, \
+from 1_image_classification.cnn_imgcls.data import data_xray_sot23, data_xray_sc88, data_xray_sc70, data_xray_sc89, \
     data_xray_sod123, data_xray_sod323, data_xray_sot23_juanpan, data_xray_sod523, data_xray_sod723, data_xray_sot25, \
     data_xray_sot26, data_xray_sot23e, data_oqa_chr, data_oqa_agl, data_cleaner, data_xray_allone, data_xray_maoci
-from image_classification.cnn_imgcls.models.net_xray import net_xray
+from 1_image_classification.cnn_imgcls.models.net_xray import net_xray
 from myutils import myutils
 
 
