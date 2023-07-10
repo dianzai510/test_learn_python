@@ -15,7 +15,7 @@ from data import data_xray_sot23, data_xray_sc88, data_xray_sc70, data_xray_sc89
 from models.net_xray import net_xray
 import sys
 sys.path.append("D:/work/program/Python/DeepLearning/test_learn_python")
-from myutils.myutils
+import myutils.myutils
 
 
 def train(opt):
