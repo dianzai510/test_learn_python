@@ -8,9 +8,9 @@ import torch
 import torchvision.transforms
 from torch import nn
 from torch.utils.data import DataLoader
-from image_segmentation.test_unet2.data import data_seg, trans_train_mask, trans_train_image
-from image_segmentation.test_unet2.dice_losee import dice_loss
-from image_segmentation.test_unet2.model import UNet
+from data import data_seg, trans_train_mask, trans_train_image
+from dice_losee import dice_loss
+from model import UNet
 
 
 def train(opt):

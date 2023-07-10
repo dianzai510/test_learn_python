@@ -7,8 +7,7 @@ import torchvision
 from PIL import Image
 import cv2
 from torchvision.transforms import InterpolationMode
-
-from image_segmentation.test_unet2.global_val import seed
+from global_val import seed
 
 input_size = (512, 512)
 
