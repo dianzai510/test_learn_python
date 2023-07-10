@@ -15,7 +15,6 @@ from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
 import torch.nn.functional as f
 from torchvision.transforms import InterpolationMode
-
 import myutils.myutils
 
 input_size = (200, 200)
@@ -64,9 +63,9 @@ class SquarePad2:
 class SquarePad:
     def __call__(self, image):
         max_wh = 200  # max(w, h)
-        img = utils.utils.pil2mat(image)
+        img = myutils.myutils.pil2mat(image)
         resize_img = cv2.resize(img, (200, 200))
-        image = utils.utils.mat2pil(resize_img)
+        image = myutils.myutils.mat2pil(resize_img)
         return image
 
 
