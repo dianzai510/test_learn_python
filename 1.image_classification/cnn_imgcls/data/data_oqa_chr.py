@@ -15,6 +15,9 @@ from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
 import torch.nn.functional as f
 from torchvision.transforms import InterpolationMode
+
+import sys
+sys.path.append("D:/work/program/Python/DeepLearning/test_learn_python")
 import myutils.myutils
 
 input_size = (200, 200)
