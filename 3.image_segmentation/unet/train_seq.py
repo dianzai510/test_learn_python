@@ -1,16 +1,16 @@
+import os
 import argparse
 import pathlib
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-
-from image_segmentation.unet.Loss_Fn import Loss_Fn
-from image_segmentation.unet.data import data_segment
-from image_segmentation.unet.models.unet import UNet
-
+from models.unet import UNet
+from Loss_Fn import Loss_Fn
+import data.data_segment
 
 def train(opt):
+    
     # 定义设备
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # 训练轮数

@@ -39,3 +39,10 @@
 1.image_classification/cnn_imgcls/data/__pycache__/data_oqa_chr.cpython-39.pyc
 .idea/misc.xml
 .idea/misc.xml
+3.image_segmentation/unet/__pycache__/Loss_Fn.cpython-39.pyc
+3.image_segmentation/unet/models/__pycache__/unet.cpython-39.pyc
+3.image_segmentation/unet/data/__pycache__/data_segment.cpython-39.pyc
+3.image_segmentation/test_unet2/__pycache__/data.cpython-39.pyc
+3.image_segmentation/test_unet2/__pycache__/dice_losee.cpython-39.pyc
+3.image_segmentation/test_unet2/__pycache__/global_val.cpython-39.pyc
+3.image_segmentation/test_unet2/__pycache__/model.cpython-39.pyc

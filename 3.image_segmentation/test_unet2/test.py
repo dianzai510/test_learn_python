@@ -3,8 +3,8 @@ from datetime import datetime
 import torch
 import torchvision
 from torch.utils.data import DataLoader
-from image_segmentation.test_unet2.data import data_seg, transform_val
-from image_segmentation.test_unet2.model import UNet
+from data import data_seg, transform_val
+from model import UNet
 
 
 def detect(opt):

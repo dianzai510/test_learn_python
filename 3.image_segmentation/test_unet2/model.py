@@ -95,6 +95,8 @@ class UNet(nn.Module):
         out_2, out2 = self.d2(out1)
         out_3, out3 = self.d3(out2)
         out_4, out4 = self.d4(out3)
+        print(out_4)
+        print(out4)
         out5 = self.u1(out4, out_4)
         out6 = self.u2(out5, out_3)
         out7 = self.u3(out6, out_2)

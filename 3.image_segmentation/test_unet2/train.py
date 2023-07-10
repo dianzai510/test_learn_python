@@ -11,9 +11,10 @@ from torch.utils.data import DataLoader
 from data import data_seg, trans_train_mask, trans_train_image
 from dice_losee import dice_loss
 from model import UNet
-
+import math
 
 def train(opt):
+    curpath = os.getcwd()
     os.makedirs(opt.out_path, exist_ok=True)
     os.makedirs(f"{opt.out_path}/images", exist_ok=True)
 
@@ -37,7 +38,9 @@ def train(opt):
     # 学习率更新策略
     # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.98)
     # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20)
-    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=0.1)
+
+    lf = lambda x: ((1 + math.cos(x * math.pi / opt.epoch)) / 2) * (1 - 0.2) + 0.2
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
     # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
 
     # 加载预训练模型
