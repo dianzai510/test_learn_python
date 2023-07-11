@@ -1,7 +1,7 @@
 import torch
 from torch.nn import Linear, Module
 from torchvision.models.resnet import resnet18, resnet101
-from image_classification.cnn_imgcls.data import data_xray_sot23
+from data import data_xray_sot23
 from myutils import exportsd
 
 
