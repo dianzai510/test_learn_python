@@ -1,3 +1,8 @@
+'''
+前向传播计算数据经过网络的输出
+后向传播计算梯度值
+'''
+
 from torch import nn
 from torch.nn import Module
 
@@ -14,3 +19,4 @@ class Net(Module):
         x = self.pool1(x)
         x = self.relu1(x)
         return x
+
