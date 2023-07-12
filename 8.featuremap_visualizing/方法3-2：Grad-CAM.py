@@ -51,7 +51,8 @@ if __name__ == '__main__':
     
 
     orign_img = Image.open('image/dog2.jpg').convert('RGB')
-    orign_img.show()
+    orign_img = orign_img.resize((800,800))
+
     img = preprocess(orign_img)
 
     img2 = preprocess1(orign_img)
