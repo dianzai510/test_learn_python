@@ -68,8 +68,9 @@ if __name__ == '__main__':
     heatmap = cv2.applyColorMap(aa,cv2.COLORMAP_JET)
     
     src = pil2mat(orign_img)
-    #dis = src*0.5+heatmap*0.5
-    dis = cv2.addWeighted(src,0.5,heatmap,0.5,gamma=0) #orign_img*0.5+heatmap*0.5
+    dis = src*0.5+heatmap*0.5
+    dis = cv2.convertScaleAbs(dis)
+    #dis = cv2.addWeighted(src,0.5,heatmap,0.5,gamma=0) #orign_img*0.5+heatmap*0.5
 
     cv2.imshow('dis', dis)
     cv2.waitKey()
