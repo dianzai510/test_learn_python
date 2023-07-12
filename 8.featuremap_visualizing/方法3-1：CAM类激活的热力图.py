@@ -37,16 +37,18 @@ if __name__ == '__main__':
     
     net.layer4.register_forward_hook(hook=forward_hook)
 
-    orign_img = Image.open('D:/work/files/deeplearn_datasets/coco128/images/train2017/000000000081.jpg').convert('RGB')
+    orign_img = Image.open('D:/desktop/dog.png').convert('RGB')
     img = preprocess(orign_img)
     img = torch.unsqueeze(img, 0)
     with torch.no_grad():
         out = net(img)
 
+    out = F.softmax(out, dim=1)
     cls = torch.argmax(out).item()
+    value = torch.max(out).item()
     weights = net.fc.weight.data[cls,:]
     #print(weights)
-    
+
 
     w = weights.view(*weights.shape, 1, 1)
     fea = feature_map[0].squeeze(0)
