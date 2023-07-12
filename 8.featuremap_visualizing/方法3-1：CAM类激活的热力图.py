@@ -30,10 +30,10 @@ if __name__ == '__main__':
     net = torchvision.models.resnet18(pretrained=True)
     net.eval()
 
-    preprocess = transforms.Compose([transforms.Resize(256),
-                                transforms.CenterCrop(224),
-                                transforms.ToTensor(),
-                                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+    preprocess = transforms.Compose([   transforms.Resize(256),
+                                        transforms.CenterCrop(224),
+                                        transforms.ToTensor(),
+                                        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
     
     preprocess1 = transforms.Compose([transforms.Resize(256),
                                 transforms.CenterCrop(224),
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     
     net.layer4.register_forward_hook(hook=forward_hook)
     
-    orign_img = Image.open('dog.png').convert('RGB')
+    orign_img = Image.open('dog1.jpg').convert('RGB')
     img = preprocess(orign_img)
 
     img2 = preprocess1(orign_img)
