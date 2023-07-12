@@ -17,7 +17,7 @@ import torch.nn.functional as f
 from torchvision.transforms import InterpolationMode
 
 import sys
-sys.path.append("D:/work/program/Python/DeepLearning/test_learn_python")
+sys.path.append("../../../")
 import myutils.myutils
 
 input_size = (200, 200)
