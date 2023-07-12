@@ -50,7 +50,7 @@ if __name__ == '__main__':
     net.layer4.register_full_backward_hook(backward_hook)
     
 
-    orign_img = Image.open('dog1.jpg').convert('RGB')
+    orign_img = Image.open('image/dog1.jpg').convert('RGB')
     img = preprocess(orign_img)
 
     img2 = preprocess1(orign_img)
