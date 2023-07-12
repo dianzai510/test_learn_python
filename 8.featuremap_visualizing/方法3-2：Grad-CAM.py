@@ -67,6 +67,7 @@ if __name__ == '__main__':
     score.backward(retain_graph=True)
     weights = grad[0][0].squeeze(0).mean(dim=(1,2))
     w = weights.view(*weights.shape, 1, 1)
+    #w = torch.ones((512,1,1),dtype=float)
 
     #4、权重乘特征图
     fea = feature_map[0].squeeze(0)
