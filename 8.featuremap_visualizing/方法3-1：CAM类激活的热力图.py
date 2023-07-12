@@ -29,10 +29,15 @@ import torchvision.transforms as transforms
 if __name__ == '__main__':
     net = torchvision.models.resnet18(pretrained=True)
     net.eval()
+
     preprocess = transforms.Compose([transforms.Resize(256),
                                 transforms.CenterCrop(224),
                                 transforms.ToTensor(),
                                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
+    
+    preprocess1 = transforms.Compose([transforms.Resize(256),
+                                transforms.CenterCrop(224),
+                                transforms.ToTensor()])
     
     feature_map = []
     def forward_hook(module, fea_in, fea_out):
@@ -42,6 +47,11 @@ if __name__ == '__main__':
     
     orign_img = Image.open('dog.png').convert('RGB')
     img = preprocess(orign_img)
+
+    img2 = preprocess1(orign_img)
+    orign_img = tensor2mat(img2)
+    cv2.imshow('dis', orign_img)
+    cv2.waitKey()
     img = torch.unsqueeze(img, 0)
     with torch.no_grad():
         out = net(img)
@@ -66,7 +76,7 @@ if __name__ == '__main__':
     
     dd = ss.numpy()
     #print(orign_img.size)
-    aa = cv2.resize(dd, orign_img.size)
+    aa = cv2.resize(dd, (orign_img.shape[0],orign_img.shape[1]))
     aa = np.uint8(aa*255)
     heatmap = cv2.applyColorMap(aa,cv2.COLORMAP_JET)
     
