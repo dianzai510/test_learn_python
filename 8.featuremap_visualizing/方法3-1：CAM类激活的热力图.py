@@ -28,6 +28,7 @@ import torchvision.transforms as transforms
     
 if __name__ == '__main__':
     net = torchvision.models.resnet18(pretrained=True)
+    net.eval()
     preprocess = transforms.Compose([transforms.Resize(256),
                                 transforms.CenterCrop(224),
                                 transforms.ToTensor(),
