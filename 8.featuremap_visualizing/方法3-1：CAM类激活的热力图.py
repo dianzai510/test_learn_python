@@ -21,11 +21,11 @@ import cv2
 import sys
 import torch.nn.functional as F
 import os
-# cur = os.getcwd()
-sys.path.append("D:/work/program/Python/DeepLearning/test_learn_python")
+
+sys.path.append("../")
 from myutils.myutils import *
 import torchvision.transforms as transforms
-    
+
 if __name__ == '__main__':
     net = torchvision.models.resnet18(pretrained=True)
     net.eval()
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     img2 = preprocess1(orign_img)
     orign_img = tensor2mat(img2)
 
-    img = torch.unsqueeze(img, 0)
+    img = torch.unsqueeze(img, 0)#插入维度
     with torch.no_grad():
         out = net(img)
 

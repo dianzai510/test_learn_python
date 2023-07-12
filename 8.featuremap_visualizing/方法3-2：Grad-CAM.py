@@ -21,8 +21,8 @@ import cv2
 import sys
 import torch.nn.functional as F
 import os
-# cur = os.getcwd()
-sys.path.append("D:/work/program/Python/DeepLearning/test_learn_python")
+
+sys.path.append("../")
 from myutils.myutils import *
 import torchvision.transforms as transforms
     
@@ -42,12 +42,12 @@ if __name__ == '__main__':
     feature_map = []
     def forward_hook(module, fea_in, fea_out):
             feature_map.append(fea_out)
-    net.layer3.register_forward_hook(hook=forward_hook)
+    net.layer4.register_forward_hook(hook=forward_hook)
 
     grad=[]
     def backward_hook(module, fea_in, fea_out):
          grad.append(fea_out)
-    net.layer3.register_full_backward_hook(backward_hook)
+    net.layer4.register_full_backward_hook(backward_hook)
     
 
     orign_img = Image.open('dog1.jpg').convert('RGB')
@@ -93,8 +93,8 @@ if __name__ == '__main__':
     dis = src*0.5+heatmap*0.5
     dis = cv2.convertScaleAbs(dis)
     #dis = cv2.addWeighted(src,0.5,heatmap,0.5,gamma=0) #orign_img*0.5+heatmap*0.5
-    cv2.imshow('di1', heatmap)
-    cv2.waitKey()
+    # cv2.imshow('di1', heatmap)
+    # cv2.waitKey()
     print(cls)
     cv2.imshow('dis', dis)
     cv2.waitKey()
