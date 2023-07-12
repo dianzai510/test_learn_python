@@ -1,5 +1,6 @@
 from torch import nn
 from torch.nn import Module
+
 class Net(Module):
     def __init__(self) -> None:
         super(Net, self).__init__() #调用父类的构造函数
