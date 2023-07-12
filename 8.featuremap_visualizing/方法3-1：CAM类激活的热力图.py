@@ -37,7 +37,7 @@ if __name__ == '__main__':
     
     net.layer4.register_forward_hook(hook=forward_hook)
 
-    orign_img = Image.open('D:/desktop/dog.png').convert('RGB')
+    orign_img = Image.open('dog.png').convert('RGB')
     img = preprocess(orign_img)
     img = torch.unsqueeze(img, 0)
     with torch.no_grad():
