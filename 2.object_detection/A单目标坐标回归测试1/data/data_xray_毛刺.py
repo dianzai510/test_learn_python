@@ -9,7 +9,7 @@ import torchvision
 from torch.utils.data import Dataset
 
 import sys
-sys.path.append("D:/work/program/Python/DeepLearning/test_learn_python")
+sys.path.append("../../")
 import myutils.myutils
 from myutils.myutils import yolostr2data
 
