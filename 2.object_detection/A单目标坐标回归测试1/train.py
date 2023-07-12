@@ -15,8 +15,6 @@ from torch.utils.tensorboard.writer import SummaryWriter
 from models.net_resnet18 import net_resnet18
 from data.MyData import data_ic
 from data.data_xray_毛刺 import data_xray_毛刺
-# import sys
-# sys.path.append('/home/liu/work/test_learn_python')
 
 
 def train(opt):
