@@ -1,3 +1,3 @@
 {
-    "python.terminal.executeInFileDir": false
+    "python.terminal.executeInFileDir": true
 }

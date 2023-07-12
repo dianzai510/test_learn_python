@@ -21,7 +21,7 @@ import cv2
 import sys
 import torch.nn.functional as F
 import os
-cur = os.getcwd()
+# cur = os.getcwd()
 sys.path.append("D:/work/program/Python/DeepLearning/test_learn_python")
 from myutils.myutils import *
 import torchvision.transforms as transforms
@@ -38,7 +38,7 @@ if __name__ == '__main__':
             feature_map.append(fea_out)
     
     net.layer4.register_forward_hook(hook=forward_hook)
-
+    
     orign_img = Image.open('dog.png').convert('RGB')
     img = preprocess(orign_img)
     img = torch.unsqueeze(img, 0)
@@ -56,15 +56,15 @@ if __name__ == '__main__':
     fea = feature_map[0].squeeze(0)
     ss = w*fea #type:torch.Tensor
     ss = ss.sum(0)
-    print(ss)
+    #print(ss)
     ss = F.relu(ss, inplace=True)#inplace表示覆盖原来的内存
-    print(ss)
+    #print(ss)
 
     ss = ss/ss.max()
-    print(ss)
+    #print(ss)
     
     dd = ss.numpy()
-    print(orign_img.size)
+    #print(orign_img.size)
     aa = cv2.resize(dd, orign_img.size)
     aa = np.uint8(aa*255)
     heatmap = cv2.applyColorMap(aa,cv2.COLORMAP_JET)
@@ -74,6 +74,7 @@ if __name__ == '__main__':
     dis = cv2.convertScaleAbs(dis)
     #dis = cv2.addWeighted(src,0.5,heatmap,0.5,gamma=0) #orign_img*0.5+heatmap*0.5
 
+    print(cls)
     cv2.imshow('dis', dis)
     cv2.waitKey()
     pass
