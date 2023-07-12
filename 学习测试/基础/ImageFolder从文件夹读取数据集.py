@@ -1,11 +1,10 @@
-#coding=gb2312
 import torch.utils.data
 from torchvision.datasets import ImageFolder
 
 import torchvision
 from torch.utils.data import dataloader
 
-dataset = torchvision.datasets.ImageFolder('D:\\×ÀÃæ\\ÓĞÎŞÊ¶±ğÊı¾İ¼¯2022.6.20', transform=torchvision.transforms.ToTensor())
+dataset = torchvision.datasets.ImageFolder('D:\\æ¡Œé¢\\æœ‰æ— è¯†åˆ«æ•°æ®é›†2022.6.20', transform=torchvision.transforms.ToTensor())
 a = torch.utils.data.Subset(dataset, range(int(0.8 * len(dataset))))
 b = torch.utils.data.Subset(dataset, range(int(0.2 * len(dataset))))
 print(len(a))
