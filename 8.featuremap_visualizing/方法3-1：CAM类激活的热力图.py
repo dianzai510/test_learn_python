@@ -20,6 +20,8 @@ from torch import nn
 import cv2
 import sys
 import torch.nn.functional as F
+import os
+cur = os.getcwd()
 sys.path.append("D:/work/program/Python/DeepLearning/test_learn_python")
 from myutils.myutils import *
 import torchvision.transforms as transforms
