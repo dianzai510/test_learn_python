@@ -25,8 +25,6 @@ from myutils.myutils import *
 import torchvision.transforms as transforms
     
 if __name__ == '__main__':
-    
-
     net = torchvision.models.resnet18(pretrained=True)
     preprocess = transforms.Compose([transforms.Resize(256),
                                 transforms.CenterCrop(224),
@@ -39,7 +37,7 @@ if __name__ == '__main__':
     
     net.layer4.register_forward_hook(hook=forward_hook)
 
-    orign_img = Image.open('D:/work/files/deeplearn_datasets/coco128/images/train2017/000000000625.jpg').convert('RGB')
+    orign_img = Image.open('D:/work/files/deeplearn_datasets/coco128/images/train2017/000000000081.jpg').convert('RGB')
     img = preprocess(orign_img)
     img = torch.unsqueeze(img, 0)
     with torch.no_grad():
