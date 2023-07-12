@@ -35,16 +35,19 @@ if __name__ == '__main__':
                                         transforms.ToTensor(),
                                         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
     
-    preprocess1 = transforms.Compose([transforms.Resize(256),
-                                transforms.CenterCrop(224),
-                                transforms.ToTensor()])
+    preprocess1 = transforms.Compose([  transforms.Resize(256),
+                                        transforms.CenterCrop(224),
+                                        transforms.ToTensor()])
+    
     
     feature_map = []
     def forward_hook(module, fea_in, fea_out):
             feature_map.append(fea_out)
     
+    #0、提取指定层的特征
     net.layer4.register_forward_hook(hook=forward_hook)
     
+    #1、读取图像并预处理
     orign_img = Image.open('image/dog2.jpg').convert('RGB')
     img = preprocess(orign_img)
 
@@ -52,32 +55,35 @@ if __name__ == '__main__':
     orign_img = tensor2mat(img2)
 
     img = torch.unsqueeze(img, 0)#插入维度
+
+    #2、前向传播
     with torch.no_grad():
         out = net(img)
 
-    out = F.softmax(out, dim=1)
+    #3、获取分类类别
     cls = torch.argmax(out).item()
-    value = torch.max(out).item()
+    score = torch.max(F.softmax(out, dim=1)).item()
+
+    #4、提取全连接层的在此类别上的权重(行向量)
     weights = net.fc.weight.data[cls,:]
-    #print(weights)
-
-
+    tt=type(weights.shape)
+    print(weights.shape)
+    print(*weights.shape)
     w = weights.view(*weights.shape, 1, 1)
+
+    #5、将权重与特征相乘
     fea = feature_map[0].squeeze(0)
     ss = w*fea #type:torch.Tensor
     ss = ss.sum(0)
-    #print(ss)
-    ss = F.relu(ss, inplace=True)#inplace表示覆盖原来的内存
-    #print(ss)
-
-    ss = ss/ss.max()
-    #print(ss)
     
-    dd = ss.numpy()
-    #print(orign_img.size)
-    aa = cv2.resize(dd, orign_img.shape[0:2])
+    #6、将小于0的值置0，并缩放至0-1
+    ss = F.relu(ss, inplace=True)#inplace表示覆盖原来的内存
+    ss = ss/ss.max()
+
+    #7、将特征图缩放至图像大小
+    aa = cv2.resize(ss.numpy(), orign_img.shape[0:2])
     aa = np.uint8(aa*255)
-    heatmap = cv2.applyColorMap(aa,cv2.COLORMAP_JET)
+    heatmap = cv2.applyColorMap(aa, cv2.COLORMAP_JET)
     
     src = pil2mat(orign_img)
     dis = src*0.5+heatmap*0.5
