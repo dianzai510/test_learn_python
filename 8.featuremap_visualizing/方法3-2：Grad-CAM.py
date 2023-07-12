@@ -39,11 +39,13 @@ if __name__ == '__main__':
                                         transforms.CenterCrop(224),
                                         transforms.ToTensor()])
     
+    #1、设置前向传播回调函数，用于提取前向特征
     feature_map = []
     def forward_hook(module, fea_in, fea_out):
             feature_map.append(fea_out)
     net.layer4.register_forward_hook(hook=forward_hook)
 
+    #2、设置反向传播回调函数，用于提取梯度
     grad=[]
     def backward_hook(module, fea_in, fea_out):
          grad.append(fea_out)
