@@ -50,8 +50,7 @@ if __name__ == '__main__':
 
     img2 = preprocess1(orign_img)
     orign_img = tensor2mat(img2)
-    cv2.imshow('dis', orign_img)
-    cv2.waitKey()
+
     img = torch.unsqueeze(img, 0)
     with torch.no_grad():
         out = net(img)
@@ -76,7 +75,7 @@ if __name__ == '__main__':
     
     dd = ss.numpy()
     #print(orign_img.size)
-    aa = cv2.resize(dd, (orign_img.shape[0],orign_img.shape[1]))
+    aa = cv2.resize(dd, orign_img.shape[0:2])
     aa = np.uint8(aa*255)
     heatmap = cv2.applyColorMap(aa,cv2.COLORMAP_JET)
     
