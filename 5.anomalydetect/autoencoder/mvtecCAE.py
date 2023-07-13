@@ -29,6 +29,7 @@ class mvtecCAE(Module):
             torch.nn.Conv2d(32, 1, (7, 7), stride=1, padding=3, bias=False),
             nn.ReLU(),
         )
+        
         self.Decode = nn.Sequential(
             Conv2d(1, 32, (3, 3), stride=1, padding=1, bias=False),
             nn.ReLU(),
