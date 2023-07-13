@@ -61,17 +61,13 @@ class mvtecCAE(Module):
         )
 
     def forward(self, x):
-        #y = self.conv1(x)
 
         for m in self.encoded:
             x = m(x)
-            #print(x.shape)
-
-        #print('\n')
 
         for i, m in enumerate(self.Decode):
             x = m(x)
-            #print(f'{i} {m._get_name()} {x.shape}')
+
         return x
 
 
