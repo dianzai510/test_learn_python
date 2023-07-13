@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 n_samples, n_outliers = 120, 40
 rng = np.random.RandomState(0)
 
-covariance = np.array([[0.5, -0.1], [0.7, 0.4]])
+covariance = np.array([[0.5, -0.1], [0.7, 0.4]])#协方差
 cluster_1 = 0.4 * rng.randn(n_samples, 2) @ covariance + np.array([2, 2])  # general
 cluster_2 = 0.3 * rng.randn(n_samples, 2) + np.array([-2, -2])  # spherical 球型
 outliers = rng.uniform(low=-4, high=4, size=(n_outliers, 2))#外点
