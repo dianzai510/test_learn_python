@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.ensemble import IsolationForest
+
 rng=np.random.RandomState(42)
 # 生成训练数据
 X=0.3*rng.randn(100,2) # 100条二维数据
@@ -11,7 +12,7 @@ X_test = np.r_[X + 2, X - 2]
 # 基于分布生成一些观测正常的数据
 X_outliers=rng.uniform(low=-4,high=4,size=(20,2))
 # 训练隔离森林模型
-clf=IsolationForest(behaviour='new',max_samples=100,random_state=rng,contamination='auto')
+clf=IsolationForest(max_samples=100,random_state=rng,contamination='auto')
 clf.fit(X_train)
 y_pred_train=clf.predict(X_train)
 y_pred_test=clf.predict(X_test)
@@ -38,3 +39,4 @@ plt.legend([b1, b2, c],
             "new regular observations", "new abnormal observations"],
            loc="upper left")
 plt.show()
+pass
