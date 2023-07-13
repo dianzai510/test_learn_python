@@ -29,6 +29,7 @@ class mvtecCAE(Module):
             torch.nn.Conv2d(32, 1, (7, 7), stride=1, padding=3, bias=False),
             nn.ReLU(),
         )
+        
         self.Decode = nn.Sequential(
             Conv2d(1, 32, (3, 3), stride=1, padding=1, bias=False),
             nn.ReLU(),
@@ -61,17 +62,13 @@ class mvtecCAE(Module):
         )
 
     def forward(self, x):
-        #y = self.conv1(x)
 
         for m in self.encoded:
             x = m(x)
-            #print(x.shape)
-
-        #print('\n')
 
         for i, m in enumerate(self.Decode):
             x = m(x)
-            #print(f'{i} {m._get_name()} {x.shape}')
+
         return x
 
 
