@@ -35,10 +35,11 @@ if __name__ == '__main__':
                                         transforms.ToTensor(),
                                         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
     
-    preprocess1 = transforms.Compose([transforms.Resize(256),
-                                transforms.CenterCrop(224),
-                                transforms.ToTensor()])
+    preprocess1 = transforms.Compose([  transforms.Resize(256),
+                                        transforms.CenterCrop(224),
+                                        transforms.ToTensor()])
     
+    #1、设置前向传播和反向传播的回调函数，用于提取前向特征和梯度信息
     feature_map = []
     def forward_hook(module, fea_in, fea_out):
             feature_map.append(fea_out)
@@ -49,53 +50,45 @@ if __name__ == '__main__':
          grad.append(fea_out)
     net.layer4.register_full_backward_hook(backward_hook)
     
+    #2、打开图像
+    orign_img = Image.open('image/dog2.jpg').convert('RGB')
+    orign_img = orign_img.resize((800,800))
 
-    orign_img = Image.open('image/dog1.jpg').convert('RGB')
     img = preprocess(orign_img)
-
     img2 = preprocess1(orign_img)
     orign_img = tensor2mat(img2)
-
     img = torch.unsqueeze(img, 0)
-    
 
+    #3、前向传播，获取最大分数，并反向传播提取梯度信息
     out = net(img)#前向传播
-    #out = F.softmax(out, dim=1)
     cls = torch.argmax(out).item()
     score = out[:,cls].sum()
     net.zero_grad()
     score.backward(retain_graph=True)
-    #weights = net.fc.weight.data[cls,:]
-    #print(weights)
-
     weights = grad[0][0].squeeze(0).mean(dim=(1,2))
-    print(type(weights))
-    print(weights.shape)
-
     w = weights.view(*weights.shape, 1, 1)
+    #w = torch.ones((512,1,1),dtype=float)
+
+    #4、权重乘特征图
     fea = feature_map[0].squeeze(0)
     ss = w*fea #type:torch.Tensor
-    ss = ss.sum(0)
-    #print(ss)
-    ss = F.relu(ss, inplace=True)#inplace表示覆盖原来的内存
-    #print(ss)
-
-    ss = ss/ss.max()
-    #print(ss)
+    ss = ss.sum(0)#在通道方向上进行求和（将通道维度压缩为1为，长宽尺寸不变，即保留了空间信息）
     
+    #5、relu和归一化
+    ss = F.relu(ss, inplace=True)#inplace表示覆盖原来的内存
+    ss = ss/ss.max()   
     dd = ss.detach().numpy()
-    #print(orign_img.size)
+    
+    #6、resize为图像尺寸，并转换为热力图
     aa = cv2.resize(dd, orign_img.shape[0:2])
     aa = np.uint8(aa*255)
     heatmap = cv2.applyColorMap(aa,cv2.COLORMAP_JET)
     
+    #7、将热力图与原图进行融合
     src = pil2mat(orign_img)
     dis = src*0.5+heatmap*0.5
-    dis = cv2.convertScaleAbs(dis)
-    #dis = cv2.addWeighted(src,0.5,heatmap,0.5,gamma=0) #orign_img*0.5+heatmap*0.5
-    # cv2.imshow('di1', heatmap)
-    # cv2.waitKey()
+    dis = cv2.convertScaleAbs(dis)#转换为uint8各类
+    
     print(cls)
     cv2.imshow('dis', dis)
     cv2.waitKey()
-    pass
