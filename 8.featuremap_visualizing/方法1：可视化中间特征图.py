@@ -29,7 +29,7 @@ if __name__ == '__main__':
         fea.append(fea_out)
 
     net = torchvision.models.resnet50(pretrained=True)
-    net.layer2.register_forward_hook(hook=hookfn)
+    net.conv1.register_forward_hook(hook=hookfn)
 
     src = Image.open('image/dog2.jpeg').convert('RGB')
     x = preprocess(src)
