@@ -2,10 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.ensemble import IsolationForest
 
-rng=np.random.RandomState(42)
+rng = np.random.RandomState(42)
 # 生成训练数据
-X=0.3*rng.randn(100,2) # 100条二维数据
-X_train=np.r_[X+2,X-2] # 200条数据（X+2,X-2）拼接而成
+X = 0.3*rng.randn(100,2) # 100条二维数据
+X_train = np.r_[X+2,X-2] # 200条数据（X+2,X-2）拼接而成
 
 X = 0.3 * rng.randn(20, 2)
 X_test = np.r_[X + 2, X - 2]
