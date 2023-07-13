@@ -41,6 +41,7 @@ if __name__ == '__main__':
         ch = ch.unsqueeze(0)
         img = tensor2mat(ch)
         img = cv2.resize(img, None, fx=1, fy=1, interpolation=cv2.INTER_NEAREST)
+        img = cv2.applyColorMap(img,cv2.COLORMAP_JET)
         cv2.imshow(f'dis{i}', img)
         rowcnt = 1920//120
         x = i%rowcnt
