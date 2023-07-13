@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.ensemble import IsolationForest
+
 rng=np.random.RandomState(42)
 # 生成训练数据
 X=0.3*rng.randn(100,2) # 100条二维数据
