@@ -50,7 +50,7 @@ if __name__ == '__main__':
         x = i%rowcnt
         y = i//rowcnt
         
-        if y*imgH > winH-imgH:
+        if y*imgH >= winH-imgH:
             break
 
         cv2.moveWindow(f'dis{i}',x*imgW,y*imgH)
