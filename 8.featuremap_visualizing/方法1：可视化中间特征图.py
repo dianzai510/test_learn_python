@@ -29,7 +29,7 @@ if __name__ == '__main__':
         fea.append(fea_out)
 
     net = torchvision.models.resnet50(pretrained=True)
-    net.conv1.register_forward_hook(hook=hookfn)
+    net.layer2.register_forward_hook(hook=hookfn)
 
     src = Image.open('image/dog2.jpeg').convert('RGB')
     x = preprocess(src)
@@ -38,10 +38,13 @@ if __name__ == '__main__':
 
     f = fea[0].squeeze(0)
     for i,ch in enumerate(f):
+        mi = torch.min(ch)
+        ma = torch.max(ch)
+        ch = (ch-mi)/(ma-mi)#归一化至0-1
         ch = ch.unsqueeze(0)
         img = tensor2mat(ch)
         img = cv2.resize(img, None, fx=1, fy=1, interpolation=cv2.INTER_NEAREST)
-        img = cv2.applyColorMap(img,cv2.COLORMAP_JET)
+        img = cv2.applyColorMap(img,cv2.COLORMAP_JET)#转为热力图
         cv2.imshow(f'dis{i}', img)
 
         winH,winW = 1080,1920
