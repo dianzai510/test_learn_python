@@ -52,3 +52,7 @@ myutils/__init__.py
 .idea/misc.xml
 .idea/test_learn_python.iml
 2.object_detection/A单目标坐标回归测试1/run/train/logs/events.out.tfevents.1689132679.LL.11380.0
+2.object_detection/ctpn文本检测/checkpoints/best.dict
+2.object_detection/ctpn文本检测/checkpoints/best1.dict
+2.object_detection/ctpn文本检测/checkpoints/ctpn_keras_weights.pth.tar
+2.object_detection/ctpn文本检测/checkpoints/note
