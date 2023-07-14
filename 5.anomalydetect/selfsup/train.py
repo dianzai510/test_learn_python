@@ -1,15 +1,17 @@
 import cv2
 import torch
+import data
+from torchvision.transforms import transforms
 from torch import nn, optim
 from torch.utils.data import DataLoader
 from data import data1
 from mvtecCAE import mvtecCAE
+from data import ChouJianJi
 import sys
-sys.path.append("D:/work/program/Python/DeepLearning/test_learn_python")
+sys.path.append("../../")
 import myutils.myutils
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 
 def train():
     net = mvtecCAE()
@@ -23,10 +25,10 @@ def train():
     #loss_fn=nn.L1Loss()
     optimizer = torch.optim.SGD(net.parameters(), lr=0.001)
 
-    mydata_train = data1('D:/work/files/deeplearn_datasets/anomalydetection/bottle/train/good')
+    mydata_train = ChouJianJi('D:/work/files/deeplearn_datasets/anomalydetection/bottle/train/good', data.train_transform)
     datasets_train = DataLoader(mydata_train, batch_size=5, shuffle=True)
-    # mydata_val = data1('D:/work/files/deeplearn_datasets/anomalydetection/bottle/val')
-    # datasets_val = DataLoader(mydata_val, batch_size=5, shuffle=True)
+    mydata_val = ChouJianJi('D:/work/files/deeplearn_datasets/anomalydetection/bottle/train/good', data.test_transform)
+    datasets_val = DataLoader(mydata_val, batch_size=5, shuffle=True)
 
     last_loss = checkpoint['loss']
     for epoch in range(0, 300):

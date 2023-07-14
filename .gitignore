@@ -56,3 +56,5 @@ myutils/__init__.py
 2.object_detection/ctpn文本检测/checkpoints/best1.dict
 2.object_detection/ctpn文本检测/checkpoints/ctpn_keras_weights.pth.tar
 2.object_detection/ctpn文本检测/checkpoints/note
+5.anomalydetect/selfsup/__pycache__/data.cpython-39.pyc
+5.anomalydetect/selfsup/__pycache__/train.cpython-39.pyc
