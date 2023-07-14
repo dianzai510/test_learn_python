@@ -9,4 +9,4 @@ print(X_train[:,0])
 print(Y_train)
 print(Y_train[:,0])
 
-data_visualize(X_train=X_train,y_train= Y_train)
+data_visualize(X_train=X_train, y_train=Y_train)
