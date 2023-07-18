@@ -3,7 +3,8 @@ https://scikit-learn.org/stable/auto_examples/ensemble/plot_isolation_forest.htm
 =======================
 
 =======================
-IsolationForest example 
+IsolationForest example
+=======================
 
 An example using :class:`~sklearn.ensemble.IsolationForest` for anomaly
 detection.
@@ -48,9 +49,11 @@ y = np.concatenate(
 )
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=42)
-
+# %%
+# We can visualize the resulting clusters:
 
 import matplotlib.pyplot as plt
+
 scatter = plt.scatter(X[:, 0], X[:, 1], c=y, s=20, edgecolor="k")
 handles, labels = scatter.legend_elements()
 plt.axis("square")
@@ -58,8 +61,12 @@ plt.legend(handles=handles, labels=["outliers", "inliers"], title="true class")
 plt.title("Gaussian inliers with \nuniformly distributed outliers")
 plt.show()
 
+# %%
+# Training of the model
+# ---------------------
 
 from sklearn.ensemble import IsolationForest
+
 clf = IsolationForest(max_samples=100, random_state=0)
 clf.fit(X_train)
 
