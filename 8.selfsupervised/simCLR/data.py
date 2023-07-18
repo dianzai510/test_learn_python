@@ -14,16 +14,18 @@ from myutils.myutils import yolostr2data
 
 
 train_transform = transforms.Compose([
-        transforms.CenterCrop((200,200)),
+        transforms.Resize((100,100)),
+        # transforms.CenterCrop((200,200)),
         # transforms.RandomHorizontalFlip(),
         # transforms.RandomVerticalFlip(),
-        transforms.RandomApply([transforms.ColorJitter(0.4,0.4,0.4,0.1)], p=0.8),
-        transforms.RandomGrayscale(p=0.5),
+        transforms.RandomApply([transforms.ColorJitter(0.4,0.4,0.4,0.2)], p=0.8),
+        #transforms.RandomGrayscale(p=0.5),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
         ])
     
 test_transform = transforms.Compose([
+        transforms.Resize((100,100)),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
         ])
@@ -47,7 +49,7 @@ class ChouJianJi(Dataset):
     
 
 if __name__ == '__main__':
-    mydata = ChouJianJi('D:/work/files/deeplearn_datasets/test_datasets/生成xray数据/out/train', train_transform)
+    mydata = ChouJianJi('D:/work/proj/抽检机/program/ChouJianJi/data/ic', train_transform)
 
     for img1, img2 in mydata:
         img = torch.cat((img1,img2),dim=2)

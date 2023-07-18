@@ -58,3 +58,13 @@ myutils/__init__.py
 2.object_detection/ctpn文本检测/checkpoints/note
 5.anomalydetect/selfsup/__pycache__/data.cpython-39.pyc
 5.anomalydetect/selfsup/__pycache__/train.cpython-39.pyc
+8.selfsupervised/simCLR/best-adam.pth
+8.selfsupervised/simCLR/best.pth
+8.selfsupervised/simCLR/best1.pth
+8.selfsupervised/simCLR/__pycache__/data.cpython-39.pyc
+8.selfsupervised/simCLR/__pycache__/loss.cpython-39.pyc
+8.selfsupervised/simCLR/__pycache__/model.cpython-39.pyc
+.gitignore
+8.selfsupervised/simCLR/__pycache__/model1.cpython-39.pyc
+9.featuremap_visualizing/best.pth
+9.featuremap_visualizing/__pycache__/model.cpython-39.pyc
