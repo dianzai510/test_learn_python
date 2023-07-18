@@ -27,7 +27,7 @@ def train(opt):
     if os.path.exists('best.pth'):
         checkpoint = torch.load('best.pth')
         net.load_state_dict(checkpoint['net'])
-        #optimizer.load_state_dict(checkpoint['optimizer'])
+        optimizer.load_state_dict(checkpoint['optimizer'])
         print(checkpoint['loss'])
 
     mydata_train = ChouJianJi('D:/work/proj/抽检机/program/ChouJianJi/data/ic', data.train_transform)
@@ -36,7 +36,7 @@ def train(opt):
     datasets_val = DataLoader(mydata_val, batch_size=opt.batch_size, shuffle=True, drop_last=True)
 
     last_loss = checkpoint['loss'] if os.path.exists('best.pth') else 1000.0
-    for epoch in range(0, 300):
+    for epoch in range(0, 3000):
         print(f"----第{epoch}轮训练开始----")
 
         # 训练
