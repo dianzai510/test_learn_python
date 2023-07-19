@@ -22,7 +22,7 @@ clf = LocalOutlierFactor(n_neighbors=80, contamination=0.01)
 
 #region 遍历每个像素点，统计异常点所在的索引和坐标
 ch,r,c,_=imgs.shape
-result = np.zeros((ch,r,c,1))
+result = np.zeros((ch,r,c))
 _,rows,cols,_=imgs.shape
 for r in np.arange(rows):
     for c in np.arange(cols):
@@ -31,11 +31,10 @@ for r in np.arange(rows):
         ng_index = [i for i,p in enumerate(pred) if p<0]
         for i in ng_index:
             #print(result[int(i),int(r),int(c),0])
-            result[i,r,c,0]+=1
+            result[i,r,c]+=1
             
 for im, src in zip(result, imgs):
     img = cv2.normalize(im, 0, 255, norm_type=cv2.NORM_MINMAX)
-    print(img.shape)
     img = cv2.convertScaleAbs(img)
     img = cv2.applyColorMap(img, colormap=cv2.COLORMAP_JET)
 
