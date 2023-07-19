@@ -4,6 +4,21 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.neighbors import LocalOutlierFactor
+from model1 import Model1
+import torch
+from torchvision import transforms
+
+net = Model1()
+checkpoint = torch.load('best.pth')
+net.load_state_dict(checkpoint['net'])
+
+test_transform = transforms.Compose([
+        transforms.Resize((100,100)),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+        ])
+
+
 
 path = 'D:/desktop/tmp2.png'#input('输入图像路径：')
 src = cv2.imdecode(np.fromfile(path, dtype=np.uint8), cv2.IMREAD_COLOR)#type:np.ndarray
@@ -18,6 +33,10 @@ imgs = [cv2.imdecode(np.fromfile(f, dtype=np.uint8), cv2.IMREAD_COLOR) for f in 
 imgs = np.array(imgs)
 feas = imgs.copy()
 feas = np.array([cv2.resize(im, None, fx=0.5, fy=0.5) for im in feas])
+
+IMGS = [torch.from_numpy(im) for im in imgs]
+
+
 
 #region RGB特征基础上添加额外特征
 # gray = np.array([cv2.cvtColor(im, cv2.COLOR_BGR2GRAY) for im in feas])
