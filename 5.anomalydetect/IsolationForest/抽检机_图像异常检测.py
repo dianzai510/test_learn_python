@@ -42,7 +42,6 @@ for im, src in zip(result, imgs):
     dis = np.hstack([src, img])
     cv2.imshow('dis', dis)
     cv2.waitKey()
-result = np.array(result)
 
 cv2.destroyAllWindows()
 #endregion
