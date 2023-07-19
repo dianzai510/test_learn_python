@@ -32,8 +32,6 @@ for r in np.arange(rows):
             result[i,r,c]+=1
             
 for img, outlier in zip(imgs, result):
-    print(np.max(outlier))
-
     outlier = cv2.normalize(outlier, 0, 255, norm_type=cv2.NORM_MINMAX)
     outlier = cv2.convertScaleAbs(outlier)
     outlier = cv2.applyColorMap(outlier, colormap=cv2.COLORMAP_JET)
