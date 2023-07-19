@@ -27,7 +27,6 @@ feas = np.array([cv2.resize(im, None, fx=0.5, fy=0.5) for im in feas])
 # sobelx = sobelx[:,:,:,None]
 # sobely = sobely[:,:,:,None]
 
-
 # feas = np.concatenate((feas, sobelx, sobely), axis=3)
 # feas = np.concatenate((feas, sobelx, sobely), axis=3)#只用梯度特征
 #endregion
