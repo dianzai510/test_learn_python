@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.neighbors import LocalOutlierFactor
 
 path = 'D:/desktop/tmp2.png'#input('输入图像路径：')
-src = cv2.imdecode(np.fromfile(path, dtype=np.uint8), -1)#type:np.ndarray
+src = cv2.imdecode(np.fromfile(path, dtype=np.uint8), cv2.IMREAD_COLOR)#type:np.ndarray
 
 dir_image = "D:\work\proj\抽检机\program\ChouJianJi\data\ic"
 files_all = os.listdir(dir_image)
@@ -18,6 +18,35 @@ imgs = [cv2.imdecode(np.fromfile(f, dtype=np.uint8), cv2.IMREAD_COLOR) for f in 
 imgs = np.array(imgs)
 
 clf = LocalOutlierFactor(n_neighbors=80, contamination=0.01)
+
+
+#region 遍历每个像素点，统计异常点所在的索引和坐标
+ch,r,c,_=imgs.shape
+result = np.zeros((ch,r,c,1))
+_,rows,cols,_=imgs.shape
+for r in np.arange(rows):
+    for c in np.arange(cols):
+        a = imgs[:,r,c,:]
+        pred = clf.fit_predict(a)
+        ng_index = [i for i,p in enumerate(pred) if p<0]
+        for i in ng_index:
+            #print(result[int(i),int(r),int(c),0])
+            result[i,r,c,0]+=1
+            
+for im, src in zip(result, imgs):
+    img = cv2.normalize(im, 0, 255, norm_type=cv2.NORM_MINMAX)
+    print(img.shape)
+    img = cv2.convertScaleAbs(img)
+    img = cv2.applyColorMap(img, colormap=cv2.COLORMAP_JET)
+
+    dis = np.hstack([src, img])
+    cv2.imshow('dis', dis)
+    cv2.waitKey()
+result = np.array(result)
+
+cv2.destroyAllWindows()
+#endregion
+
 
 def onmouse(*p):
     event, x, y, flags, param=p
