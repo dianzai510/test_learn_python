@@ -12,12 +12,12 @@ dir_image = "D:\work\proj\抽检机\program\ChouJianJi\data\ic"
 files_all = os.listdir(dir_image)
 images_path = [os.path.join(dir_image, f) for f in files_all if f.endswith('.png') or f.endswith('.jpg') or f.endswith('.bmp')]
 images_path.append(path)
-shuffle(images_path)
+shuffle(images_path)#随机排序
 
 imgs = [cv2.imdecode(np.fromfile(f, dtype=np.uint8), cv2.IMREAD_COLOR) for f in images_path]
 imgs = np.array(imgs)
 
-clf = LocalOutlierFactor(n_neighbors=80, contamination=0.01)
+clf = LocalOutlierFactor(n_neighbors=80, contamination=0.01)#异常检测器
 
 
 #region 遍历每个像素点，统计异常点所在的索引和坐标
