@@ -17,7 +17,6 @@ shuffle(images_path)
 imgs = [cv2.imdecode(np.fromfile(f, dtype=np.uint8), cv2.IMREAD_COLOR) for f in images_path]
 imgs = np.array(imgs)
 
-
 clf = LocalOutlierFactor(n_neighbors=80, contamination=0.01)
 
 def onmouse(*p):
