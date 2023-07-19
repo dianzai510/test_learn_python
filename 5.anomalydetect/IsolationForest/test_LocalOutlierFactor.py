@@ -25,20 +25,24 @@ plt.ylim(-5,5)
 #plt.show()
 
 #训练模型
-clf = IsolationForest(n_estimators=100, max_samples=100, contamination=0.01, random_state=rng)
-clf = LocalOutlierFactor(n_neighbors=80, novelty=True)
+outliers_fraction = 0.25
+clf = LocalOutlierFactor(90,novelty=True)
+#clf = IsolationForest(n_estimators=100, max_samples=100, contamination=0.01, random_state=rng)
 clf.fit(X_train)
 
 xx, yy = np.meshgrid(np.linspace(-5, 5, 50), np.linspace(-5, 5, 50))
+
 Z = clf.decision_function(np.c_[xx.ravel(),yy.ravel()])
 Z = Z.reshape(xx.shape)
 
 plt.subplot(122)
 plt.title("IsolationForest")
 plt.contourf(xx, yy, Z, cmap=plt.cm.Blues_r)
-#plt.show()
 
-y_pred = clf.score_samples(X)+2.5
+y_pred = clf.predict(X)
+y_pred = clf.score_samples(X)+0.5
+
+y_pred = clf.predict(X)
 
 print(y_pred)
 
