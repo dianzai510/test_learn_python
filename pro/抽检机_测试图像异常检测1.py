@@ -17,18 +17,19 @@ images_path.insert(0, path)
 imgs = [cv2.imdecode(np.fromfile(f, dtype=np.uint8), cv2.IMREAD_COLOR) for f in images_path]
 imgs = np.array(imgs)
 feas = imgs.copy()
+feas = np.array([cv2.resize(im, None, fx=0.5, fy=0.5) for im in feas])
 
-#region 添加额外特征
-feas = np.array([cv2.resize(im, None, fx=1, fy=1) for im in feas])
-gray = np.array([cv2.cvtColor(im, cv2.COLOR_BGR2GRAY) for im in feas])
-gray = np.array([cv2.GaussianBlur(im, ksize=(7,7), sigmaX=1) for im in gray])
-sobelx = np.array([cv2.Sobel(im, cv2.CV_32F, 1, 0) for im in gray])
-sobely = np.array([cv2.Sobel(im, cv2.CV_32F, 0, 1) for im in gray])
-sobelx = sobelx[:,:,:,None]
-sobely = sobely[:,:,:,None]
+#region RGB特征基础上添加额外特征
+# gray = np.array([cv2.cvtColor(im, cv2.COLOR_BGR2GRAY) for im in feas])
+# gray = np.array([cv2.GaussianBlur(im, ksize=(7,7), sigmaX=1) for im in gray])
+# sobelx = np.array([cv2.Sobel(im, cv2.CV_32F, 1, 0) for im in gray])
+# sobely = np.array([cv2.Sobel(im, cv2.CV_32F, 0, 1) for im in gray])
+# sobelx = sobelx[:,:,:,None]
+# sobely = sobely[:,:,:,None]
+
+
 # feas = np.concatenate((feas, sobelx, sobely), axis=3)
-
-feas = np.concatenate((feas, sobelx, sobely), axis=3)
+# feas = np.concatenate((feas, sobelx, sobely), axis=3)#只用梯度特征
 #endregion
 
 clf = LocalOutlierFactor(n_neighbors=80, contamination=0.01)#异常检测器
@@ -101,4 +102,13 @@ cv2.setMouseCallback("dis",onmouse)
 cv2.imshow('dis', src)
 cv2.waitKey()
 
-
+"""
+总结：总体来说实现了思路，目前存在的问题如下
+1、大量异常通常出现在图像未准确对齐的图像上
+2、检测时间较长
+解决方案：
+1、正常测试时，图像想过应该比现在好很多，至少能保证不会出现过于模糊的图像。
+2、图像对齐初步依靠模板匹配解决。
+3、检测时间长的问题尝试使用深度学习训练的特征提取器提取特征进行解决。
+第1、2在改造的机器上比较容易解决，现在优先测试第三个问题。
+"""
