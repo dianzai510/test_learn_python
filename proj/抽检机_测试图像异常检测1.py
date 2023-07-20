@@ -5,37 +5,46 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.neighbors import LocalOutlierFactor
 from model1 import Model1
+from model2 import Model2
 import torch
 from torchvision import transforms
 
-net = Model1()
-checkpoint = torch.load('best.pth')
-net.load_state_dict(checkpoint['net'])
+net = Model2()
+net.eval()
+#checkpoint = torch.load('best.pth')
+#net.load_state_dict(checkpoint['net'])
 
 test_transform = transforms.Compose([
-        transforms.Resize((100,100)),
         transforms.ToTensor(),
+        transforms.Resize((100,100)),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
         ])
 
-
-
 path = 'D:/desktop/tmp2.png'#input('输入图像路径：')
 src = cv2.imdecode(np.fromfile(path, dtype=np.uint8), cv2.IMREAD_COLOR)#type:np.ndarray
-dir_image = "D:\work\proj\抽检机\program\ChouJianJi\data\ic"
+dir_image = "D:/work/proj/抽检机/program/ChouJianJi/data/ic"
 files_all = os.listdir(dir_image)
 images_path = [os.path.join(dir_image, f) for f in files_all if f.endswith('.png') or f.endswith('.jpg') or f.endswith('.bmp')]
+images_path = images_path[:100]
+
 # images_path.append(path)
 #shuffle(images_path)#随机排序
 images_path.insert(0, path)
 
 imgs = [cv2.imdecode(np.fromfile(f, dtype=np.uint8), cv2.IMREAD_COLOR) for f in images_path]
+#imgs = [cv2.medianBlur(cv2.resize(im, (100,100)), 3) for im in imgs]
 imgs = np.array(imgs)
 feas = imgs.copy()
-feas = np.array([cv2.resize(im, None, fx=0.5, fy=0.5) for im in feas])
+feas = np.array([cv2.resize(im, None, fx=1, fy=1) for im in feas])
 
-IMGS = [torch.from_numpy(im) for im in imgs]
-
+#region 神经网络提取特征
+# IMGS = [cv2.cvtColor(im, cv2.COLOR_BGR2RGB) for im in imgs]
+# IMGS = [test_transform(im) for im in IMGS]
+# IMG = torch.stack(IMGS, dim=0)
+# ff = net(IMG)
+# ff = torch.permute(ff, (0,2,3,1))
+# feas = ff.detach().numpy()
+#endregion
 
 
 #region RGB特征基础上添加额外特征
@@ -50,7 +59,7 @@ IMGS = [torch.from_numpy(im) for im in imgs]
 # feas = np.concatenate((feas, sobelx, sobely), axis=3)#只用梯度特征
 #endregion
 
-clf = LocalOutlierFactor(n_neighbors=80, contamination=0.01)#异常检测器
+clf = LocalOutlierFactor(n_neighbors=40, contamination=0.01)#异常检测器
 
 
 #region 遍历每个像素点，统计异常点所在的索引和坐标
@@ -68,7 +77,7 @@ for img, outlier in zip(imgs, result):
     outlier = cv2.normalize(outlier, 0, 255, norm_type=cv2.NORM_MINMAX)
     outlier = cv2.convertScaleAbs(outlier)
     outlier = cv2.applyColorMap(outlier, colormap=cv2.COLORMAP_JET)
-    outlier = cv2.resize(outlier, (247,247), interpolation=cv2.INTER_LINEAR)
+    outlier = cv2.resize(outlier, img.shape[:2], interpolation=cv2.INTER_LINEAR)
 
     dis = np.hstack([img, outlier])
     cv2.imshow('dis', dis)

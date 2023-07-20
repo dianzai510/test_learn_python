@@ -28,7 +28,9 @@ class Model1(nn.Module):
     def forward(self, x):
         for m in self.f:
             x = m(x)
-            # print(x.shape)
+            if(x.shape[2]==25):
+                return x
+            #print(x.shape)
         feature = torch.flatten(x, start_dim=1)
         out = self.g(feature)
         return F.normalize(feature, dim=-1), F.normalize(out, dim=-1)
