@@ -7,6 +7,7 @@ import torchvision
 from PIL import Image
 from torch.nn import Module
 import halcon
+from halcon.numpy_interop import himage_from_numpy_array, himage_as_numpy_array
 
 def pil2mat(image):
     mat = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
@@ -162,21 +163,10 @@ def yolostr2data(yolostr: str):
     return data
 
 def ndarray2hobject(mat):
-    himg=[]
-    h,w,ch = mat.shape
-    if ch==1:
-        himg = halcon.gen_image1(type='byte', width=w, height=h, pixel_pointer=mat.data)
-    elif ch==3:
-        b,g,r=mat[:,:,0],mat[:,:,1],mat[:,:,2]
-        himg = halcon.gen_image3(type='byte', width=w, height=h, pixel_pointer_red=r, pixel_pointer_green=g, pixel_pointer_blue=b)
-    return himg
+    return himage_from_numpy_array(mat)
 
 def hobject2ndarray(hobj):
-    channels = halcon.count_channels(hobj)
-    if channels==1:
-        p, type, w, h = halcon.get_image_pointer1(hobj)
-
-
+    return himage_as_numpy_array(hobj)
 
 
 if __name__ == '__main__':
@@ -191,7 +181,6 @@ if __name__ == '__main__':
 
     img = cv2.imread('d:/desktop/tmp.png', cv2.IMREAD_COLOR)
     hobj = ndarray2hobject(img)
-    size = halcon.get_image_size(hobj)
-
-    # halcon.dev_open_window (0, 0, , Height/4, 'black', WindowHandle)
-    # halcon.dev_display (Image)
+    w, h = halcon.get_image_size(hobj)
+    halcon.dev_open_window(0, 0, w, h, 'black', WindowHandle)
+    halcon.dev_display (Image)
