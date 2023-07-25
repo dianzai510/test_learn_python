@@ -68,3 +68,7 @@ myutils/__init__.py
 8.selfsupervised/simCLR/__pycache__/model1.cpython-39.pyc
 9.featuremap_visualizing/best.pth
 9.featuremap_visualizing/__pycache__/model.cpython-39.pyc
+proj/__pycache__/model2.cpython-39.pyc
+proj/__pycache__/model1.cpython-39.pyc
+proj/__pycache__/model1.cpython-39.pyc
+myutils/halcon.dll

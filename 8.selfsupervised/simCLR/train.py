@@ -8,6 +8,7 @@ from torch import nn, optim
 from torch.utils.data import DataLoader
 from model import Model
 from model1 import Model1
+from model2 import Model2
 from data import ChouJianJi
 from loss import Loss_fn
 import sys

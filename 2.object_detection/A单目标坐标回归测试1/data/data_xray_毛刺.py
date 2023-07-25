@@ -30,7 +30,7 @@ class data_xray_毛刺(Dataset):
         label_path = self.Labels[item]
 
         # 读取图像
-        img = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), -1)  # type:cv2.Mat
+        img = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_COLOR)  # type:cv2.Mat
 
         # 读取标签
         f = open(label_path)

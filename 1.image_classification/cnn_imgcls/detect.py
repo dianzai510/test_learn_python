@@ -3,8 +3,8 @@ import os
 
 import torch
 from PIL import Image
-from image_classification.cnn_imgcls.data import data_xray_sot23
-from image_classification.cnn_imgcls.models.net_xray import net_xray
+from data.data_xray_sot23 import data_xray_sot23
+from models.net_xray import net_xray
 
 
 def detect(opt):
