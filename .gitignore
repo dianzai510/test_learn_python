@@ -81,3 +81,11 @@ our1314/our1314.egg-info/SOURCES.txt
 our1314/our1314.egg-info/top_level.txt
 our1314/dist/our1314-0.1.2-py3-none-any.whl
 our1314/dist/our1314-0.1.2.tar.gz
+Lib/dist/our1314-0.1.3.tar.gz
+Lib/dist/our1314-0.1.3-py3-none-any.whl
+Lib/our1314/myutils/halcon.dll
+Lib/our1314/myutils/__pycache__/__init__.cpython-39.pyc
+Lib/our1314.egg-info/top_level.txt
+Lib/our1314.egg-info/SOURCES.txt
+Lib/our1314.egg-info/PKG-INFO
+Lib/our1314.egg-info/dependency_links.txt

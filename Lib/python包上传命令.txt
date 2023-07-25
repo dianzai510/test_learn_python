@@ -1,5 +1,5 @@
 进入目录：
-D:\work\program\lib\our1314-python
+D:\work\program\python\DeepLearning\test_learn_python\Lib
 python setup.py sdist bdist_wheel
 twine upload -u our1314 -p 421427llWR dist/*
 
