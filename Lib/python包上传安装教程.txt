@@ -8,7 +8,7 @@ twine upload -u our1314 -p 421427llWR dist/*
 pip install our1314==xxx -i https://pypi.Python.org/simple/
 
 当前可用halcon版本：
-mvtec-halcon==20110.0.0
+pip install mvtec-halcon==20110.0.0
 
 参考：https://blog.csdn.net/yifengchaoran/article/details/113447773
 
