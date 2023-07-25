@@ -183,5 +183,5 @@ if __name__ == '__main__':
     img = cv2.imread('d:/desktop/tmp.png', cv2.IMREAD_COLOR)
     hobj = ndarray2hobject(img)
     w, h = halcon.get_image_size(hobj)
-    halcon.dev_open_window(0, 0, w, h, 'black', WindowHandle)
-    halcon.dev_display (Image)
+    # halcon.dev_open_window(0, 0, w, h, 'black', WindowHandle)
+    # halcon.dev_display (Image)
