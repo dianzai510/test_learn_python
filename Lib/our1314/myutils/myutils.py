@@ -163,6 +163,12 @@ def ndarray2hobject(mat):
 def hobject2ndarray(hobj):
     return himage_as_numpy_array(hobj)
 
+def deg(rad):
+    return rad*180/pi
+
+def rad(deg):
+    return deg*180/pi
+
 
 if __name__ == '__main__':
     # a = getlastfile('D:/work/proj/xray/test_learn_python/image_classification/cnn_imgcls/run/train/oqa_agl/weights', '.pth')
