@@ -2,7 +2,7 @@ import torch
 from torch.nn import Linear, Module
 from torchvision.models.resnet import resnet18, resnet101
 from data import data_xray_sot23
-from myutils import exportsd
+from our1314.myutils import exportsd
 
 
 class net_xray(Module):
