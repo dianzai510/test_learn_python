@@ -195,5 +195,3 @@ if __name__ == '__main__':
 
     # halcon.dev_open_window (0, 0, , Height/4, 'black', WindowHandle)
     # halcon.dev_display (Image)
-
-    import sklearn.
