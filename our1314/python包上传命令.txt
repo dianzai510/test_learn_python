@@ -1,0 +1,4 @@
+进入目录：
+D:\work\program\lib\our1314-python
+python setup.py sdist
+twine upload -u our1314 -p 421427llWR dist/*
