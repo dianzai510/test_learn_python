@@ -71,3 +71,4 @@ myutils/__init__.py
 proj/__pycache__/model2.cpython-39.pyc
 proj/__pycache__/model1.cpython-39.pyc
 proj/__pycache__/model1.cpython-39.pyc
+myutils/halcon.dll
