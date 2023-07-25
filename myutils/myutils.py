@@ -1,3 +1,4 @@
+import copy
 import os
 import cv2
 import numpy as np
@@ -5,7 +6,7 @@ import torch
 import torchvision
 from PIL import Image
 from torch.nn import Module
-
+import halcon
 
 def pil2mat(image):
     mat = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
@@ -136,7 +137,6 @@ class PadSquare:
         x = torchvision.transforms.Pad((pad_left, pad_up, pad_right, pad_down))(x)
         return x
 
-
 # 获取按时间排序的最后一个文件
 def getlastfile(path, ext):
     if os.path.exists(path) is not True: return None
@@ -146,7 +146,6 @@ def getlastfile(path, ext):
         return list_file[-1]
     else:
         return None
-
 
 def yolostr2data(yolostr: str):
     data = []
@@ -162,14 +161,39 @@ def yolostr2data(yolostr: str):
         data.append((int(a[0]), float(a[1]), float(a[2]), float(a[3]), float(a[4])))
     return data
 
+def ndarray2hobject(mat):
+    himg=[]
+    h,w,ch = mat.shape
+    if ch==1:
+        himg = halcon.gen_image1(type='byte', width=w, height=h, pixel_pointer=mat.data)
+    elif ch==3:
+        b,g,r=mat[:,:,0],mat[:,:,1],mat[:,:,2]
+        himg = halcon.gen_image3(type='byte', width=w, height=h, pixel_pointer_red=r, pixel_pointer_green=g, pixel_pointer_blue=b)
+    return himg
+
+def hobject2ndarray(hobj):
+    channels = halcon.count_channels(hobj)
+    if channels==1:
+        p, type, w, h = halcon.get_image_pointer1(hobj)
+
+
+
 
 if __name__ == '__main__':
-    a = getlastfile('D:/work/proj/xray/test_learn_python/image_classification/cnn_imgcls/run/train/oqa_agl/weights',
-                    '.pth')
-    x = torch.rand((1, 3, 110, 310))
-    x = Resize3(330)(x)
-    x = PadSquare()(x)
+    # a = getlastfile('D:/work/proj/xray/test_learn_python/image_classification/cnn_imgcls/run/train/oqa_agl/weights', '.pth')
+    # x = torch.rand((1, 3, 110, 310))
+    # x = Resize3(330)(x)
+    # x = PadSquare()(x)
+    
+    # resize = torchvision.transforms.Resize((100, 100))
+    # x = resize(x)
+    # pass
 
-    resize = torchvision.transforms.Resize((100, 100))
-    x = resize(x)
-    pass
+    img = cv2.imread('d:/desktop/tmp.png', cv2.IMREAD_COLOR)
+    hobj = ndarray2hobject(img)
+    size = halcon.get_image_size(hobj)
+
+    # halcon.dev_open_window (0, 0, , Height/4, 'black', WindowHandle)
+    # halcon.dev_display (Image)
+
+    import sklearn.
