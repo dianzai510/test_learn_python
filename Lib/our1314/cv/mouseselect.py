@@ -5,7 +5,8 @@ class mouseSelect():
     def __init__(self, src, windowName='dis'):
         self.src = src
         self.windowName = windowName
-
+        self.down = False
+        
         cv2.namedWindow(windowName)
         cv2.setMouseCallback(windowName, self.onmouse)
         cv2.imshow(windowName, src)
@@ -36,6 +37,4 @@ if __name__ == '__main__':
     path = 'd:/desktop/1.jpg'
     src = cv2.imdecode(np.fromfile(path, dtype=np.uint8), cv2.IMREAD_COLOR)#type:np.ndarray
     a = mouseSelect(src)
-
     
-    pass
