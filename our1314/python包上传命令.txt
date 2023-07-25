@@ -1,4 +1,6 @@
 进入目录：
 D:\work\program\lib\our1314-python
-python setup.py sdist
+python setup.py sdist bdist_wheel
 twine upload -u our1314 -p 421427llWR dist/*
+
+参考：https://blog.csdn.net/yifengchaoran/article/details/113447773
