@@ -6,6 +6,7 @@ import torch
 import torchvision
 from PIL import Image
 from torch.nn import Module
+from math import *
 import halcon
 from halcon.numpy_interop import himage_from_numpy_array, himage_as_numpy_array
 
