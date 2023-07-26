@@ -167,8 +167,17 @@ def deg(rad):
     return rad*180/pi
 
 def rad(deg):
-    return deg*180/pi
+    return deg*pi/180
 
+def contours2coord(contours):
+    coord=[]
+    for i in range(halcon.count_obj(contours)):
+        objectseleted = halcon.select_obj(contours, i+1)
+        row, col = halcon.get_contour_xld(objectseleted)
+
+        for r,c in zip(row, col):
+            coord.append([c,r])
+    return np.array(coord).T.astype(np.int32)
 
 if __name__ == '__main__':
     # a = getlastfile('D:/work/proj/xray/test_learn_python/image_classification/cnn_imgcls/run/train/oqa_agl/weights', '.pth')
