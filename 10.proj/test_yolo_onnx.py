@@ -4,10 +4,12 @@ import numpy as np
 import onnxruntime as ort
 import torch
 from our1314.myutils.myutils import sigmoid
+import os
+import time
 
 class yolo:
     def __init__(self, onnx_path, confidence_thres=0.1, iou_thres=0):
-        self.session = ort.InferenceSession(onnx_path, providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
+        self.session = ort.InferenceSession(onnx_path, providers=['CUDAExecutionProvider'])
         self.confidence_thres = confidence_thres
         self.iou_thres = iou_thres
 
@@ -58,7 +60,7 @@ class yolo:
     def postprocess(self, input_image, output):
         outputs = np.transpose(np.squeeze(output[0]))
         proto = output[1]
-        print(outputs[0])
+        #print(outputs[0])
         
         rows = outputs.shape[0]
 
@@ -186,12 +188,20 @@ class yolo:
         return box_xyxy
 
 if __name__ == "__main__":
-    seg = yolo('yolov8-seg.onnx')
-    src = cv2.imdecode(np.fromfile('D:/work/files/deeplearn_datasets/其它数据集/抽检机缺陷检测/2KG023075JL-155/1.jpg', dtype=np.uint8), cv2.IMREAD_COLOR)
+    seg = yolo('yolov8-seg.onnx') 
+    src = cv2.imdecode(np.fromfile('D:/work/files/deeplearn_datasets/其它数据集/抽检机缺陷检测/IW8500JG/1.jpg', dtype=np.uint8), cv2.IMREAD_COLOR)
+
+    start = time.time()
+    dis,mask = seg(src)
+    end = time.time()
+    print(f'运行时间：{end-start}')
+
+    cv2.imshow("dis", dis)
+    cv2.waitKey()
+    
     roi1 = seg.getroi(src)
     src = cv2.imdecode(np.fromfile('D:/work/files/deeplearn_datasets/其它数据集/抽检机缺陷检测/2KG023075JL-155/2.jpg', dtype=np.uint8), cv2.IMREAD_COLOR)
     roi2 = seg.getroi(src)
-
 
     roi1 = cv2.cvtColor(roi1, cv2.COLOR_BGR2GRAY)
     roi2 = cv2.cvtColor(roi2, cv2.COLOR_BGR2GRAY)
@@ -199,8 +209,15 @@ if __name__ == "__main__":
     H = np.eye(2,3,dtype=np.float32)
     criteria = ( cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 5000,  1e-8)
     cc, H = cv2.findTransformECC(roi1, roi2, H, cv2.MOTION_EUCLIDEAN, criteria)
-    TRoi1 = cv2.warpAffine(roi1, H, (roi2.shape[1],roi2.shape[0]))
+    troi1 = cv2.warpAffine(roi1, H, (roi2.shape[1],roi2.shape[0]))
 
+    path = 'D:/desktop/test_roi'
+    os.makedirs(path, exist_ok=True)
+    cv2.imwrite(f'{path}/src1.png', roi1)
+    cv2.imwrite(f'{path}/src2.png', roi2)
+
+    cv2.imwrite(f'{path}/1.png', troi1)
+    cv2.imwrite(f'{path}/2.png', roi2)
     
-    cv2.imshow("dis", cv2.hconcat([TRoi1, roi2]))
+    cv2.imshow("dis", cv2.hconcat([troi1, roi2]))
     cv2.waitKey()
