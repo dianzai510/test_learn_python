@@ -23,6 +23,14 @@ class yolo:
         outputs = self.session.run(None, {self.input_name: image_data})
         output_img = self.postprocess(img, outputs)
         return output_img
+    
+    def getroi(self, img):
+        _, mask = self.__call__(img.copy())
+        x,y,w,h = cv2.boundingRect(mask)
+        roi = cv2.copyTo(img, mask)
+        x1,y1,x2,y2 = x,y,x+w,y+h
+        roi = roi[y1:y2, x1:x2]
+        return roi
 
     #预处理
     def preprocess(self, input_image):
@@ -85,8 +93,6 @@ class yolo:
         # Apply non-maximum suppression to filter out overlapping bounding boxes
         indices = cv2.dnn.NMSBoxes(boxes, scores, self.confidence_thres, self.iou_thres)
 
-
-        pass
         # Iterate over the selected indices after non-maximum suppression
         for i in indices:
             # Get the box, score, and class ID corresponding to the index
@@ -98,30 +104,29 @@ class yolo:
             self.draw_detections(input_image, box, score, class_id)
 
             ##########################################
-            
             idx = index[i]
             r = outputs[idx]
             masks_in = r[5:]
             masks_in = masks_in[None,]
-            c,mh,mw = proto[0].shape
-            aaa = proto[0].reshape(32,-1)
-            bbb = masks_in @ aaa
-            ccc = sigmoid(bbb)
-            ddd = ccc.reshape(-1,mh,mw)
 
             box = r[:4]
             box = np.array(box)
             box = box[None,]
+
             masks = self.process_mask(proto[0], masks_in, box, [640,640], True)
-            masks = masks.astype(np.uint8)
-            masks = np.transpose(masks, (1,2,0))
-            cv2.imshow("dis", masks*255)
-            cv2.moveWindow("dis",0,0)
-            cv2.waitKey()
-            pass
+            masks = masks[self.up:640-self.up, 0:]
+            masks = cv2.resize(masks, (img_width, img_height))
+
+            aaa = cv2.merge([np.zeros_like(masks), np.zeros_like(masks), masks])
+            dis = cv2.addWeighted(input_image, 1, aaa, 0.6, 0)
+
+            # cv2.imshow("dis", dis)
+            # cv2.moveWindow("dis",0,0)
+            # cv2.waitKey()
+            # pass
 
         # Return the modified input image
-        return input_image
+        return input_image, masks
 
     def draw_detections(self, img, box, score, class_id):
         x1, y1, w, h = box
@@ -142,6 +147,8 @@ class yolo:
         masks = masks.reshape(-1, mh, mw)
         
         downsampled_bboxes = self.wywh2xyxy(bboxes)
+
+        #将box坐标缩放至mask图尺寸
         downsampled_bboxes[:, 0] *= mw / iw
         downsampled_bboxes[:, 2] *= mw / iw
         downsampled_bboxes[:, 3] *= mh / ih
@@ -150,24 +157,21 @@ class yolo:
         masks = self.crop_mask(masks, downsampled_bboxes)  # CHW
         a = masks > 0.5
         
-        
+        masks = a.astype(np.uint8)
+        masks = np.transpose(masks, (1,2,0))
+        masks = cv2.resize(masks, shape, interpolation=cv2.INTER_BITS2)
+        masks *= 255
+        # cv2.imshow("dis", masks*255)
+        # cv2.moveWindow("dis",0,0)
+        # cv2.waitKey()
         # if upsample:
         #     masks = F.interpolate(masks[None], shape, mode='bilinear', align_corners=False)[0]  # CHW
-        return a
+        return masks
     
     def crop_mask(self, masks, boxes):
-        x1 = boxes[:,0]
-        y1 = boxes[:,1]
-        x2 = boxes[:,2]
-        y2 = boxes[:,3]
-
-        x1 = x1[None,None,]
-        y1 = y1[None,None,]
-        x2 = x2[None,None,]
-        y2 = y2[None,None,]
-
         n, h, w = masks.shape
-        #x1, y1, x2, y2 = torch.chunk(boxes[:, :, None], 4, 1)  # x1 shape(1,1,n)
+        x1,y1,x2,y2 = boxes[:,0], boxes[:,1], boxes[:,2], boxes[:,3]
+        x1,y1,x2,y2 = x1[None,None,], y1[None,None,], x2[None,None,], y2[None,None,]
         r = np.arange(w)[None, None, :]  # rows shape(1,w,1)
         c = np.arange(h)[None, :, None]  # cols shape(h,1,1)
 
@@ -183,7 +187,20 @@ class yolo:
 
 if __name__ == "__main__":
     seg = yolo('yolov8-seg.onnx')
-    src = cv2.imdecode(np.fromfile('D:/desktop/choujianji/out1/train/2023-07-20_16.54.02-278_back (4).jpg', dtype=np.uint8), cv2.IMREAD_COLOR)
-    dis = seg(src)
-    cv2.imshow("dis", dis)
+    src = cv2.imdecode(np.fromfile('D:/work/files/deeplearn_datasets/其它数据集/抽检机缺陷检测/2KG023075JL-155/1.jpg', dtype=np.uint8), cv2.IMREAD_COLOR)
+    roi1 = seg.getroi(src)
+    src = cv2.imdecode(np.fromfile('D:/work/files/deeplearn_datasets/其它数据集/抽检机缺陷检测/2KG023075JL-155/2.jpg', dtype=np.uint8), cv2.IMREAD_COLOR)
+    roi2 = seg.getroi(src)
+
+
+    roi1 = cv2.cvtColor(roi1, cv2.COLOR_BGR2GRAY)
+    roi2 = cv2.cvtColor(roi2, cv2.COLOR_BGR2GRAY)
+
+    H = np.eye(2,3,dtype=np.float32)
+    criteria = ( cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 5000,  1e-8)
+    cc, H = cv2.findTransformECC(roi1, roi2, H, cv2.MOTION_EUCLIDEAN, criteria)
+    TRoi1 = cv2.warpAffine(roi1, H, (roi2.shape[1],roi2.shape[0]))
+
+    
+    cv2.imshow("dis", cv2.hconcat([TRoi1, roi2]))
     cv2.waitKey()
