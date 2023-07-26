@@ -98,3 +98,9 @@ Lib/our1314/cv/halconc.dll
 .gitignore
 Lib/our1314/cv/hdevenginecpp.dll
 Lib/our1314/cv/halconcpp.dll
+10.proj/halcon.dll
+10.proj/halconc.dll
+10.proj/halconcpp.dll
+10.proj/hdevenginecpp.dll
+10.proj/yolov5-seg.onnx
+10.proj/yolov8-seg.onnx

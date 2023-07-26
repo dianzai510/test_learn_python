@@ -179,6 +179,10 @@ def contours2coord(contours):
             coord.append([c,r])
     return np.array(coord).T.astype(np.int32)
 
+def sigmoid(x):
+    return 1. / (1 + np.exp(-x))
+
+
 if __name__ == '__main__':
     # a = getlastfile('D:/work/proj/xray/test_learn_python/image_classification/cnn_imgcls/run/train/oqa_agl/weights', '.pth')
     # x = torch.rand((1, 3, 110, 310))

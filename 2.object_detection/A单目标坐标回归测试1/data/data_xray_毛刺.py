@@ -10,8 +10,8 @@ from torch.utils.data import Dataset
 
 import sys
 sys.path.append("../../")
-import myutils.myutils
-from myutils.myutils import yolostr2data
+from our1314.myutils import myutils
+from our1314.myutils.myutils import yolostr2data
 
 
 class data_xray_毛刺(Dataset):
@@ -61,7 +61,7 @@ class data_xray_毛刺(Dataset):
             # cv2.imshow("dis", img)
             # cv2.waitKey()
 
-        img_tensor = myutils.myutils.mat2tensor(img)
+        img_tensor = myutils.mat2tensor(img)
         pos = torch.tensor([x0, y0, w, h])
         return img_tensor, pos
 
@@ -73,7 +73,7 @@ if __name__ == '__main__':
     # img.show(img)
 
     for img, pos in mydata:
-        dis = myutils.myutils.tensor2mat(img)
+        dis = myutils.tensor2mat(img)
         H, W, CH = dis.shape
         x0, y0, w, h = pos
         x0 *= W

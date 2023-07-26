@@ -18,7 +18,7 @@ from torchvision.transforms import InterpolationMode
 
 import sys
 sys.path.append("../../../")
-import myutils.myutils
+from our1314.myutils import myutils
 
 input_size = (200, 200)
 class_num = 36
@@ -66,9 +66,9 @@ class SquarePad2:
 class SquarePad:
     def __call__(self, image):
         max_wh = 200  # max(w, h)
-        img = myutils.myutils.pil2mat(image)
+        img = myutils.pil2mat(image)
         resize_img = cv2.resize(img, (200, 200))
-        image = myutils.myutils.mat2pil(resize_img)
+        image = myutils.mat2pil(resize_img)
         return image
 
 
