@@ -121,17 +121,13 @@ def train(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='best.pth',
-                        help='指定权重文件，未指定则使用官方权重！')
+    parser.add_argument('--weights', default='best.pth', help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--out_path', default='./run/train/', type=str)  # 修改
-
-    parser.add_argument('--resume', default=False, type=bool,
-                        help='True表示从--weights参数指定的epoch开始训练,False从0开始')
+    parser.add_argument('--resume', default=False, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
     parser.add_argument('--data', default='D:/work/files/deeplearn_datasets/test_datasets/xray_real')  # 修改
     parser.add_argument('--epoch', default=1000, type=int)
     parser.add_argument('--lr', default=0.0001, type=float)
     parser.add_argument('--batch_size', default=2, type=int)
-
     parser.add_argument('--add_graph', default=False, type=bool)
     parser.add_argument('--save_period', default=20, type=int, help='多少轮保存一次，')
     parser.add_argument('--train_img', default=200, type=int, help='保存指定数量的训练图像')
