@@ -13,6 +13,7 @@ from dice_losee import dice_loss
 from model import UNet
 import math
 
+
 def train(opt):
     curpath = os.getcwd()
     os.makedirs(opt.out_path, exist_ok=True)
@@ -20,8 +21,7 @@ def train(opt):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    datasets_train = data_seg('D:/work/files/deeplearn_datasets/test_datasets/xray_real', trans_train_image,
-                              trans_train_mask)
+    datasets_train = data_seg('D:/work/files/deeplearn_datasets/test_datasets/xray_real', trans_train_image, trans_train_mask)
     datasets_val = data_seg('D:/work/files/deeplearn_datasets/test_datasets/xray_real')
 
     dataloader_train = DataLoader(datasets_train, batch_size=4, shuffle=True, num_workers=1, drop_last=True)
@@ -32,8 +32,8 @@ def train(opt):
 
     loss_fn = nn.BCELoss()
     # loss_fn = dice_loss()
-    # optimizer = torch.optim.SGD(net.parameters(), lr=0.0001, momentum=0.99)  # 定义优化器 momentum=0.99
-    optimizer = torch.optim.Adam(net.parameters(), opt.lr)  # 定义优化器 momentum=0.99
+    optimizer = torch.optim.SGD(net.parameters(), lr=0.0001, momentum=0.99)  # 定义优化器 momentum=0.99
+    #optimizer = torch.optim.Adam(net.parameters(), opt.lr)  # 定义优化器 momentum=0.99
 
     # 学习率更新策略
     # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.98)
@@ -83,7 +83,7 @@ def train(opt):
             labels = labels.to(device)
 
             out = net(images)
-            loss = loss_fn(input=out, target=labels)  # 损失函数参数要分input和labels，反了计算值可能时nan 2023.2.24
+            loss = loss_fn(input=out, target=labels)  # 损失函数参数要分input和labels，反了计算值可能是nan 2023.2.24
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
