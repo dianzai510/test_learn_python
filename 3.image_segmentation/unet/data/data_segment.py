@@ -7,7 +7,6 @@ from PIL import Image
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import Dataset
 import torch.functional as F
-import myutils.myutils
 
 
 class data_oqa(Dataset):

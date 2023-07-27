@@ -20,8 +20,6 @@ for p in images_path:
     cv2.waitKey()
 
     H = np.eye(2,3, dtype=np.float32)
-    print(H)
-    
     criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 5000,  1e-8)
     r,H = cv2.findTransformECC(tmp, img, H, motionType=cv2.MOTION_EUCLIDEAN, criteria=criteria)
     print(H)

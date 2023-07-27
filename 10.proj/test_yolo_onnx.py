@@ -207,7 +207,7 @@ if __name__ == "__main__":
     roi2 = cv2.cvtColor(roi2, cv2.COLOR_BGR2GRAY)
 
     H = np.eye(2,3,dtype=np.float32)
-    criteria = ( cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 5000,  1e-8)
+    criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 5000, 1e-8)
     cc, H = cv2.findTransformECC(roi1, roi2, H, cv2.MOTION_EUCLIDEAN, criteria)
     troi1 = cv2.warpAffine(roi1, H, (roi2.shape[1],roi2.shape[0]))
 

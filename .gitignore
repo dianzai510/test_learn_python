@@ -101,3 +101,5 @@ Lib/our1314/cv/halconcpp.dll
 10.proj/hdevenginecpp.dll
 10.proj/yolov5-seg.onnx
 10.proj/yolov8-seg.onnx
+Lib/dist/our1314-0.1.13-py3-none-any.whl
+Lib/dist/our1314-0.1.13.tar.gz
