@@ -15,11 +15,11 @@ def train(opt):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    datasets_train = data_seg(opt.data, trans_train_image, trans_train_mask)
-    datasets_val = data_seg(opt.data)
+    datasets_train = data_seg(opt.data_path, trans_train_image, trans_train_mask)
+    datasets_val = data_seg(opt.data_path)
 
     dataloader_train = DataLoader(datasets_train, batch_size=opt.batch_size, shuffle=True, num_workers=1, drop_last=True)
-    dataloader_val = DataLoader(datasets_val, batch_size=4, shuffle=True, num_workers=1, drop_last=True)
+    dataloader_val = DataLoader(datasets_val, batch_size=opt.batch_size, shuffle=True, num_workers=1, drop_last=True)
 
     net = UNet()
     net.to(device)
@@ -53,11 +53,16 @@ def train(opt):
         net.train()
         loss_train = 0
         for images, labels in dataloader_train:
+            print(torch.max(labels))
+            print(torch.min(labels))
+
             images = images.to(device)
             labels = labels.to(device)
 
             out = net(images)
             loss = loss_fn(input=out, target=labels)  # 损失函数参数要分input和labels，反了计算值可能是nan 2023.2.24
+            print(loss)
+
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -84,7 +89,7 @@ if __name__ == '__main__':
     parser.add_argument('--weights', default='best.pth', help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--out_path', default='./run/train/', type=str)  # 修改
     parser.add_argument('--resume', default=False, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
-    parser.add_argument('--data_path', default='D:/work/files/deeplearn_datasets/test_datasets/xray_real')  # 修改
+    parser.add_argument('--data_path', default='D:/desktop/choujianji/roi/mask')  # 修改
     parser.add_argument('--epoch', default=1000, type=int)
     parser.add_argument('--lr', default=0.001, type=float)
     parser.add_argument('--batch_size', default=2, type=int)

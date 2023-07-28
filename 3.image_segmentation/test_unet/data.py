@@ -1,5 +1,3 @@
-import pathlib
-import random
 from torch.utils.data import Dataset, DataLoader
 import torch
 import os
@@ -7,14 +5,14 @@ import torchvision
 from PIL import Image
 import cv2
 from torchvision.transforms import InterpolationMode
+from our1314.myutils.ext_transform import Resize1, PadSquare
 
-input_size = (300, 300)
+input_size = (448, 448)
 
 transform_basic = [
-    Resize2(300),  # 按比例缩放
-    PadCenter(input_size),  # 四周补零
+    Resize1(input_size),# 按比例缩放
+    PadSquare(),# 填充为正方形
     torchvision.transforms.ToTensor(),
-
     torchvision.transforms.RandomVerticalFlip(0.5),
     torchvision.transforms.RandomHorizontalFlip(0.5),
 
@@ -22,7 +20,7 @@ transform_basic = [
     # torchvision.transforms.RandomRotation(90, expand=False, interpolation=InterpolationMode.BILINEAR),
     # torchvision.transforms.CenterCrop(input_size),
 ]
-
+torchvision.transforms.ToPILImage
 transform_advan = [
     # torchvision.transforms.Pad(300, padding_mode='symmetric'),
     torchvision.transforms.GaussianBlur(kernel_size=(3, 7)),  # 随机高斯模糊
@@ -34,41 +32,20 @@ transform_advan = [
 trans_train_mask = torchvision.transforms.Compose(transform_basic)
 trans_train_image = torchvision.transforms.Compose(transform_basic + transform_advan)
 
+
 transform_val = torchvision.transforms.Compose([
-    Resize1(),  # 边长变为偶数
-    Resize2(300),  # 按比例缩放
-    PadCenter(input_size),  # 四周补零
+    Resize1(300),  # 按比例缩放
+    PadSquare(),  # 四周补零
     torchvision.transforms.ToTensor()])
-
-
-# transform_train = torchvision.transforms.Compose([
-#
-#     torchvision.transforms.Resize(input_size),
-#     torchvision.transforms.Pad(100, padding_mode='symmetric'),
-#     torchvision.transforms.RandomVerticalFlip(0.5),
-#     torchvision.transforms.RandomHorizontalFlip(0.5),
-#     # torchvision.transforms.GaussianBlur(kernel_size=(3, 5), sigma=(0.1, 2.0)),
-#     torchvision.transforms.RandomRotation(10, expand=False, interpolation=InterpolationMode.BILINEAR),
-#     torchvision.transforms.RandomAffine(degrees=0, translate=(0.02, 0.01)),
-#     torchvision.transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1),  # 亮度、对比度、饱和度
-#     # torchvision.transforms.ToTensor(),
-#     torchvision.transforms.CenterCrop(input_size),
-# ])
 
 
 class data_seg(Dataset):
     def __init__(self, data_path, transform_image=None, transform_mask=None):
         self.transform_image = transform_image
         self.transform_mask = transform_mask
-        ext = ['.jpg', '.png', '.bmp']
 
-        images_path = os.path.join(data_path, "images")
-        labels_path = os.path.join(data_path, "masks")
-
-        self.Images = [images_path + '/' + f for f in os.listdir(images_path) if
-                       f.endswith('.jpg') or f.endswith('.png') or f.endswith('.bmp')]
-        self.Labels = [labels_path + '/' + f for f in os.listdir(labels_path) if
-                       f.endswith('.jpg') or f.endswith('.png') or f.endswith('.bmp')]
+        self.Images = [data_path + '/' + f for f in os.listdir(data_path) if f.endswith('.jpg')]
+        self.Labels = [data_path + '/' + f for f in os.listdir(data_path) if f.endswith('.png')]
 
     def __len__(self):
         return len(self.Images)
@@ -83,49 +60,31 @@ class data_seg(Dataset):
         image_path = self.Images[item]
         label_path = self.Labels[item]
 
-        image = cv2.imread(image_path, cv2.IMREAD_COLOR)  # type:cv2.Mat
-        label = cv2.imread(label_path, cv2.IMREAD_COLOR)  # type:cv2.Mat
+        image = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)  # type:cv2.Mat
+        label = cv2.imread(label_path, cv2.IMREAD_UNCHANGED)  # type:cv2.Mat
 
-        seed = []
-        result_epoch_path = pathlib.Path(f'./run/train/seed.txt')
-        with result_epoch_path.open('r') as fp:
-            seed = int(fp.read())
+        h, w, c = image.shape
+        scale = input_size[0] / max(h, w)
+    
+        image = cv2.resize(image, None, fx=scale, fy=scale, interpolation=cv2.INTER_LINEAR)
+        label = cv2.resize(label, None, fx=scale, fy=scale, interpolation=cv2.INTER_NEAREST)
 
-        torch.manual_seed(seed)
-        if self.transform_image is not None:
-            image = self.transform_image(image)
-        torch.manual_seed(seed)
-        if self.transform_mask is not None:
-            label = self.transform_mask(label)
-        # else:
-        #     h, w, c = image.shape
-        #     scale = input_size[0] / max(h, w)
-        #     th, tw = round(scale * h), round(scale * w)
-        #
-        #     image = cv2.resize(image, dsize=(0, 0), fx=scale, fy=scale, interpolation=cv2.INTER_LINEAR)
-        #     label = cv2.resize(label, dsize=(0, 0), fx=scale, fy=scale, interpolation=cv2.INTER_LINEAR)
-        #
-        #     _, label = cv2.threshold(label, 0, 255, type=cv2.THRESH_BINARY)
-        #
-        #     pad_bottom = input_size[0] - th
-        #     pad_right = input_size[1] - tw
-        #
-        #     image = cv2.copyMakeBorder(image, 0, pad_bottom, 0, pad_right, borderType=cv2.BORDER_CONSTANT)
-        #     label = cv2.copyMakeBorder(label, 0, pad_bottom, 0, pad_right, borderType=cv2.BORDER_CONSTANT)
-        #
-        #     # cv2.imshow("dis1", image)
-        #     # cv2.waitKey(1)
-        #     #
-        #     # cv2.imshow("dis2", label)
-        #     # cv2.waitKey()
-        #
-        #     image = torchvision.transforms.ToTensor()(image)
-        #     label = torchvision.transforms.ToTensor()(label)
-        #
-        #     # image = trans_train(image)
-        #     # img = torchvision.transforms.ToPILImage()(image)  # type:PIL.Image.Image
-        #     # img.show()
+        h, w, c = image.shape
+        #_, label = cv2.threshold(label, 0, 255, type=cv2.THRESH_BINARY)
+    
+        left = (input_size[0] - w)//2
+        right = input_size[0] - w - left
+        top = (input_size[1] - h)//2
+        bottom = input_size[1] - h - top
+    
+        image = cv2.copyMakeBorder(image, top, bottom, left, right, borderType=cv2.BORDER_CONSTANT, value=0)
+        label = cv2.copyMakeBorder(label, top, bottom, left, right, borderType=cv2.BORDER_CONSTANT, value=0)
+    
+        image = torchvision.transforms.ToTensor()(image)
+        label = torchvision.transforms.ToTensor()(label)
 
+        print(torch.max(label))
+        print(torch.min(label))
         return image, label
 
 
@@ -206,17 +165,10 @@ class SEGData(Dataset):
 
 
 if __name__ == '__main__':
-    d = data_seg('D:/work/files/deeplearn_datasets/test_datasets/xray_real', transform_image=trans_train_image,
-                 transform_mask=trans_train_mask)
+    data = data_seg('D:/desktop/choujianji/roi/mask', transform_image=trans_train_image, transform_mask=trans_train_mask)
 
-    data_loader = DataLoader(d, 1, True)
+    data_loader = DataLoader(data, batch_size=1, shuffle=True)
     for img, label in data_loader:
-        # torchvision.transforms.ToPILImage()(img[0]).show()
-        # time.sleep(0.1)
-        # torchvision.transforms.ToPILImage()(label[0]).show()
-        # time.sleep(0.1)
+        torchvision.transforms.ToPILImage()(img[0] * label[0]).show()
 
-        # a = (b - torch.min(b)) / (torch.max(b) - torch.min(b))
-
-        #seed = round(random.random() * 1000000000)
-        torchvision.transforms.ToPILImage()(img[0] + 0.3 * label[0]).show()
+        
