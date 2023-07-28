@@ -41,7 +41,7 @@ def train(opt):
     # 加载预训练模型
     
     loss_best = 9999
-    path_best = os.path.join(opt.out_path,opt.weights)#f"{opt.out_path}/{opt.weights}"
+    path_best = os.path.join(opt.out_path,opt.weights)
     if os.path.exists(path_best):
         checkpoint = torch.load(path_best)
         net.load_state_dict(checkpoint['net'])
@@ -59,11 +59,8 @@ def train(opt):
             labels = labels.to(device)
 
             out = net(images)
-            out = F.sigmoid(out)
-
-            #bceloss，标签必须要在0到1之间
-            #损失函数参数要分input和labels，反了计算值可能是nan 2023.2.24
-            loss = loss_fn(input=out, target=labels)  
+            out = F.sigmoid(out) #bceloss，标签必须要在0到1之间,因此输出需要加个sigmoid
+            loss = loss_fn(input=out, target=labels) #损失函数参数要分input和labels，反了计算值可能是nan 2023.2.24
 
             optimizer.zero_grad()
             loss.backward()
