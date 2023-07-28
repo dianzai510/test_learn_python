@@ -1,4 +1,3 @@
-import os
 import torch
 from model import UNet
 from data import input_size, transform_val
@@ -12,6 +11,7 @@ if __name__ == "__main__":
     checkpoint = torch.load(path_best)
     net = UNet()
     net.load_state_dict(checkpoint['net'])
+    net.eval()
 
     image_path = 'D:/desktop/choujianji/roi/mask/LA22089071-0152_2( 4, 17 ).jpg'
     image = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED)   # type:cv2.Mat
@@ -32,4 +32,4 @@ if __name__ == "__main__":
     y = tensor2mat(x)
     cv2.imshow("dis", y)
     cv2.waitKey()
-    pass
+    cv2.destroyAllWindows()

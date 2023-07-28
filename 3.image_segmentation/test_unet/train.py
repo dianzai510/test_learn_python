@@ -6,9 +6,8 @@ from torch import nn
 from torch.utils.data import DataLoader
 from data import data_seg, trans_train_mask, trans_train_image
 from model import UNet
-import math
 import torch.nn.functional as F
-from datetime import datetime 
+import datetime 
 
 
 def train(opt):
@@ -47,9 +46,9 @@ def train(opt):
         checkpoint = torch.load(path_best)
         net.load_state_dict(checkpoint['net'])
         optimizer.load_state_dict(checkpoint['optimizer'])
+        time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
         loss_best = checkpoint['loss']
-        print(f"{checkpoint['time']} best.pth epoch: {checkpoint['epoch']}, loss: {checkpoint['loss']}")
-
+        print(f"{time}: best.pth, epoch: {epoch}, loss: {loss}")
     
     for epoch in range(1, opt.epoch):
         # 训练
@@ -83,7 +82,7 @@ def train(opt):
                           'optimizer': optimizer.state_dict(),
                           'epoch': epoch,
                           'loss': mean_loss_train.item(),
-                          'time': datetime.now}
+                          'time': datetime.date.today()}
             torch.save(checkpoint, path_best)
             print(f'已保存:{path_best}')
 
