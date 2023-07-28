@@ -72,16 +72,16 @@ def train(opt):
             loss_train += loss
 
         # 打印一轮的训练结果
-        mean_loss_train = loss_train / len(dataloader_train.dataset)
-        print(f"epoch:{epoch}, loss_train:{mean_loss_train}, lr:{optimizer.param_groups[0]['lr']}")
+        loss_train_mean = loss_train / len(dataloader_train.dataset)
+        print(f"epoch:{epoch}, loss_train:{loss_train_mean}, lr:{optimizer.param_groups[0]['lr']}")
 
         # 保存best.pth
-        if loss_train < loss_best:
+        if loss_train_mean < loss_best:
             loss_best = loss_train
             checkpoint = {'net': net.state_dict(),
                           'optimizer': optimizer.state_dict(),
                           'epoch': epoch,
-                          'loss': mean_loss_train.item(),
+                          'loss': loss_train_mean.item(),
                           'time': datetime.date.today()}
             torch.save(checkpoint, path_best)
             print(f'已保存:{path_best}')
