@@ -8,6 +8,7 @@ from data import data_seg, trans_train_mask, trans_train_image
 from model import UNet
 import math
 import torch.nn.functional as F
+from datetime import datetime 
 
 
 def train(opt):
@@ -40,14 +41,16 @@ def train(opt):
 
     # 加载预训练模型
     
-    path_best = f"{opt.out_path}/{opt.weights}"
+    loss_best = 9999
+    path_best = os.path.join(opt.out_path,opt.weights)#f"{opt.out_path}/{opt.weights}"
     if os.path.exists(path_best):
         checkpoint = torch.load(path_best)
         net.load_state_dict(checkpoint['net'])
         optimizer.load_state_dict(checkpoint['optimizer'])
-        print(f"best.pth epoch: {checkpoint['epoch']}, loss: {checkpoint['loss']}")
+        loss_best = checkpoint['loss']
+        print(f"{checkpoint['time']} best.pth epoch: {checkpoint['epoch']}, loss: {checkpoint['loss']}")
 
-    loss_best = 9999
+    
     for epoch in range(1, opt.epoch):
         # 训练
         net.train()
@@ -79,7 +82,8 @@ def train(opt):
             checkpoint = {'net': net.state_dict(),
                           'optimizer': optimizer.state_dict(),
                           'epoch': epoch,
-                          'loss': mean_loss_train.item()}
+                          'loss': mean_loss_train.item(),
+                          'time': datetime.now}
             torch.save(checkpoint, path_best)
             print(f'已保存:{path_best}')
 
