@@ -228,3 +228,5 @@ if __name__ == '__main__':
     opt = parser.parse_args()
 
     train(opt)
+    import torchvision
+    torchvision.models.segmentation.deeplabv3_resnet50()
