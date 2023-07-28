@@ -6,6 +6,7 @@ from PIL import Image
 import cv2
 from torchvision.transforms import InterpolationMode
 from our1314.myutils.ext_transform import Resize1, PadSquare
+import numpy as np
 
 input_size = (448, 448)
 
@@ -70,7 +71,7 @@ class data_seg(Dataset):
         label = cv2.resize(label, None, fx=scale, fy=scale, interpolation=cv2.INTER_NEAREST)
 
         h, w, c = image.shape
-        #_, label = cv2.threshold(label, 0, 255, type=cv2.THRESH_BINARY)
+        _, label = cv2.threshold(label, 0, 255, type=cv2.THRESH_BINARY)
     
         left = (input_size[0] - w)//2
         right = input_size[0] - w - left
@@ -79,12 +80,10 @@ class data_seg(Dataset):
     
         image = cv2.copyMakeBorder(image, top, bottom, left, right, borderType=cv2.BORDER_CONSTANT, value=0)
         label = cv2.copyMakeBorder(label, top, bottom, left, right, borderType=cv2.BORDER_CONSTANT, value=0)
-    
+
         image = torchvision.transforms.ToTensor()(image)
         label = torchvision.transforms.ToTensor()(label)
 
-        print(torch.max(label))
-        print(torch.min(label))
         return image, label
 
 

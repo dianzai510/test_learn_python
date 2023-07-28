@@ -1,6 +1,5 @@
 import argparse
 import os
-import pathlib
 from random import random
 import torch
 from torch import nn
@@ -8,6 +7,7 @@ from torch.utils.data import DataLoader
 from data import data_seg, trans_train_mask, trans_train_image
 from model import UNet
 import math
+import torch.nn.functional as F
 
 
 def train(opt):
@@ -34,8 +34,8 @@ def train(opt):
     # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.98)
     # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20)
 
-    lf = lambda x: ((1 + math.cos(x * math.pi / opt.epoch)) / 2) * (1 - 0.2) + 0.2
-    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
+    #lf = lambda x: ((1 + math.cos(x * math.pi / opt.epoch)) / 2) * (1 - 0.2) + 0.2
+    #scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
     # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
 
     # 加载预训练模型
@@ -53,20 +53,20 @@ def train(opt):
         net.train()
         loss_train = 0
         for images, labels in dataloader_train:
-            print(torch.max(labels))
-            print(torch.min(labels))
-
             images = images.to(device)
             labels = labels.to(device)
 
             out = net(images)
-            loss = loss_fn(input=out, target=labels)  # 损失函数参数要分input和labels，反了计算值可能是nan 2023.2.24
-            print(loss)
+            out = F.sigmoid(out)
+
+            #bceloss，标签必须要在0到1之间
+            #损失函数参数要分input和labels，反了计算值可能是nan 2023.2.24
+            loss = loss_fn(input=out, target=labels)  
 
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            scheduler.step()
+            #scheduler.step()
             loss_train += loss
 
         # 打印一轮的训练结果
