@@ -10,51 +10,7 @@ from torchvision.transforms import InterpolationMode
 
 input_size = (300, 300)
 
-
-# 按比例缩放
-class Resize2():
-    def __init__(self, width):
-        self.width = width
-
-    def __call__(self, img):
-        h, w, c = img.shape
-        scale = self.width / max(w, h)
-        W, H = round(scale * w), round(scale * h)
-        dst = cv2.resize(img, (W, H), interpolation=cv2.INTER_LINEAR)
-        return dst
-
-
-class PadCenter():
-    def __init__(self, size):
-        self.size = size
-
-    def __call__(self, img):
-        h, w, c = img.shape
-        W, H = self.size
-
-        pad_top = round((H - h) / 2)
-        pad_bottom = H - pad_top - h
-
-        pad_left = round((W - w) / 2)
-        pad_right = W - pad_left - w
-
-        dst = cv2.copyMakeBorder(img, pad_top, pad_bottom, pad_left, pad_right, borderType=cv2.BORDER_CONSTANT)
-        return dst
-
-
-class MatToTensor():
-    def __init__(self):
-        self.totensor = torchvision.transforms.ToTensor()
-
-    def __call__(self, img):
-        dst = self.totensor(img)
-        mmax = torch.max(dst)
-        mmin = torch.min(dst)
-        return dst
-
-
 transform_basic = [
-    Resize1(),  # 边长变为偶数
     Resize2(300),  # 按比例缩放
     PadCenter(input_size),  # 四周补零
     torchvision.transforms.ToTensor(),
