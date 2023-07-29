@@ -14,22 +14,28 @@ if __name__ == "__main__":
     net.eval()
 
     image_path = 'D:/desktop/choujianji/roi/mask/LA22089071-0152_2( 4, 17 ).jpg'
-    image = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED)   # type:cv2.Mat
-    h, w, _ = image.shape
+    src = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED)   # type:cv2.Mat
+    img = src.copy()
+    h, w, _ = src.shape
     scale = min(input_size[0]/w, input_size[1]/h)
-    image = cv2.resize(image, None, fx=scale, fy=scale, interpolation=cv2.INTER_LINEAR)
-    h, w, _ = image.shape
+    img = cv2.resize(src, None, fx=scale, fy=scale, interpolation=cv2.INTER_LINEAR)
+    h, w, _ = img.shape
     left = (input_size[0] - w)//2
     right = input_size[0] - w - left
     top = (input_size[1] - h)//2
     bottom = input_size[1] - h - top 
-    image = cv2.copyMakeBorder(image, top, bottom, left, right, borderType=cv2.BORDER_CONSTANT, value=0)
-    image = torchvision.transforms.ToTensor()(image)
-    image = torch.unsqueeze(image, dim=0)
-    x = net(image)
+    img = cv2.copyMakeBorder(img, top, bottom, left, right, borderType=cv2.BORDER_CONSTANT, value=0)
+    img = torchvision.transforms.ToTensor()(img)
+    img = torch.unsqueeze(img, dim=0)
+    x = net(img)
     x = torch.sigmoid(x)
     x = torch.squeeze(x, dim=0)
     y = tensor2mat(x)
-    cv2.imshow("dis", y)
+    
+    src = tensor2mat(img.squeeze_())
+    dis = cv2.copyTo(src, y)
+
+
+    cv2.imshow("dis", dis)
     cv2.waitKey()
     cv2.destroyAllWindows()
