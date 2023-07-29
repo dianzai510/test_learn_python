@@ -61,8 +61,8 @@ class data_seg(Dataset):
         image_path = self.Images[item]
         label_path = self.Labels[item]
 
-        image = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED)   # type:cv2.Mat
-        label = cv2.imdecode(np.fromfile(label_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED)  # type:cv2.Mat
+        image = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
+        label = cv2.imdecode(np.fromfile(label_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
 
         h, w, _ = image.shape
         scale = min(input_size[0]/w, input_size[1]/h)
