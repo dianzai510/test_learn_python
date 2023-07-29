@@ -121,11 +121,11 @@ def sigmoid(x):
     return 1. / (1 + np.exp(-x))
 
 
-if __name__ == '__main__':
-    x = torch.rand((3,300,300),dtype=torch.float)
-    y = tensor2mat(x)
-    y[y>0]=0
-    y=drawgrid(y, [10,10])
-    cv2.imshow('dis', y)
-    cv2.waitKey()
-    pass
+# if __name__ == '__main__':
+#     x = torch.rand((3,300,300),dtype=torch.float)
+#     y = tensor2mat(x)
+#     y[y>0]=0
+#     y=drawgrid(y, [10,10])
+#     cv2.imshow('dis', y)
+#     cv2.waitKey()
+#     pass
