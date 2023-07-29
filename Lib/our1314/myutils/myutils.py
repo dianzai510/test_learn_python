@@ -1,14 +1,10 @@
-import copy
 import os
 import cv2
 import numpy as np
 import torch
-import torchvision
 from PIL import Image
-from torch.nn import Module
 from math import *
-
-
+import torchvision.transforms as F
 
 def pil2mat(image):
     mat = cv2.cvtColor(np.asarray(image), cv2.COLOR_RGB2BGR)
@@ -20,16 +16,13 @@ def mat2pil(mat):
 
 def tensor2mat(data, dtype=np.uint8):
     """
-    将给定的张量转换为Mat
+    将给定的张量转换为Mat类型图像，并自动*255，并交换通道RGB→BGR
     :param data:张量,三个维度，[c,h,w]
     :param dtype:模板数据类型，默认np.uint8
     :return:OpenCV Mat，三个维度，[h,w,c]
     """
+    assert len(data.shape)==3 , "张量维度不为3！"
 
-    size = data.size()
-    if len(size) != 3:
-        assert "张量维度不为3！"
-        return None
     img = data.detach().numpy()  # type:np.ndarray
     img = img.copy()  # 没有这句会报错：Layout of the output array img is incompatible with cv::Mat
     img *= 255
@@ -38,11 +31,16 @@ def tensor2mat(data, dtype=np.uint8):
     img = img.copy()
     return img
 
-def mat2tensor(mat, dtype=np.uint8):
-    tensor = torchvision.transforms.ToTensor()(mat)
+def mat2tensor(img:np.array, dtype=np.uint8):
+    """
+    输入图像数据为0-255，某人为BGR通道，自动交换为RGB通道，归一化至0-1
+    """
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    tensor = F.ToTensor(img)
     return tensor
 
-def drawgrid(img, size, color=(0, 0, 255), linewidth=2):
+
+def drawgrid(img, size, color=(0, 0, 255), linewidth=1):
     """
     在图像上绘制指定格式的网络线
     :param img:
@@ -51,10 +49,10 @@ def drawgrid(img, size, color=(0, 0, 255), linewidth=2):
     :param linewidth:
     :return:
     """
-    img = img.copy()
-    x = np.arange(size[0]) * img.shape[1] / size[0]
+    dis = img.copy()
+    x = np.arange(size[0]) * dis.shape[1] / size[0]
     y1 = np.zeros_like(x)
-    y2 = img.shape[0] * np.ones_like(x)
+    y2 = dis.shape[0] * np.ones_like(x)
     p1 = np.vstack((x, y1)).T
     p2 = np.vstack((x, y2)).T
 
@@ -62,11 +60,11 @@ def drawgrid(img, size, color=(0, 0, 255), linewidth=2):
         _p1, _p2 = p1[i], p2[i]  # type:np.ndarray
         _p1 = _p1.astype(np.int)
         _p2 = _p2.astype(np.int)
-        cv2.line(img, _p1, _p2, color)
+        cv2.line(dis, _p1, _p2, color)
 
-    y = np.arange(size[0]) * img.shape[1] / size[0]
+    y = np.arange(size[0]) * dis.shape[1] / size[0]
     x1 = np.zeros_like(x)
-    x2 = img.shape[0] * np.ones_like(x)
+    x2 = dis.shape[0] * np.ones_like(x)
     p1 = np.vstack((x1, y)).T
     p2 = np.vstack((x2, y)).T
 
@@ -74,9 +72,9 @@ def drawgrid(img, size, color=(0, 0, 255), linewidth=2):
         _p1, _p2 = p1[i], p2[i]  # type:np.ndarray
         _p1 = _p1.astype(np.int)
         _p2 = _p2.astype(np.int)
-        cv2.line(img, _p1, _p2, color)
+        cv2.line(dis, _p1, _p2, color)
 
-    return img
+    return dis
 
 def rectangle(img, center, wh, color, thickness):
     """
@@ -124,4 +122,10 @@ def sigmoid(x):
 
 
 if __name__ == '__main__':
+    x = torch.rand((3,300,300),dtype=torch.float)
+    y = tensor2mat(x)
+    y[y>0]=0
+    y=drawgrid(y, [10,10])
+    cv2.imshow('dis', y)
+    cv2.waitKey()
     pass
