@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-class mouseSelect():
+class mouseSelect_simple():
     def __init__(self, src, windowName='dis'):
         self.src = src
         self.windowName = windowName
@@ -34,9 +34,9 @@ class mouseSelect():
             cv2.destroyWindow(self.windowName)
 
 
-if __name__ == '__main__':
-    path = input('输入图像路径：')
-    src = cv2.imdecode(np.fromfile(path, dtype=np.uint8), cv2.IMREAD_COLOR)#type:np.ndarray
-    a = mouseSelect(src)
-    print(f'{a.pt1},{a.pt2}')
+# if __name__ == '__main__':
+#     path = input('输入图像路径：')
+#     src = cv2.imdecode(np.fromfile(path, dtype=np.uint8), cv2.IMREAD_COLOR)#type:np.ndarray
+#     a = mouseSelect(src)
+#     print(f'{a.pt1},{a.pt2}')
     
