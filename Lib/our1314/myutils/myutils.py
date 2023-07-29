@@ -93,9 +93,9 @@ def rectangle(img, center, wh, color, thickness):
     return img
 
 # 获取按时间排序的最后一个文件
-def getlastfile(path, ext):
+def getlastfile(path, ext='.pth'):
     if os.path.exists(path) is not True: return None
-    list_file = [path + '/' + f for f in os.listdir(path) if f.endswith(".pth")]  # 列表解析
+    list_file = [path + '/' + f for f in os.listdir(path) if f.endswith(ext)]  # 列表解析
     if len(list_file) > 0:
         list_file.sort(key=lambda fn: os.path.getmtime(fn))
         return list_file[-1]
@@ -114,7 +114,7 @@ def yolostr2data(yolostr: str):
         a = [f.strip() for f in a]
         a = [f for f in a if f != ""]
         data.append((int(a[0]), float(a[1]), float(a[2]), float(a[3]), float(a[4])))
-    return data
+    return np.array(data)
 
 def sigmoid(x):
     return 1. / (1 + np.exp(-x))
