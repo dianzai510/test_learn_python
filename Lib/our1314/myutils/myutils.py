@@ -103,6 +103,9 @@ def getlastfile(path, ext='.pth'):
         return None
 
 def yolostr2data(yolostr: str):
+    """
+    解析yolo字符串，转换为np.ndarray
+    """
     data = []
     yolostr = yolostr.strip()
     arr = yolostr.split('\n')
