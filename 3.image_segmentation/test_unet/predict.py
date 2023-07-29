@@ -27,7 +27,7 @@ if __name__ == "__main__":
     image = torchvision.transforms.ToTensor()(image)
     image = torch.unsqueeze(image, dim=0)
     x = net(image)
-
+    x = torch.sigmoid(x)
     x = torch.squeeze(x, dim=0)
     y = tensor2mat(x)
     cv2.imshow("dis", y)
