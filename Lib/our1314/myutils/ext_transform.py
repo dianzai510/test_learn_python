@@ -2,6 +2,7 @@ import torchvision
 import torch
 import numpy as np
 import cv2
+import torchvision.transforms.functional as F
 
 # 按比例将长边缩放至目标尺寸
 class Resize1:
@@ -13,7 +14,7 @@ class Resize1:
             _, h, w = x.shape
             scale = self.width / max(w, h)
             W, H = round(w * scale), round(h * scale)
-            x = torchvision.transforms.Resize((H, W))(x)
+            x = F.resize(x, [H,W])
             return x
         elif isinstance(np.ndarray):
             h, w, c = x.shape
@@ -33,7 +34,7 @@ class PadSquare:
             pad_up = round((width - h) / 2.0)
             pad_down = width - h - pad_up
 
-            x = torchvision.transforms.Pad((pad_left, pad_up, pad_right, pad_down))(x)
+            x = F.pad(x, [pad_left, pad_up, pad_right, pad_down])
             return x
 
         elif isinstance(np.ndarray):

@@ -7,8 +7,9 @@ import cv2
 from torchvision.transforms import InterpolationMode
 from our1314.myutils.ext_transform import Resize1, PadSquare
 import numpy as np
+import torchvision.transforms.functional as F
 
-input_size = (448, 448)
+input_size = (448, 448)#图像尺寸应该为16的倍数
 
 transform_basic = [
     Resize1(input_size),# 按比例缩放
@@ -79,8 +80,8 @@ class data_seg(Dataset):
         image = cv2.copyMakeBorder(image, top, bottom, left, right, borderType=cv2.BORDER_CONSTANT, value=0)
         label = cv2.copyMakeBorder(label, top, bottom, left, right, borderType=cv2.BORDER_CONSTANT, value=0)
 
-        image = torchvision.transforms.ToTensor()(image)
-        label = torchvision.transforms.ToTensor()(label)
+        image = F.ToTensor(image)
+        label = F.ToTensor(label)
 
         return image, label
 
