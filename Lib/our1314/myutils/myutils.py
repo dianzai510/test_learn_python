@@ -38,7 +38,6 @@ def mat2tensor(img:np.array, dtype=np.uint8):
     tensor = F.ToTensor(img)
     return tensor
 
-
 def drawgrid(img, size, color=(0, 0, 255), linewidth=1):
     """
     在图像上绘制指定格式的网络线
