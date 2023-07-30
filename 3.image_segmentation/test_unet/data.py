@@ -92,4 +92,4 @@ if __name__ == '__main__':
 
     data_loader = DataLoader(data, batch_size=1, shuffle=True)
     for image, label in data_loader:
-        torchvision.transforms.ToPILImage()(image[0]*label[0]).show()
+        F.to_pil_image(image[0]*label[0]).show()
