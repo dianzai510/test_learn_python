@@ -9,9 +9,9 @@ from our1314.myutils.ext_transform import Resize1, PadSquare
 import numpy as np
 import torchvision.transforms.functional as F
 
-# 数据增强的种类：1.平移、翻转、旋转、透视变换 2.颜色、噪声，其中1部分需要同事对图像和标签进行操作，2部分只对图像有效部分进行操作
+# 数据增强的种类：1.平移、翻转、旋转、尺寸、仿射变换 2.亮度、颜色、噪声，其中1部分需要同事对图像和标签进行操作，2部分只对图像有效部分进行操作
 input_size = (448, 448)#图像尺寸应该为16的倍数
-
+F.
 transform_basic = [
     Resize1(input_size),# 按比例缩放
     PadSquare(),# 填充为正方形
