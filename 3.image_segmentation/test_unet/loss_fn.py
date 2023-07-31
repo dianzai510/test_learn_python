@@ -2,6 +2,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
+#代码来至：https://github.com/bubbliiiing/unet-pytorch/blob/main/nets/unet_training.py
 
 def CE_Loss(inputs, target, cls_weights, num_classes=21):
     n, c, h, w = inputs.size()

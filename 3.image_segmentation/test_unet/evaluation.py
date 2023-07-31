@@ -1,5 +1,7 @@
 import torch
 
+#代码来至：https://github.com/LeeJunHyun/Image_Segmentation
+
 # SR : Segmentation Result
 # GT : Ground Truth
 def get_accuracy(SR,GT,threshold=0.5):
