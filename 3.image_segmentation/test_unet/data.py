@@ -43,6 +43,9 @@ transform_val = torchvision.transforms.Compose([
     torchvision.transforms.ToTensor()])
 
 
+
+
+
 class data_seg(Dataset):
     def __init__(self, data_path, transform_image=None, transform_mask=None):
         self.transform_image = transform_image

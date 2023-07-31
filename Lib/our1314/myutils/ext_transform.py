@@ -25,7 +25,6 @@ class Resize1:
             x = cv2.resize(x, (W, H), interpolation=cv2.INTER_LINEAR)
             return x
 
-
 class PadSquare:
     def __call__(self, x):
         if isinstance(torch.Tensor):
@@ -64,7 +63,27 @@ class randomaffine_imgs:
             x = F.affine(x, self.rot_deg, [int(self.transx*w),int(self.transy*h)], self.scale,1, interpolation=F.InterpolationMode.NEAREST)
             result.append(x)
         return result
+
+class randomvflip_imgs:
+    def __init__(self, p=0.5):
+        self.p = p
+
+    def __call__(self, imgs:list[torch.Tensor]):
+        value = random.uniform(0,1)
+        if value < self.p:
+            imgs = [F.vflip(x) for x in imgs]
+        return imgs
     
+class randomvhlip_imgs:
+    def __init__(self, p=0.5):
+        self.p = p
+
+    def __call__(self, imgs:list[torch.Tensor]):
+        value = random.uniform(0,1)
+        if value < self.p:
+            imgs = [F.hflip(x) for x in imgs]
+        return imgs
+
 # if __name__ == "__main__":
 #     a = randomaffine_imgs([-10,10],[-0.1,0.1],[-0.1,0.1],[0.9,1/0.9])
 #     image = cv2.imdecode(np.fromfile('D:/desktop/choujianji/roi/mask/LA22089071-0152_2( 4, 17 ).jpg', dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
