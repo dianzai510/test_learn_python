@@ -25,7 +25,8 @@ class Resize1:
                 h, w = x.shape[1],x.shape[2]
                 scale = self.width / max(w, h)
                 W, H = round(w * scale), round(h * scale)
-                result.append(F.resize(x, [H,W]))
+                img = F.resize(x,[H,W])
+                result.append(img)
 
             elif isinstance(x, np.ndarray):
                 h, w = x.shape[0],x.shape[1]
@@ -53,8 +54,8 @@ class PadSquare:
                 pad_right = width - w - pad_left
                 pad_up = round((width - h) / 2.0)
                 pad_down = width - h - pad_up
-
-                result.append(F.pad(x, [pad_left, pad_up, pad_right, pad_down]))
+                img = F.pad(x, [pad_left, pad_up, pad_right, pad_down])
+                result.append(img)
 
             elif isinstance(x, np.ndarray):
                 h, w = x.shape[0],x.shape[1]
@@ -110,6 +111,7 @@ class randomaffine_imgs:
                 H = np.linalg.inv(H1)@H2@H1
                 img_trans = cv2.warpAffine(x, H[0:2,0:3], (w,h))
                 result.append(img_trans)
+                
             else:
                 assert '数据类型应该是张量或者ndarray'
         return result
@@ -158,10 +160,10 @@ class randomhflip_imgs:
 if __name__ == "__main__":
     transform1 = torchvision.transforms.Compose([
             Resize1(448),#等比例缩放
-            # PadSquare(),
-            # randomaffine_imgs([-10,10], [-0.1,0.1], [-0.1,0.1], [0.7,1/0.7]),
-            # randomvflip_imgs(0.5),
-            # randomhflip_imgs(0.5)
+            PadSquare(),
+            randomaffine_imgs([-10,10], [-0.1,0.1], [-0.1,0.1], [0.9,1/0.9]),
+            randomvflip_imgs(0.5),
+            randomhflip_imgs(0.5)
         ])
     
     data_path = 'D:/desktop/choujianji/roi/mask'
@@ -180,6 +182,7 @@ if __name__ == "__main__":
             bb = cv2.hconcat([b1,b2])
         elif isinstance(b1, torch.Tensor):
             b2 = b2.numpy()
+            b2 = np.transpose(b2, [1,2,0])
             b2 = cv2.cvtColor(b2, cv2.COLOR_GRAY2BGR)
             b2 = F.to_tensor(b2)
             bb = torch.cat([b1,b2],dim=2)
