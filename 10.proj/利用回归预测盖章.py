@@ -8,37 +8,17 @@ import numpy as np
 import argparse
 from torch import nn
 import datetime
+from random import shuffle
 
 class net_xray(Module):
     def __init__(self, cls_num=1):
         super(net_xray, self).__init__()
-        resnet = resnet18(weights=ResNet18_Weights.DEFAULT)
-        self.conv1 = resnet.conv1
-        self.bn1 = resnet.bn1
-        self.relu = resnet.relu
-        self.maxpool = resnet.maxpool
-
-        self.layer1 = resnet.layer1
-        self.layer2 = resnet.layer2
-        self.layer3 = resnet.layer3
-        self.layer4 = resnet.layer4
-        self.avgpool = resnet.avgpool
-
-        self.conv2 = nn.Conv2d(512,1,kernel_size=8)
-        self.sigmoid = torch.nn.Sigmoid()
-
+        self.resnet = resnet18(weights=ResNet18_Weights.DEFAULT)
+        self.resnet.avgpool = nn.Conv2d(512, 1, kernel_size=8)
+        self.resnet.fc = torch.nn.Sigmoid()
+        
     def forward(self, x):
-        x = self.conv1(x)
-        x = self.bn1(x)
-        x = self.relu(x)
-        x = self.maxpool(x)
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
-        x = self.layer4(x)
-        x = self.conv2(x)
-        x = torch.flatten(x)
-        x = self.sigmoid(x)
+        x = self.resnet(x)
         return x
     
 class data_xray_毛刺(Dataset):
@@ -62,7 +42,7 @@ class data_xray_毛刺(Dataset):
         s = f.read().strip()#type:str
         f.close()
 
-        label = torch.tensor(float(s), dtype=torch.float)
+        label = torch.tensor([float(s)], dtype=torch.float)
         image = torch.tensor(image, dtype=torch.float)
         return image, label
 
@@ -86,12 +66,12 @@ def train(opt):
     loss_best = 9999
     path_best = os.path.join(opt.out_path, opt.weights)
     if os.path.exists(path_best):
-        checkpoint = torch.load(path_best)
-        net.load_state_dict(checkpoint['net'])
-        optimizer.load_state_dict(checkpoint['optimizer'])
-        time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
-        loss_best = checkpoint['loss']
-        print(f"{time}: best.pth, epoch: {epoch}, loss: {loss}")
+        # checkpoint = torch.load(path_best)
+        # net.load_state_dict(checkpoint['net'])
+        # optimizer.load_state_dict(checkpoint['optimizer'])
+        # time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
+        # loss_best = checkpoint['loss']
+        # print(f"{time}: best.pth, epoch: {epoch}, loss: {loss}")
         pass
     
     for epoch in range(1, opt.epoch):
@@ -134,6 +114,7 @@ def predict(opt):
     net.load_state_dict(checkpoint['net'])
 
     files = [os.path.join(opt.data_path,'JPEGImages', f) for f in os.listdir(os.path.join(opt.data_path,'JPEGImages'))]  # 列表解析
+    shuffle(files)
 
     for f in files:
         src = cv2.imdecode(np.fromfile(f, dtype=np.uint8), cv2.IMREAD_COLOR)  # type:cv2.Mat
@@ -143,8 +124,8 @@ def predict(opt):
         image = torch.unsqueeze(image, 0)
 
         out = net(image)
-        dis = cv2.putText(src, str(torch.round(out,decimals=3).item()), (0,100), 0, 1, (0,0,255), 1)
-        #dis = cv2.putText(src, str(out.item()), (0,100), 0, 1, (0,0,255), 1)
+        print(str(torch.round(out,decimals=2).item()))
+        dis = cv2.putText(src, str(round(out.item(), 2)), (0,100), 0, 1, (0,0,255), 1)
         cv2.imshow('dis', dis)
         cv2.waitKey()
 
@@ -156,8 +137,8 @@ if __name__ == '__main__':
     parser.add_argument('--resume', default=False, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
     parser.add_argument('--data_path', default='D:/desktop/seal_data(划分之后)/train')  # 修改
     parser.add_argument('--epoch', default=1000, type=int)
-    parser.add_argument('--lr', default=0.01, type=float)
-    parser.add_argument('--batch_size', default=10, type=int)
+    parser.add_argument('--lr', default=0.0001, type=float)
+    parser.add_argument('--batch_size', default=20, type=int)
 
     opt = parser.parse_args()
 
