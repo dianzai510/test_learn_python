@@ -142,5 +142,5 @@ if __name__ == '__main__':
 
     opt = parser.parse_args()
 
-    train(opt)
-    #predict(opt)
+    #train(opt)
+    predict(opt)
