@@ -74,7 +74,7 @@ class randomvflip_imgs:
             imgs = [F.vflip(x) for x in imgs]
         return imgs
     
-class randomvhlip_imgs:
+class randomhflip_imgs:
     def __init__(self, p=0.5):
         self.p = p
 

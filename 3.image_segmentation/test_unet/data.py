@@ -44,12 +44,15 @@ transform_val = torchvision.transforms.Compose([
 
 
 
-
+transform1 = [
+    randomaffine_imgs([-5,5], [-0.1,0.1], [-0.1,0.1], [0.7,1/0.7]),
+    ran
+]
 
 class data_seg(Dataset):
-    def __init__(self, data_path, transform_image=None, transform_mask=None):
-        self.transform_image = transform_image
-        self.transform_mask = transform_mask
+    def __init__(self, data_path, transform1=None, transform2=None):
+        self.transform1 = transform1
+        self.transform2 = transform2
 
         self.Images = [os.path.join(data_path, f) for f in os.listdir(data_path) if f.endswith('.jpg')]
         self.Labels = [os.path.join(data_path, f) for f in os.listdir(data_path) if f.endswith('.png')]
@@ -87,6 +90,9 @@ class data_seg(Dataset):
 
         image = F.ToTensor(image)
         label = F.ToTensor(label)
+
+        image, label = self.transform1([image, label])
+        image = self.transform2(image)
 
         return image, label
 
