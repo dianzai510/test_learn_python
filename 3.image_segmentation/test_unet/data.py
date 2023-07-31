@@ -45,8 +45,10 @@ transform_val = torchvision.transforms.Compose([
 
 
 transform1 = [
+    Resize1(input_size[0]),#等比例缩放
     randomaffine_imgs([-5,5], [-0.1,0.1], [-0.1,0.1], [0.7,1/0.7]),
-    ran
+    randomvflip_imgs(0.7),
+    randomhflip_imgs(0.7)
 ]
 
 class data_seg(Dataset):
@@ -105,7 +107,7 @@ if __name__ == '__main__':
     label = cv2.imdecode(np.fromfile('D:/desktop/choujianji/roi/mask/LA22089071-0152_2( 4, 17 ).png', dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
     image = F.to_tensor(image)
     label = F.to_tensor(label)
-    b1,b2 = a(image, label)
+    b1,b2 = transform1(image, label)
 
     data_loader = DataLoader(data, batch_size=1, shuffle=True)
     for image, label in data_loader:
