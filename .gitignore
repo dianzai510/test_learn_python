@@ -107,3 +107,5 @@ Lib/dist/our1314-0.1.13.tar.gz
 3.image_segmentation/test_unet/__pycache__/model.cpython-39.pyc
 3.image_segmentation/test_unet/run/train/best.pth
 Lib/dist/our1314-0.1.17-py3-none-any.whl
+10.proj/__pycache__/data.cpython-39.pyc
+10.proj/run/train/best.pth
