@@ -1,3 +1,4 @@
+from typing import Any
 from torch.utils.data import Dataset, DataLoader
 import torch
 import os
@@ -8,9 +9,10 @@ from torchvision.transforms import InterpolationMode
 from our1314.myutils.ext_transform import Resize1, PadSquare
 import numpy as np
 import torchvision.transforms.functional as F
+from our1314.myutils.ext_transform import *
 
 # 数据增强的种类：1.平移、翻转、旋转、尺寸、仿射变换 2.亮度、颜色、噪声，其中1部分需要同时对图像和标签进行操作，2部分只对图像有效部分进行操作
-input_size = (448, 448)#图像尺寸应该为16的倍数
+input_size = (448-32, 448-32)#图像尺寸应该为16的倍数
 
 transform_basic = [
     Resize1(input_size),# 按比例缩放
@@ -34,7 +36,6 @@ transform_advan = [
 
 trans_train_mask = torchvision.transforms.Compose(transform_basic)
 trans_train_image = torchvision.transforms.Compose(transform_basic + transform_advan)
-
 
 transform_val = torchvision.transforms.Compose([
     Resize1(300),  # 按比例缩放
@@ -89,7 +90,23 @@ class data_seg(Dataset):
 
 if __name__ == '__main__':
     data = data_seg('D:/desktop/choujianji/roi/mask', transform_image=trans_train_image, transform_mask=trans_train_mask)
+    a = randomaffine_2img([-10,10], [-0.1,0.1], transy=[-0.1,0.1], scale=[0.7, 1/0.7])
+    
+    image = cv2.imdecode(np.fromfile('D:/desktop/choujianji/roi/mask/LA22089071-0152_2( 4, 17 ).jpg', dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
+    label = cv2.imdecode(np.fromfile('D:/desktop/choujianji/roi/mask/LA22089071-0152_2( 4, 17 ).png', dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
+    image = F.to_tensor(image)
+    label = F.to_tensor(label)
+    b1,b2 = a(image, label)
+    
 
     data_loader = DataLoader(data, batch_size=1, shuffle=True)
     for image, label in data_loader:
+        
+        
         F.to_pil_image(image[0]*label[0]).show()
+
+    
+    a = randomaffine_2img([-10,10], [-0.1,0.1], transy=[-0.1,0.1], scale=[0.7, 1/0.7])
+    
+    
+    
