@@ -118,14 +118,15 @@ def predict(opt):
 
     for f in files:
         src = cv2.imdecode(np.fromfile(f, dtype=np.uint8), cv2.IMREAD_COLOR)  # type:cv2.Mat
-        src = cv2.resize(src, (250,250))
-        image = np.transpose(src, [2,0,1])
+        h,w,c_ = src.shape
+        image = cv2.resize(src, (250,250))
+        image = np.transpose(image, [2,0,1])
         image = torch.tensor(image, dtype=torch.float)
         image = torch.unsqueeze(image, 0)
 
         out = net(image)
-        print(str(torch.round(out,decimals=2).item()))
-        dis = cv2.putText(src, str(round(out.item(), 2)), (0,100), 0, 1, (0,0,255), 1)
+        
+        dis = cv2.putText(src, str(round(out.item(), 2)), (0,h-1), 0, 1, (0,0,255), 1)
         cv2.imshow('dis', dis)
         cv2.waitKey()
 
@@ -142,5 +143,5 @@ if __name__ == '__main__':
 
     opt = parser.parse_args()
 
-    train(opt)
-    #predict(opt)
+    #train(opt)
+    predict(opt)
