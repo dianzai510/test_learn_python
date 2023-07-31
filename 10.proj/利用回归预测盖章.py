@@ -1,4 +1,3 @@
-import math
 import torch
 from torch.nn import Linear, Module
 from torchvision.models.resnet import resnet18, ResNet18_Weights
@@ -9,7 +8,6 @@ import numpy as np
 import argparse
 from torch import nn
 import datetime
-
 
 class net_xray(Module):
     def __init__(self, cls_num=1):
@@ -63,8 +61,8 @@ class data_xray_毛刺(Dataset):
         f = open(label_path)
         s = f.read().strip()#type:str
         f.close()
-        label = torch.tensor(float(s), dtype=torch.float)
 
+        label = torch.tensor(float(s), dtype=torch.float)
         image = torch.tensor(image, dtype=torch.float)
         return image, label
 
@@ -88,12 +86,12 @@ def train(opt):
     loss_best = 9999
     path_best = os.path.join(opt.out_path, opt.weights)
     if os.path.exists(path_best):
-        # checkpoint = torch.load(path_best)
-        # net.load_state_dict(checkpoint['net'])
-        # optimizer.load_state_dict(checkpoint['optimizer'])
-        # time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
-        # loss_best = checkpoint['loss']
-        # print(f"{time}: best.pth, epoch: {epoch}, loss: {loss}")
+        checkpoint = torch.load(path_best)
+        net.load_state_dict(checkpoint['net'])
+        optimizer.load_state_dict(checkpoint['optimizer'])
+        time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
+        loss_best = checkpoint['loss']
+        print(f"{time}: best.pth, epoch: {epoch}, loss: {loss}")
         pass
     
     for epoch in range(1, opt.epoch):
