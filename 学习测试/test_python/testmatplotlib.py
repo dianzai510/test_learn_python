@@ -8,7 +8,8 @@ import numpy as np
 # plt.plot(X,S)
 # #在ipython的交互环境中需要这句话才能显示出来
 # plt.show()
-
+ 
+ 
 
 # fig = plt.figure()
 # ax = fig.add_subplot(111, projection='3d')
