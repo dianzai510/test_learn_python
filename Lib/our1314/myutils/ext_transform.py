@@ -65,12 +65,12 @@ class randomaffine_imgs:
             result.append(x)
         return result
     
-if __name__ == "__main__":
-    a = randomaffine_imgs([-10,10],[-0.1,0.1],[-0.1,0.1],[0.9,1/0.9])
-    image = cv2.imdecode(np.fromfile('D:/desktop/choujianji/roi/mask/LA22089071-0152_2( 4, 17 ).jpg', dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
-    label = cv2.imdecode(np.fromfile('D:/desktop/choujianji/roi/mask/LA22089071-0152_2( 4, 17 ).png', dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
-    image = F.to_tensor(image)
-    label = F.to_tensor(label)
-    b1,b2 = a([image, label])
-    F.to_pil_image(b1).show()
-    F.to_pil_image(b2).show()
+# if __name__ == "__main__":
+#     a = randomaffine_imgs([-10,10],[-0.1,0.1],[-0.1,0.1],[0.9,1/0.9])
+#     image = cv2.imdecode(np.fromfile('D:/desktop/choujianji/roi/mask/LA22089071-0152_2( 4, 17 ).jpg', dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
+#     label = cv2.imdecode(np.fromfile('D:/desktop/choujianji/roi/mask/LA22089071-0152_2( 4, 17 ).png', dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
+#     image = F.to_tensor(image)
+#     label = F.to_tensor(label)
+#     b1,b2 = a([image, label])
+#     F.to_pil_image(b1).show()
+#     F.to_pil_image(b2).show()
