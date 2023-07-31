@@ -66,12 +66,12 @@ def train(opt):
     loss_best = 9999
     path_best = os.path.join(opt.out_path, opt.weights)
     if os.path.exists(path_best):
-        # checkpoint = torch.load(path_best)
-        # net.load_state_dict(checkpoint['net'])
-        # optimizer.load_state_dict(checkpoint['optimizer'])
-        # time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
-        # loss_best = checkpoint['loss']
-        # print(f"{time}: best.pth, epoch: {epoch}, loss: {loss}")
+        checkpoint = torch.load(path_best)
+        net.load_state_dict(checkpoint['net'])
+        optimizer.load_state_dict(checkpoint['optimizer'])
+        time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
+        loss_best = checkpoint['loss']
+        print(f"{time}: best.pth, epoch: {epoch}, loss: {loss}")
         pass
     
     for epoch in range(1, opt.epoch):
@@ -142,5 +142,5 @@ if __name__ == '__main__':
 
     opt = parser.parse_args()
 
-    #train(opt)
-    predict(opt)
+    train(opt)
+    #predict(opt)
