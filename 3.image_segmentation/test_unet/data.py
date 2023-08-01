@@ -54,7 +54,7 @@ transform1 = torchvision.transforms.Compose([
 
 transform2 = torchvision.transforms.Compose([
     torchvision.transforms.GaussianBlur(kernel_size=(3, 7)),  # 随机高斯模糊
-    torchvision.transforms.ColorJitter(brightness=(0.5, 1.5))
+    torchvision.transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.4)
 ])
 
 class data_seg(Dataset):
@@ -81,40 +81,14 @@ class data_seg(Dataset):
         image = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
         label = cv2.imdecode(np.fromfile(label_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
 
-        h, w, _ = image.shape
-        scale = min(input_size[0]/w, input_size[1]/h)
-    
-        image = cv2.resize(image, None, fx=scale, fy=scale, interpolation=cv2.INTER_LINEAR)
-        label = cv2.resize(label, None, fx=scale, fy=scale, interpolation=cv2.INTER_LINEAR)
-
-        h, w, _ = image.shape
-        left = (input_size[0] - w)//2
-        right = input_size[0] - w - left
-        top = (input_size[1] - h)//2
-        bottom = input_size[1] - h - top 
-    
-        image = cv2.copyMakeBorder(image, top, bottom, left, right, borderType=cv2.BORDER_CONSTANT, value=0)
-        label = cv2.copyMakeBorder(label, top, bottom, left, right, borderType=cv2.BORDER_CONSTANT, value=0)
-
-        image = F.ToTensor(image)
-        label = F.ToTensor(label)
-
         image, label = self.transform1([image, label])
-        image = self.transform2(image)
+        image = self.transform2([image])
 
         return image, label
 
 
 if __name__ == '__main__':
     data = data_seg('D:/desktop/choujianji/roi/mask', transform_image=trans_train_image, transform_mask=trans_train_mask)
-    a = randomaffine_imgs([-10,10], [-0.1,0.1], transy=[-0.1,0.1], scale=[0.7, 1/0.7])
-    
-    image = cv2.imdecode(np.fromfile('D:/desktop/choujianji/roi/mask/LA22089071-0152_2( 4, 17 ).jpg', dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
-    label = cv2.imdecode(np.fromfile('D:/desktop/choujianji/roi/mask/LA22089071-0152_2( 4, 17 ).png', dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
-    image = F.to_tensor(image)
-    label = F.to_tensor(label)
-    b1,b2 = transform1(image, label)
-
     data_loader = DataLoader(data, batch_size=1, shuffle=True)
     for image, label in data_loader:
         F.to_pil_image(image[0]*label[0]).show()
