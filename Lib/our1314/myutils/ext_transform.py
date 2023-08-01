@@ -83,16 +83,16 @@ class randomaffine_imgs:
         assert type(imgs) == list,'类型不为list'
         assert len(imgs) !=0, '数量为0'
 
-        rot_deg = random.uniform(self.rotate[0], self.rotate[1])
-        transx = random.uniform(self.transx[0], self.transx[1])
-        transy = random.uniform(self.transy[0], self.transy[1])
-        scale = random.uniform(min(self.scale), max(self.scale))
+        rot_deg = 0 if self.rotate == None else random.uniform(self.rotate[0], self.rotate[1])
+        transx = 0 if self.transx == None else random.uniform(self.transx[0], self.transx[1])
+        transy = 0 if self.transy == None else random.uniform(self.transy[0], self.transy[1])
+        scale = 0 if self.scale == None else random.uniform(min(self.scale), max(self.scale))
 
         result = []
         for x in imgs:
             if isinstance(x, torch.Tensor):
                 h, w = x.shape[1],x.shape[2]
-                img_trans = F.affine(x, rot_deg, [int(transx*w),int(transy*h)], scale, 1, interpolation=F.InterpolationMode.NEAREST)
+                img_trans = F.affine(x, rot_deg, [int(transx*w),int(transy*h)], scale, 1, interpolation=F.InterpolationMode.BILINEAR)
                 result.append(img_trans)
             
             elif isinstance(x, np.ndarray):
@@ -104,14 +104,14 @@ class randomaffine_imgs:
                     [0,0,1]
                 ])
                 H2 = np.array([
-                    [cos(angle_rad),-sin(angle_rad),0],
-                    [sin(angle_rad),cos(angle_rad),0],
+                    [scale*cos(angle_rad),-sin(angle_rad),transx*w],
+                    [sin(angle_rad),scale*cos(angle_rad),transy*h],
                     [0,0,1]
                 ])
                 H = np.linalg.inv(H1)@H2@H1
                 img_trans = cv2.warpAffine(x, H[0:2,0:3], (w,h))
                 result.append(img_trans)
-                
+
             else:
                 assert '数据类型应该是张量或者ndarray'
         return result
@@ -161,7 +161,7 @@ if __name__ == "__main__":
     transform1 = torchvision.transforms.Compose([
             Resize1(448),#等比例缩放
             PadSquare(),
-            randomaffine_imgs([-10,10], [-0.1,0.1], [-0.1,0.1], [0.9,1/0.9]),
+            randomaffine_imgs([-0,0], [-0,0], [-0,0], [1,1/1]),
             randomvflip_imgs(0.5),
             randomhflip_imgs(0.5)
         ])
@@ -176,14 +176,26 @@ if __name__ == "__main__":
         #r = randomaffine_imgs([-10,10],[-0.1,0.1],[-0.1,0.1],[0.9,1/0.9]) # randomhflip_imgs(1)
         #b1,b2 = r([F.to_tensor(image), F.to_tensor(label)])
         
-        b1,b2 = transform1([F.to_tensor(image),F.to_tensor(label)])
-        if isinstance(b1,np.ndarray):
-            b2 = cv2.cvtColor(b2, cv2.COLOR_GRAY2BGR)
-            bb = cv2.hconcat([b1,b2])
+        
+
+        b1,b2 = transform1([image,label])
+        #b1,b2 = transform1([F.to_tensor(image),F.to_tensor(label)])
+        if isinstance(b1, np.ndarray):
+            b1 = b1/255.0
+            b2 = b2/255.0
+
+            b1[:,:,2] += 0.6*b2
+            dis = b1
+            a1 = np.max(dis)
+            pass
         elif isinstance(b1, torch.Tensor):
-            b2 = b2.numpy()
-            b2 = np.transpose(b2, [1,2,0])
-            b2 = cv2.cvtColor(b2, cv2.COLOR_GRAY2BGR)
-            b2 = F.to_tensor(b2)
-            bb = torch.cat([b1,b2],dim=2)
-        F.to_pil_image(bb).show()
+            m1 = torch.max(b1)
+            b1[2:,:,:] += 0.6*b2
+            dis = b1.numpy()
+            dis = np.transpose(dis, [1,2,0])
+            a1 = np.max(dis)
+            a1 = np.max(dis)
+            pass
+        #F.to_pil_image(dis).show()
+        cv2.imshow('dis', dis)
+        cv2.waitKey()
