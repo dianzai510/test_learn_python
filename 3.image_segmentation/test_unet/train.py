@@ -104,7 +104,7 @@ if __name__ == '__main__':
     parser.add_argument('--data_path_val', default='D:/desktop/choujianji/roi/mask/val')  # 修改
     parser.add_argument('--epoch', default=1000, type=int)
     parser.add_argument('--lr', default=0.001, type=float)
-    parser.add_argument('--batch_size', default=2, type=int)
+    parser.add_argument('--batch_size', default=10, type=int)
 
     opt = parser.parse_args()
 
