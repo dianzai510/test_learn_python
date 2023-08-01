@@ -9,6 +9,29 @@ from math import *
 from our1314.myutils.mathexp import *
 import typing
 import os
+import PIL
+
+class ToTensors:
+    def __call__(self, imgs):
+        assert type(imgs) == list,'类型不为list'
+        assert len(imgs) !=0, '数量为0'
+
+        result = []
+        for x in imgs:
+            if isinstance(x, Image.Image):
+                img = F.to_tensor(x)
+                result.append(img)
+
+            elif isinstance(x, np.ndarray):
+                img = F.to_tensor(x)
+                result.append(img)
+            elif isinstance(x, torch.Tensor):
+                result.append(x)
+
+            else:
+                assert '数据类型应该是张量或者ndarray'
+
+        return result
 
 # 按比例将长边缩放至目标尺寸
 class Resize1:
@@ -159,6 +182,7 @@ class randomhflip_imgs:
 
 if __name__ == "__main__":
     transform1 = torchvision.transforms.Compose([
+            ToTensors(),
             Resize1(448),#等比例缩放
             PadSquare(),
             randomaffine_imgs([-0,0], [-0,0], [-0,0], [1,1/1]),
@@ -173,13 +197,11 @@ if __name__ == "__main__":
         image = cv2.imdecode(np.fromfile(Images[i], dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
         label = cv2.imdecode(np.fromfile(Labels[i], dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
 
-        #r = randomaffine_imgs([-10,10],[-0.1,0.1],[-0.1,0.1],[0.9,1/0.9]) # randomhflip_imgs(1)
-        #b1,b2 = r([F.to_tensor(image), F.to_tensor(label)])
-        
-        
+        # image = Image.open(Images[i])
+        # label = Image.open(Labels[i])
+        #b1 = transform1([image])[0]
 
         b1,b2 = transform1([image,label])
-        #b1,b2 = transform1([F.to_tensor(image),F.to_tensor(label)])
         if isinstance(b1, np.ndarray):
             b1 = b1/255.0
             b2 = b2/255.0

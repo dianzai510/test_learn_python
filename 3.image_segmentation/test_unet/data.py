@@ -45,6 +45,7 @@ transform_val = torchvision.transforms.Compose([
 
 
 transform1 = torchvision.transforms.Compose([
+    ToTensors(),
     Resize1(448),#等比例缩放
     PadSquare(),
     randomaffine_imgs([-10,10], [-0.1,0.1], [-0.1,0.1], [0.9,1/0.9]),
@@ -53,8 +54,8 @@ transform1 = torchvision.transforms.Compose([
 ])
 
 transform2 = torchvision.transforms.Compose([
-    torchvision.transforms.GaussianBlur(kernel_size=(3, 7)),  # 随机高斯模糊
-    torchvision.transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.4)
+    torchvision.transforms.GaussianBlur(kernel_size=(1, 13)),  # 随机高斯模糊
+    torchvision.transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.3)
 ])
 
 class data_seg(Dataset):
@@ -81,14 +82,16 @@ class data_seg(Dataset):
         image = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
         label = cv2.imdecode(np.fromfile(label_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
 
-        image, label = self.transform1([image, label])
-        image = self.transform2([image])
+        image = Image.open(image_path)
+        label = Image.open(label_path)
 
+        image,label = self.transform1([image,label])
+        image = self.transform2(image)
         return image, label
 
 
 if __name__ == '__main__':
-    data = data_seg('D:/desktop/choujianji/roi/mask', transform_image=trans_train_image, transform_mask=trans_train_mask)
+    data = data_seg('D:/desktop/choujianji/roi/mask', transform1=transform1, transform2=transform2)
     data_loader = DataLoader(data, batch_size=1, shuffle=True)
     for image, label in data_loader:
         F.to_pil_image(image[0]*label[0]).show()
