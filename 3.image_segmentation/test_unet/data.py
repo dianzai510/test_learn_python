@@ -17,7 +17,7 @@ antialias=True
 input_size = (448,448)
 transform1 = torchvision.transforms.Compose([
     ToTensors(),
-    Resize1(input_size),#等比例缩放
+    Resize1(input_size[0]),#等比例缩放
     PadSquare(),
     randomaffine_imgs(0.5, [-5,5], [-0.1,0.1], [-0.1,0.1], [0.9,1/0.9]),
     randomvflip_imgs(0.5),
@@ -31,7 +31,7 @@ transform2 = torchvision.transforms.Compose([
 
 transform_val = torchvision.transforms.Compose([
     ToTensors(),
-    Resize1(input_size),  # 按比例缩放
+    Resize1(input_size[0]),  # 按比例缩放
     PadSquare()  # 四周补零
 ])
 

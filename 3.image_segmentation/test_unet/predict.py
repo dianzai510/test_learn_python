@@ -32,7 +32,6 @@ if __name__ == "__main__":
         img = torchvision.transforms.ToTensor()(img)
         img = torch.unsqueeze(img, dim=0)
         x = net(img)
-        x = torch.sigmoid(x)
         x = torch.squeeze(x, dim=0)
         y = tensor2mat(x)
         _,y = cv2.threshold(y, 200, 255, cv2.THRESH_BINARY)

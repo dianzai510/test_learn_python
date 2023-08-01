@@ -191,20 +191,20 @@ if __name__ == "__main__":
             ToTensors(),
             Resize1(448),#等比例缩放
             PadSquare(),
-            randomaffine_imgs([-0,0], [-0,0], [-0,0], [1,1/1]),
+            randomaffine_imgs(1, [-0,0], [-0,0], [-0,0], [1,1/1]),
             randomvflip_imgs(0.5),
             randomhflip_imgs(0.5)
         ])
     
-    data_path = 'D:/desktop/choujianji/roi/mask'
+    data_path = 'D:/desktop/choujianji/roi/mask/train'
     Images = [os.path.join(data_path, f) for f in os.listdir(data_path) if f.endswith('.jpg')]
     Labels = [os.path.join(data_path, f) for f in os.listdir(data_path) if f.endswith('.png')]
     for i in range(len(Images)):
-        image = cv2.imdecode(np.fromfile(Images[i], dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
-        label = cv2.imdecode(np.fromfile(Labels[i], dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
+        # image = cv2.imdecode(np.fromfile(Images[i], dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
+        # label = cv2.imdecode(np.fromfile(Labels[i], dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
 
-        # image = Image.open(Images[i])
-        # label = Image.open(Labels[i])
+        image = Image.open(Images[i])
+        label = Image.open(Labels[i])
         #b1 = transform1([image])[0]
 
         b1,b2 = transform1([image,label])

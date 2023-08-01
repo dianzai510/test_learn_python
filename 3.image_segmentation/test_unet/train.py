@@ -83,12 +83,12 @@ def train(opt):
         print(f"epoch:{epoch}, loss_train:{loss_train}, loss_val:{loss_val}, lr:{optimizer.param_groups[0]['lr']}")
 
         # 保存best.pth
-        if loss_val < loss_best:
-            loss_best = loss_val
+        if loss_train < loss_best:
+            loss_best = loss_train
             checkpoint = {'net': net.state_dict(),
                           'optimizer': optimizer.state_dict(),
                           'epoch': epoch,
-                          'loss': loss_val.item(),
+                          'loss': loss_train.item(),
                           'time': datetime.date.today()}
             torch.save(checkpoint, path_best)
             print(f'已保存:{path_best}')
