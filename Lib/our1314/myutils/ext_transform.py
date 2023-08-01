@@ -97,47 +97,52 @@ class PadSquare:
         return result
 
 class randomaffine_imgs:
-    def __init__(self, rotate:list[float], transx:list[float], transy:list[float], scale:list[float]):
+    def __init__(self, p:float, rotate:list[float], transx:list[float], transy:list[float], scale:list[float]):
+        self.p = p
         self.rotate = rotate
         self.transx = transx
         self.transy = transy
         self.scale = scale
+        
 
     def __call__(self, imgs:list):
         assert type(imgs) == list,'类型不为list'
         assert len(imgs) !=0, '数量为0'
 
-        rot_deg = 0 if self.rotate == None else random.uniform(self.rotate[0], self.rotate[1])
-        transx = 0 if self.transx == None else random.uniform(self.transx[0], self.transx[1])
-        transy = 0 if self.transy == None else random.uniform(self.transy[0], self.transy[1])
-        scale = 0 if self.scale == None else random.uniform(min(self.scale), max(self.scale))
+        result = imgs.copy()
+        value = random.uniform(0,1)
+        if value < self.p:
+            rot_deg = 0 if self.rotate == None else random.uniform(self.rotate[0], self.rotate[1])
+            transx = 0 if self.transx == None else random.uniform(self.transx[0], self.transx[1])
+            transy = 0 if self.transy == None else random.uniform(self.transy[0], self.transy[1])
+            scale = 0 if self.scale == None else random.uniform(min(self.scale), max(self.scale))
 
-        result = []
-        for x in imgs:
-            if isinstance(x, torch.Tensor):
-                h, w = x.shape[1],x.shape[2]
-                img_trans = F.affine(x, rot_deg, [int(transx*w),int(transy*h)], scale, 1, interpolation=F.InterpolationMode.BILINEAR)
-                result.append(img_trans)
-            
-            elif isinstance(x, np.ndarray):
-                h,w = x.shape[0],x.shape[1]
-                angle_rad = rad(rot_deg)
-                H1 = np.array([
-                    [1,0,-w/2],
-                    [0,1,-h/2],
-                    [0,0,1]
-                ])
-                H2 = np.array([
-                    [scale*cos(angle_rad),-sin(angle_rad),transx*w],
-                    [sin(angle_rad),scale*cos(angle_rad),transy*h],
-                    [0,0,1]
-                ])
-                H = np.linalg.inv(H1)@H2@H1
-                img_trans = cv2.warpAffine(x, H[0:2,0:3], (w,h))
-                result.append(img_trans)
+            result = []
+            for x in imgs:
+                if isinstance(x, torch.Tensor):
+                    h, w = x.shape[1],x.shape[2]
+                    img_trans = F.affine(x, rot_deg, [int(transx*w),int(transy*h)], scale, 1, interpolation=F.InterpolationMode.BILINEAR)
+                    result.append(img_trans)
+                
+                elif isinstance(x, np.ndarray):
+                    h,w = x.shape[0],x.shape[1]
+                    angle_rad = rad(rot_deg)
+                    H1 = np.array([
+                        [1,0,-w/2],
+                        [0,1,-h/2],
+                        [0,0,1]
+                    ])
+                    H2 = np.array([
+                        [scale*cos(angle_rad),-sin(angle_rad),transx*w],
+                        [sin(angle_rad),scale*cos(angle_rad),transy*h],
+                        [0,0,1]
+                    ])
+                    H = np.linalg.inv(H1)@H2@H1
+                    img_trans = cv2.warpAffine(x, H[0:2,0:3], (w,h))
+                    result.append(img_trans)
 
-            else:
-                assert '数据类型应该是张量或者ndarray'
+                else:
+                    assert '数据类型应该是张量或者ndarray'
         return result
 
 class randomvflip_imgs:

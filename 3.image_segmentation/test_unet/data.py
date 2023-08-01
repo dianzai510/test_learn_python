@@ -13,13 +13,13 @@ from our1314.myutils.ext_transform import *
 
 antialias=True
 # 数据增强的种类：1.平移、翻转、旋转、尺寸、仿射变换 2.亮度、颜色、噪声，其中1部分需要同时对图像和标签进行操作，2部分只对图像有效部分进行操作
-input_size = (448-32, 448-32)#图像尺寸应该为16的倍数
-
+#input_size = (448-32, 448-32)#图像尺寸应该为16的倍数
+input_size = 448
 transform1 = torchvision.transforms.Compose([
     ToTensors(),
-    Resize1(448),#等比例缩放
+    Resize1(input_size),#等比例缩放
     PadSquare(),
-    randomaffine_imgs([-10,10], [-0.1,0.1], [-0.1,0.1], [0.9,1/0.9]),
+    randomaffine_imgs(0.5, [-5,5], [-0.1,0.1], [-0.1,0.1], [0.9,1/0.9]),
     randomvflip_imgs(0.5),
     randomhflip_imgs(0.5)
 ])
@@ -31,7 +31,7 @@ transform2 = torchvision.transforms.Compose([
 
 transform_val = torchvision.transforms.Compose([
     ToTensors(),
-    Resize1(448),  # 按比例缩放
+    Resize1(input_size),  # 按比例缩放
     PadSquare()  # 四周补零
 ])
 
@@ -64,7 +64,7 @@ class data_seg(Dataset):
 
 if __name__ == '__main__':
     
-    data = data_seg('D:/desktop/choujianji/roi/mask', transform1=transform1, transform2=transform2)
+    data = data_seg('D:/desktop/choujianji/roi/mask/train', transform1=transform1, transform2=transform2)
     data_loader = DataLoader(data, batch_size=1, shuffle=True)
     for image, label in data_loader:
         F.to_pil_image(image[0]*label[0]).show()
