@@ -38,7 +38,7 @@ if __name__ == "__main__":
         src = tensor2mat(img.squeeze_())
         dis = cv2.copyTo(src, y)
 
-
         cv2.imshow("dis", dis)
         cv2.waitKey(1)
+        
     cv2.destroyAllWindows()
