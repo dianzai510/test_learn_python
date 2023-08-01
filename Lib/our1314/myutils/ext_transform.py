@@ -49,7 +49,7 @@ class Resize1:
                 h, w = x.shape[1],x.shape[2]
                 scale = self.width / max(w, h)
                 W, H = round(w * scale), round(h * scale)
-                img = F.resize(x,[H,W])
+                img = F.resize(x,[H,W], antialias=True)
                 result.append(img)
 
             elif isinstance(x, np.ndarray):

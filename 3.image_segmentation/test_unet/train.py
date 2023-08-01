@@ -5,7 +5,6 @@ from torch import nn
 from torch.utils.data import DataLoader
 from data import data_seg, transform1, transform2, transform_val
 from model import UNet
-import torch.nn.functional as F
 import datetime 
 
 
@@ -73,7 +72,6 @@ def train(opt):
                 images = images.to(device)
                 labels = labels.to(device)
                 out = net(images)
-                out = F.sigmoid(out) #bceloss，标签必须要在0到1之间,因此输出需要加个sigmoid
                 loss = loss_fn(input=out, target=labels) #损失函数参数要分input和labels，反了计算值可能是nan 2023.2.24
                 loss_val += loss
 

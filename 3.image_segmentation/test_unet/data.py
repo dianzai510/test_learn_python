@@ -11,7 +11,7 @@ import numpy as np
 import torchvision.transforms.functional as F
 from our1314.myutils.ext_transform import *
 
-antialias=True
+
 # 数据增强的种类：1.平移、翻转、旋转、尺寸、仿射变换 2.亮度、颜色、噪声，其中1部分需要同时对图像和标签进行操作，2部分只对图像有效部分进行操作
 #input_size = (448-32, 448-32)#图像尺寸应该为16的倍数
 input_size = (448,448)
