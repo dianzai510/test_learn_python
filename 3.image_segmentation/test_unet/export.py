@@ -1,10 +1,11 @@
 import argparse
 import onnx
 import torch.onnx.utils
-from data import input_size
+from data import input_size, transform_val
 from model import UNet
 from our1314.myutils import exportsd, importsd
-
+import onnxruntime
+from PIL import Image
 
 def export(opt):
     path = opt.weights
@@ -28,7 +29,15 @@ def export(opt):
 
     # Checks 参考 yolov7
     onnx_model = onnx.load(f)  # load onnx model
-    onnx.checker.check_model(onnx_model)  # check onnx model
+    onnx.checker.check_model(onnx_model)  # check onnx model,检验失败将会抛出异常！
+
+    output_name = onnx_model.graph.output
+    session = onnxruntime.InferenceSession(f, providers=['CPUExecutionProvider'])
+
+    x = Image.open('D:/desktop/choujianji/roi/LA22089071-0152_2( 5, 1 ).jpg')
+    x = transform_val([x])
+
+    out = session.run(output_name, {'input':x})
 
     print('export onnx success!')
 

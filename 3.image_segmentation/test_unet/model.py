@@ -161,6 +161,8 @@ class UNet(nn.Module):
 
         self.Conv_1x1 = nn.Conv2d(64,output_ch,kernel_size=1,stride=1,padding=0)
 
+        self.sigmoid = nn.Sigmoid()
+
 
     def forward(self,x):
         # encoding path
@@ -197,6 +199,8 @@ class UNet(nn.Module):
         d2 = self.Up_conv2(d2)
 
         d1 = self.Conv_1x1(d2)
+
+        d1 = self.sigmoid(d1)
 
         return d1
 
