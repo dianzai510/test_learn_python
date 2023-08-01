@@ -30,9 +30,9 @@ transform2 = torchvision.transforms.Compose([
 ])
 
 transform_val = torchvision.transforms.Compose([
+    ToTensors(),
     Resize1(448),  # 按比例缩放
-    PadSquare(),  # 四周补零
-    ToTensors()
+    PadSquare()  # 四周补零
 ])
 
 class data_seg(Dataset):
