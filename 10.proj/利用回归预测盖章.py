@@ -154,7 +154,7 @@ if __name__ == '__main__':
     parser.add_argument('--resume', default=False, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
     parser.add_argument('--data_path', default='D:/desktop/seal_data(划分之后)/train')  # 修改
     parser.add_argument('--epoch', default=1000, type=int)
-    parser.add_argument('--lr', default=0.0001, type=float)
+    parser.add_argument('--lr', default=0.001, type=float)
     parser.add_argument('--batch_size', default=20, type=int)
 
     opt = parser.parse_args()
