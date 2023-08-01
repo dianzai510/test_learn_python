@@ -11,6 +11,7 @@ import typing
 import os
 import PIL
 
+
 class ToTensors:
     def __call__(self, imgs):
         assert type(imgs) == list,'类型不为list'

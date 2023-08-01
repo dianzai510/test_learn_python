@@ -11,38 +11,9 @@ import numpy as np
 import torchvision.transforms.functional as F
 from our1314.myutils.ext_transform import *
 
+antialias=True
 # 数据增强的种类：1.平移、翻转、旋转、尺寸、仿射变换 2.亮度、颜色、噪声，其中1部分需要同时对图像和标签进行操作，2部分只对图像有效部分进行操作
 input_size = (448-32, 448-32)#图像尺寸应该为16的倍数
-
-transform_basic = [
-    Resize1(input_size),# 按比例缩放
-    PadSquare(),# 填充为正方形
-    torchvision.transforms.ToTensor(),
-    torchvision.transforms.RandomVerticalFlip(0.5),
-    torchvision.transforms.RandomHorizontalFlip(0.5),
-
-    torchvision.transforms.RandomRotation(90, interpolation=InterpolationMode.NEAREST)
-    # torchvision.transforms.RandomRotation(90, expand=False, interpolation=InterpolationMode.BILINEAR),
-    # torchvision.transforms.CenterCrop(input_size),
-]
-torchvision.transforms.ToPILImage
-transform_advan = [
-    # torchvision.transforms.Pad(300, padding_mode='symmetric'),
-    torchvision.transforms.GaussianBlur(kernel_size=(3, 7)),  # 随机高斯模糊
-    torchvision.transforms.ColorJitter(brightness=(0.5, 1.5))
-    # , contrast=(0.8, 1.2), saturation=(0.8, 1.2)),  # 亮度、对比度、饱和度
-    # torchvision.transforms.ToTensor()
-]
-
-trans_train_mask = torchvision.transforms.Compose(transform_basic)
-trans_train_image = torchvision.transforms.Compose(transform_basic + transform_advan)
-
-transform_val = torchvision.transforms.Compose([
-    Resize1(300),  # 按比例缩放
-    PadSquare(),  # 四周补零
-    torchvision.transforms.ToTensor()])
-
-
 
 transform1 = torchvision.transforms.Compose([
     ToTensors(),
@@ -56,6 +27,12 @@ transform1 = torchvision.transforms.Compose([
 transform2 = torchvision.transforms.Compose([
     torchvision.transforms.GaussianBlur(kernel_size=(1, 13)),  # 随机高斯模糊
     torchvision.transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.3)
+])
+
+transform_val = torchvision.transforms.Compose([
+    Resize1(448),  # 按比例缩放
+    PadSquare(),  # 四周补零
+    ToTensors()
 ])
 
 class data_seg(Dataset):
@@ -74,23 +51,19 @@ class data_seg(Dataset):
         由于输出的图片的尺寸不同，我们需要转换为相同大小的图片。首先转换为正方形图片，然后缩放的同样尺度(256*256)。
         否则dataloader会报错。
         '''
+        image = Image.open(self.Images[item])
+        label = Image.open(self.Labels[item])
 
-        # 取出图片路径
-        image_path = self.Images[item]
-        label_path = self.Labels[item]
+        if self.transform1 != None:
+            image,label = self.transform1([image,label])
 
-        image = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
-        label = cv2.imdecode(np.fromfile(label_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED) # type:cv2.Mat
-
-        image = Image.open(image_path)
-        label = Image.open(label_path)
-
-        image,label = self.transform1([image,label])
-        image = self.transform2(image)
+        if self.transform2 != None:
+            image = self.transform2(image)
         return image, label
 
 
 if __name__ == '__main__':
+    
     data = data_seg('D:/desktop/choujianji/roi/mask', transform1=transform1, transform2=transform2)
     data_loader = DataLoader(data, batch_size=1, shuffle=True)
     for image, label in data_loader:
