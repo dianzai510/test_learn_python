@@ -35,6 +35,7 @@ if __name__ == "__main__":
         x = torch.sigmoid(x)
         x = torch.squeeze(x, dim=0)
         y = tensor2mat(x)
+        _,y = cv2.threshold(y, 200, 255, cv2.THRESH_BINARY)
         src = tensor2mat(img.squeeze_())
         dis = cv2.copyTo(src, y)
 

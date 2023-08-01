@@ -9,6 +9,7 @@ import argparse
 from torch import nn
 import datetime
 from random import shuffle
+import torchvision
 
 class net_xray(Module):
     def __init__(self, cls_num=1):
@@ -21,10 +22,19 @@ class net_xray(Module):
         x = self.resnet(x)
         return x
     
+
+train_train = torchvision.transforms.Compose([
+    torchvision.transforms.RandomHorizontalFlip(0.5),
+    torchvision.transforms.RandomVerticalFlip(0.5),
+    torchvision.transforms.RandomRotation(90)
+])
+
 class data_xray_毛刺(Dataset):
     def __init__(self, data_path):
         self.Images = [os.path.join(data_path,'JPEGImages', f) for f in os.listdir(os.path.join(data_path,'JPEGImages'))]  # 列表解析
         self.Labels = [os.path.join(data_path,'Labels', f) for f in os.listdir(os.path.join(data_path,'Labels'))]  # 列表解析
+
+        
 
     def __len__(self):
         return len(self.Images)
@@ -37,6 +47,9 @@ class data_xray_毛刺(Dataset):
         image = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_COLOR)  # type:cv2.Mat
         image = cv2.resize(image, (250,250))
         image = np.transpose(image, [2,0,1])
+
+
+
         # 读取标签
         f = open(label_path)
         s = f.read().strip()#type:str
@@ -44,6 +57,9 @@ class data_xray_毛刺(Dataset):
 
         label = torch.tensor([float(s)], dtype=torch.float)
         image = torch.tensor(image, dtype=torch.float)
+
+        image = train_train(image)
+
         return image, label
 
 
