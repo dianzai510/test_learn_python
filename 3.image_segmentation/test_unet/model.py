@@ -161,7 +161,7 @@ class UNet(nn.Module):
 
         self.Conv_1x1 = nn.Conv2d(64,output_ch,kernel_size=1,stride=1,padding=0)
 
-        self.sigmoid = nn.Sigmoid()
+        self.sigmoid = nn.Sigmoid()#bceloss，标签必须要在0到1之间,因此输出需要加个sigmoid
 
 
     def forward(self,x):
@@ -200,7 +200,7 @@ class UNet(nn.Module):
 
         d1 = self.Conv_1x1(d2)
 
-        d1 = self.sigmoid(d1)
+        d1 = self.sigmoid(d1)#bceloss，标签必须要在0到1之间,因此输出需要加个sigmoid
 
         return d1
 
