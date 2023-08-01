@@ -47,7 +47,7 @@ transform_val = torchvision.transforms.Compose([
 transform1 = torchvision.transforms.Compose([
     Resize1(448),#等比例缩放
     PadSquare(),
-    randomaffine_imgs([-10,10], [-0.1,0.1], [-0.1,0.1], [0.7,1/0.7]),
+    randomaffine_imgs([-10,10], [-0.1,0.1], [-0.1,0.1], [0.9,1/0.9]),
     randomvflip_imgs(0.5),
     randomhflip_imgs(0.5)
 ])
@@ -95,8 +95,6 @@ class data_seg(Dataset):
     
         image = cv2.copyMakeBorder(image, top, bottom, left, right, borderType=cv2.BORDER_CONSTANT, value=0)
         label = cv2.copyMakeBorder(label, top, bottom, left, right, borderType=cv2.BORDER_CONSTANT, value=0)
-
-        
 
         image = F.ToTensor(image)
         label = F.ToTensor(label)
