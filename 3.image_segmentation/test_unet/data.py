@@ -66,5 +66,9 @@ if __name__ == '__main__':
     data = data_seg('D:/desktop/choujianji/roi/mask/train', transform1=transform1, transform2=transform2)
     data_loader = DataLoader(data, batch_size=1, shuffle=True)
     for image, label in data_loader:
-        image[0] += 0.3*label[0]
-        F.to_pil_image(image[0]).show()
+        img = image[0]
+        mask = label[0]
+
+        img[0]+=mask[0]
+        F.to_pil_image(img).show()
+
