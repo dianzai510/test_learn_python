@@ -10,6 +10,7 @@ from torch import nn
 import datetime
 from random import shuffle
 import torchvision
+from torchvision.transforms import functional as F
 
 class net_xray(Module):
     def __init__(self, cls_num=1):
@@ -45,10 +46,14 @@ class data_xray_毛刺(Dataset):
 
         # 读取图像
         image = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_COLOR)  # type:cv2.Mat
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        # cv2.imshow('dis', image)
+        # cv2.waitKey()
+
+        image = image/255.0
         image = cv2.resize(image, (250,250))
         image = np.transpose(image, [2,0,1])
-
-
+        
 
         # 读取标签
         f = open(label_path)
@@ -59,7 +64,9 @@ class data_xray_毛刺(Dataset):
         image = torch.tensor(image, dtype=torch.float)
 
         image = train_train(image)
+        m=torch.max(image)
 
+        F.to_pil_image(image).show()
         return image, label
 
 
@@ -159,5 +166,5 @@ if __name__ == '__main__':
 
     opt = parser.parse_args()
 
-    #train(opt)
-    predict(opt)
+    train(opt)
+    #predict(opt)
