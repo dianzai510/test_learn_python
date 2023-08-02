@@ -46,7 +46,7 @@ def train(opt):
         net.load_state_dict(checkpoint['net'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
-        #loss_best = checkpoint['loss']
+        loss_best = checkpoint['loss']
         print(f"{time}: epoch: {epoch}, loss: {loss}")
     
     for epoch in range(1, opt.epoch):
