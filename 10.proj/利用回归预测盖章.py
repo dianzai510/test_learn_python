@@ -35,8 +35,6 @@ class data_xray_毛刺(Dataset):
         self.Images = [os.path.join(data_path,'JPEGImages', f) for f in os.listdir(os.path.join(data_path,'JPEGImages'))]  # 列表解析
         self.Labels = [os.path.join(data_path,'Labels', f) for f in os.listdir(os.path.join(data_path,'Labels'))]  # 列表解析
 
-        
-
     def __len__(self):
         return len(self.Images)
 
