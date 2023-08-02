@@ -24,7 +24,7 @@ def train(opt):
 
     loss_fn = nn.BCELoss()
     # loss_fn = dice_loss()
-
+    
     optimizer = torch.optim.SGD(net.parameters(), lr=opt.lr)  # 定义优化器 momentum=0.99
     #optimizer = torch.optim.Adam(net.parameters(), opt.lr)  # 定义优化器 momentum=0.99
 
@@ -32,11 +32,10 @@ def train(opt):
     # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.98)
     # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20)
 
-    #lf = lambda x: ((1 + math.cos(x * math.pi / opt.epoch)) / 2) * (1 - 0.2) + 0.2
     #scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
     # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
 
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=10, eta_min=1e-5)
+    #scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=10, eta_min=1e-5)
 
     # 加载预训练模型
     loss_best = 9999
@@ -66,7 +65,7 @@ def train(opt):
             
             loss_train += loss
 
-        scheduler.step()
+        #scheduler.step()
         # 验证
         net.eval()
         loss_val = 0
