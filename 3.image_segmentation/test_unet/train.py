@@ -25,7 +25,7 @@ def train(opt):
     loss_fn = nn.BCELoss()
     # loss_fn = dice_loss()
 
-    optimizer = torch.optim.SGD(net.parameters(), lr=opt.lr, momentum=0.99)  # 定义优化器 momentum=0.99
+    optimizer = torch.optim.SGD(net.parameters(), lr=opt.lr)  # 定义优化器 momentum=0.99
     #optimizer = torch.optim.Adam(net.parameters(), opt.lr)  # 定义优化器 momentum=0.99
 
     # 学习率更新策略
