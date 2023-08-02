@@ -13,6 +13,7 @@ if __name__ == "__main__":
     net = UNet()
     net.load_state_dict(checkpoint['net'])
     net.eval()
+    
     with torch.no_grad():
         dir = 'D:/desktop/choujianji/roi'
         files = [os.path.join(dir,f) for f in os.listdir(dir) if f.endswith('.jpg')]
