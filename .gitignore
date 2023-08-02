@@ -113,3 +113,4 @@ Lib/dist/our1314-0.1.17-py3-none-any.whl
 10.proj/run/train/1.pth
 3.image_segmentation/test_unet/run/train/best.onnx
 3.image_segmentation/test_unet/run/train/2.pth
+3.image_segmentation/test_unet/run/train/3.pth

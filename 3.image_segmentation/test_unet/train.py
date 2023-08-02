@@ -38,14 +38,14 @@ def train(opt):
 
     # 加载预训练模型
     loss_best = 9999
-    path_best = os.path.join(opt.out_path,opt.weights)
-    if os.path.exists(path_best):
-        checkpoint = torch.load(path_best)
+    path_weight = os.path.join(opt.out_path,opt.weights)
+    if os.path.exists(path_weight):
+        checkpoint = torch.load(path_weight)
         net.load_state_dict(checkpoint['net'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
-        loss_best = checkpoint['loss']
-        print(f"{time}: best.pth, epoch: {epoch}, loss: {loss}")
+        #loss_best = checkpoint['loss']
+        print(f"{time}: epoch: {epoch}, loss: {loss}")
     
     for epoch in range(1, opt.epoch):
         # 训练
@@ -88,17 +88,17 @@ def train(opt):
                           'epoch': epoch,
                           'loss': loss_train.item(),
                           'time': datetime.date.today()}
-            torch.save(checkpoint, path_best)
-            print(f'已保存:{path_best}')
+            torch.save(checkpoint, os.path.join(opt.out_path,'best.pth'))
+            print(f'已保存:best.pth')
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='best.pth', help='指定权重文件，未指定则使用官方权重！')
+    parser.add_argument('--weights', default='3.pth', help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--out_path', default='./run/train', type=str)  # 修改
     parser.add_argument('--resume', default=False, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
-    parser.add_argument('--data_path_train', default='D:/desktop/choujianji/roi/mask/train')  # 修改
-    parser.add_argument('--data_path_val', default='D:/desktop/choujianji/roi/mask/val')  # 修改
+    parser.add_argument('--data_path_train', default='D:/work/files/deeplearn_datasets/choujianji/roi-seg/train')  # 修改
+    parser.add_argument('--data_path_val', default='D:/work/files/deeplearn_datasets/choujianji/roi-seg/val')  # 修改
     parser.add_argument('--epoch', default=1000, type=int)
     parser.add_argument('--lr', default=0.001, type=float)
     parser.add_argument('--batch_size', default=5, type=int)
