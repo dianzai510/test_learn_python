@@ -36,6 +36,8 @@ def train(opt):
     #scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
     # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
 
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=10, eta_min=1e-5)
+
     # 加载预训练模型
     loss_best = 9999
     path_weight = os.path.join(opt.out_path,opt.weights)
@@ -61,9 +63,10 @@ def train(opt):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            #scheduler.step()
+            
             loss_train += loss
 
+        scheduler.step()
         # 验证
         net.eval()
         loss_val = 0
@@ -94,14 +97,14 @@ def train(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='3.pth', help='指定权重文件，未指定则使用官方权重！')
+    parser.add_argument('--weights', default='best.pth', help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--out_path', default='./run/train', type=str)  # 修改
     parser.add_argument('--resume', default=False, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
     parser.add_argument('--data_path_train', default='D:/work/files/deeplearn_datasets/choujianji/roi-seg/train')  # 修改
     parser.add_argument('--data_path_val', default='D:/work/files/deeplearn_datasets/choujianji/roi-seg/val')  # 修改
     parser.add_argument('--epoch', default=1000, type=int)
-    parser.add_argument('--lr', default=0.001, type=float)
-    parser.add_argument('--batch_size', default=5, type=int)
+    parser.add_argument('--lr', default=0.01, type=float)
+    parser.add_argument('--batch_size', default=8, type=int)
 
     opt = parser.parse_args()
 

@@ -13,7 +13,7 @@ if __name__ == "__main__":
     net = UNet()
     net.load_state_dict(checkpoint['net'])
     net.eval()
-    
+
     with torch.no_grad():
         dir = 'D:/desktop/choujianji/roi'
         files = [os.path.join(dir,f) for f in os.listdir(dir) if f.endswith('.jpg')]
@@ -23,12 +23,12 @@ if __name__ == "__main__":
             img, = transform_val([src])
             x = net(img.unsqueeze(0))#type:torch.Tensor
             x = x.squeeze_(dim=0)
-            x[x>0.7]=1
-            x[x<=0.7]=0
-
-            mask = tensor2mat(x)
-            dis = mask
-
+            x[x>0.7]=1.0
+            x[x<=0.7]=0.0
+            
+            dis = img.clone()
+            dis[0] = 0.7*img[0]+0.5*x
+            dis = tensor2mat(dis)
             cv2.imshow("dis", dis)
             cv2.waitKey(1)
         
