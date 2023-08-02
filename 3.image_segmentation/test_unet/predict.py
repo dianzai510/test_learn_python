@@ -18,6 +18,7 @@ if __name__ == "__main__":
         files = [os.path.join(dir,f) for f in os.listdir(dir) if f.endswith('.jpg')]
         for image_path in files:
             src = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED)   # type:cv2.Mat
+            
             img, = transform_val([src])
             x = net(img.unsqueeze(0))#type:torch.Tensor
             x = x.squeeze_(dim=0)
@@ -26,7 +27,7 @@ if __name__ == "__main__":
 
             mask = tensor2mat(x)
             dis = mask
-            
+
             cv2.imshow("dis", dis)
             cv2.waitKey(1)
         
