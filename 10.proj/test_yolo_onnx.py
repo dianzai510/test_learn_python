@@ -45,9 +45,9 @@ class yolo:
         self.up, self.left = (640-img.shape[0])//2, (640-img.shape[1])//2
         down = 640 - img.shape[0] - self.up
         right = 640 - img.shape[1] - self.left
-        #endregion
 
         img = cv2.copyMakeBorder(img, self.up, down, self.left, right, cv2.BORDER_CONSTANT, value=(128,128,128))
+        #endregion
 
         image_data = np.array(img) / 255.0
         #image_data = (image_data - np.array([0.485, 0.456, 0.406]))/np.array([0.229, 0.224, 0.225])
