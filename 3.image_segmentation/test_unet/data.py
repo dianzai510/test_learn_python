@@ -24,9 +24,9 @@ transform1 = torchvision.transforms.Compose([
     randomhflip_imgs(0.5)
 ])
 
-transform2 = torchvision.transforms.Compose([
+transform2 = torchvision.transforms.RandomApply([
     torchvision.transforms.GaussianBlur(kernel_size=(1, 13)),  # 随机高斯模糊
-    torchvision.transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.3)
+    torchvision.transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.3),
 ])
 
 transform_val = torchvision.transforms.Compose([

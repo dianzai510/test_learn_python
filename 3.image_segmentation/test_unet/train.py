@@ -11,7 +11,7 @@ import datetime
 def train(opt):
     os.makedirs(opt.out_path, exist_ok=True)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
     datasets_train = data_seg(opt.data_path_train, transform1, transform2)
     datasets_val = data_seg(opt.data_path_val, transform_val)
@@ -24,18 +24,17 @@ def train(opt):
 
     loss_fn = nn.BCELoss()
     # loss_fn = dice_loss()
-    
+
     optimizer = torch.optim.SGD(net.parameters(), lr=opt.lr)  # 定义优化器 momentum=0.99
     #optimizer = torch.optim.Adam(net.parameters(), opt.lr)  # 定义优化器 momentum=0.99
 
     # 学习率更新策略
     # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.98)
     # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20)
-
-    #scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
+    # scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
     # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
 
-    #scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=10, eta_min=1e-5)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20, eta_min=1e-5)
 
     # 加载预训练模型
     loss_best = 9999
@@ -43,7 +42,7 @@ def train(opt):
     if os.path.exists(path_weight):
         checkpoint = torch.load(path_weight)
         net.load_state_dict(checkpoint['net'])
-        optimizer.load_state_dict(checkpoint['optimizer'])
+        #optimizer.load_state_dict(checkpoint['optimizer'])
         time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
         loss_best = checkpoint['loss']
         print(f"{time}: epoch: {epoch}, loss: {loss}")
@@ -65,7 +64,7 @@ def train(opt):
             
             loss_train += loss
 
-        #scheduler.step()
+        scheduler.step()
         # 验证
         net.eval()
         loss_val = 0
@@ -80,7 +79,7 @@ def train(opt):
         # 打印一轮的训练结果
         loss_train = loss_train / len(dataloader_train.dataset)
         loss_val = loss_val / len(dataloader_val.dataset)
-        print(f"epoch:{epoch}, loss_train:{loss_train}, loss_val:{loss_val}, lr:{optimizer.param_groups[0]['lr']}")
+        print(f"epoch:{epoch}, loss_train:{round(loss_train, 6)}, loss_val:{round(loss_val, 6)}, lr:{optimizer.param_groups[0]['lr']}")
 
         # 保存best.pth
         if loss_train < loss_best:

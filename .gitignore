@@ -114,3 +114,7 @@ Lib/dist/our1314-0.1.17-py3-none-any.whl
 3.image_segmentation/test_unet/run/train/best.onnx
 3.image_segmentation/test_unet/run/train/2.pth
 3.image_segmentation/test_unet/run/train/3.pth
+3.image_segmentation/test_unet/deeplabv3/__pycache__/mobilenetv2.cpython-39.pyc
+3.image_segmentation/test_unet/deeplabv3/__pycache__/utils.cpython-39.pyc
+3.image_segmentation/test_unet/deeplabv3/__pycache__/xception.cpython-39.pyc
+3.image_segmentation/test_unet/deeplabv3/model_data/mobilenet_v2.pth.tar
