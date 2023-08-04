@@ -82,10 +82,10 @@ class deeplabv3(nn.Module):
         return x
     
 
-# if __name__ == "__main__":
-#     x = torch.rand([1,3,448,448])
-#     deeplab = deeplabv3()
-#     deeplab.eval()
-#     out = deeplab(x)
-#     print(out.shape)
-#     pass
+if __name__ == "__main__":
+    x = torch.rand([1,3,448,448])
+    deeplab = deeplabv3()
+    #deeplab.eval()
+    out = deeplab(x)
+    print(out.shape)
+    pass

@@ -20,7 +20,7 @@ def train(opt):
     dataloader_train = DataLoader(datasets_train, batch_size=opt.batch_size, shuffle=True, num_workers=1, drop_last=True)
     dataloader_val = DataLoader(datasets_val, batch_size=opt.batch_size, shuffle=True, num_workers=1, drop_last=True)
 
-    net = deeplabv3()
+    net = deeplabv3()#deeplabv3() UNet()
     net.to(device)
 
     loss_fn = nn.BCELoss()
@@ -99,11 +99,11 @@ if __name__ == '__main__':
     parser.add_argument('--weights', default='best-deeplab.pth', help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--out_path', default='./run/train', type=str)  # 修改
     parser.add_argument('--resume', default=False, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
-    parser.add_argument('--data_path_train', default='D:/work/files/deeplearn_datasets/choujianji/roi-seg/train')  # 修改
-    parser.add_argument('--data_path_val', default='D:/work/files/deeplearn_datasets/choujianji/roi-seg/val')  # 修改
+    parser.add_argument('--data_path_train', default='D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/train')  # 修改
+    parser.add_argument('--data_path_val', default='D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/val')  # 修改
     parser.add_argument('--epoch', default=1000, type=int)
     parser.add_argument('--lr', default=0.001, type=float)
-    parser.add_argument('--batch_size', default=5, type=int)
+    parser.add_argument('--batch_size', default=1, type=int)
 
     opt = parser.parse_args()
 
