@@ -24,7 +24,8 @@ def predict(opt):
             img, = transform_val([src])
             x = net(img.unsqueeze(0))#type:torch.Tensor
             x = x.squeeze_(dim=0)
-            t = 0.7
+            
+            t = opt.conf
             x[x>t]=1.0
             x[x<=t]=0.0
             
@@ -46,6 +47,7 @@ if __name__ == '__main__':
     parser.add_argument('--weights', default='best-deeplab.pth', help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--out_path', default='./run/train', type=str)  # 修改
     parser.add_argument('--data_path_test', default='D:/work/files/deeplearn_datasets/choujianji/roi-seg/test')  # 修改
+    parser.add_argument('--conf', default=0.9, type=float)
 
     opt = parser.parse_args()
 
