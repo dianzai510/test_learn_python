@@ -119,3 +119,7 @@ Lib/dist/our1314-0.1.17-py3-none-any.whl
 3.image_segmentation/test_unet/deeplabv3/__pycache__/xception.cpython-39.pyc
 3.image_segmentation/test_unet/deeplabv3/model_data/mobilenet_v2.pth.tar
 10.proj/yolov8-seg1.onnx
+3.image_segmentation/test_unet/train.py
+3.image_segmentation/test_unet/deeplab/__pycache__/deeplabv3.cpython-39.pyc
+3.image_segmentation/test_unet/run/train/best-deeplab.pth
+3.image_segmentation/test_unet/run/train/best-unet.pth

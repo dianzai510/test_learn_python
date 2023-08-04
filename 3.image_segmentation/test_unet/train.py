@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader
 from data import data_seg, transform1, transform2, transform_val
 from model import UNet
 import datetime 
+from deeplab.deeplabv3 import deeplabv3
 
 
 def train(opt):
@@ -19,7 +20,7 @@ def train(opt):
     dataloader_train = DataLoader(datasets_train, batch_size=opt.batch_size, shuffle=True, num_workers=1, drop_last=True)
     dataloader_val = DataLoader(datasets_val, batch_size=opt.batch_size, shuffle=True, num_workers=1, drop_last=True)
 
-    net = UNet()
+    net = deeplabv3()
     net.to(device)
 
     loss_fn = nn.BCELoss()
@@ -34,7 +35,7 @@ def train(opt):
     # scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
     # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
 
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20, eta_min=1e-5)
+    #scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20, eta_min=1e-5)
 
     # 加载预训练模型
     loss_best = 9999
@@ -62,9 +63,9 @@ def train(opt):
             loss.backward()
             optimizer.step()
             
-            loss_train += loss
+            loss_train += loss.item()
 
-        scheduler.step()
+        #scheduler.step()
         # 验证
         net.eval()
         loss_val = 0
@@ -74,28 +75,28 @@ def train(opt):
                 labels = labels.to(device)
                 out = net(images)
                 loss = loss_fn(input=out, target=labels) #损失函数参数要分input和labels，反了计算值可能是nan 2023.2.24
-                loss_val += loss
+                loss_val += loss.item()
 
         # 打印一轮的训练结果
         loss_train = loss_train / len(dataloader_train.dataset)
         loss_val = loss_val / len(dataloader_val.dataset)
         print(f"epoch:{epoch}, loss_train:{round(loss_train, 6)}, loss_val:{round(loss_val, 6)}, lr:{optimizer.param_groups[0]['lr']}")
 
-        # 保存best.pth
+        # 保存权重
         if loss_train < loss_best:
             loss_best = loss_train
             checkpoint = {'net': net.state_dict(),
                           'optimizer': optimizer.state_dict(),
                           'epoch': epoch,
-                          'loss': loss_train.item(),
+                          'loss': loss_train,
                           'time': datetime.date.today()}
-            torch.save(checkpoint, os.path.join(opt.out_path,'best.pth'))
-            print(f'已保存:best.pth')
+            torch.save(checkpoint, os.path.join(opt.out_path,opt.weights))
+            print(f'已保存:{opt.weights}')
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='best.pth', help='指定权重文件，未指定则使用官方权重！')
+    parser.add_argument('--weights', default='best-deeplab.pth', help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--out_path', default='./run/train', type=str)  # 修改
     parser.add_argument('--resume', default=False, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
     parser.add_argument('--data_path_train', default='D:/work/files/deeplearn_datasets/choujianji/roi-seg/train')  # 修改

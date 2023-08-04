@@ -73,49 +73,19 @@ class ASPP(nn.Module):
 class deeplabv3(nn.Module):
     def __init__(self):
         super(deeplabv3, self).__init__()
-
-        resnet = resnet18(weights=ResNet18_Weights.DEFAULT)
-        #self.resnet = nn.Sequential(*list(resnet.children())[:-4])
-        a = list(resnet.children())[:-4]
-        self.resnet = nn.Sequential(*a)
-
-        x = torch.rand([1,3,448,448])
-        out = self.resnet(x)
-        print(out.shape)
-        pass
-
+        self.deeplabv3 = deeplabv3_resnet50(DeepLabV3_ResNet50_Weights.DEFAULT)
+        self.deeplabv3.classifier = nn.Conv2d(2048, 1, kernel_size=1)
+        self.sigmoid = nn.Sigmoid()
     def forward(self, x):
-        c3 = self.resnet(x) # (shape: (batch_size, 128, h/8, w/8)) (it's called c3 since 8 == 2^3)
-        output = self.layer4(c3) # (shape: (batch_size, 256, h/8, w/8))
-        output = self.layer5(output) # (shape: (batch_size, 512, h/8, w/8))
+        x = self.deeplabv3(x)
+        x = self.sigmoid(x['out'])
         return x
     
-    def make_layer(self, block, in_channels, channels, num_blocks, stride=1, dilation=1):
-        strides = [stride] + [1]*(num_blocks - 1) # (stride == 2, num_blocks == 4 --> strides == [2, 1, 1, 1])
 
-        blocks = []
-        for stride in strides:
-            blocks.append(block(in_channels=in_channels, channels=channels, stride=stride, dilation=dilation))
-            in_channels = block.expansion*channels
-
-        layer = nn.Sequential(*blocks) # (*blocks: call with unpacked list entires as arguments)
-
-        return layer
-
-
-if __name__ == "__main__":
-    x = torch.rand([1,3,448,448])
-    deeplab = deeplabv3_resnet50(weights=DeepLabV3_ResNet50_Weights.DEFAULT)
-    deeplab.classifier = nn.Conv2d(2048,2,kernel_size=1)
-    deeplab.eval()
-    out = deeplab(x)
-    print(out['out'].shape)
-    print(out['aux'].shape)
-    
-    out = deeplab(x)
-    print(out.shape)
-
-    net = deeplabv3()
-    
-    out = net(x)
-    print(out.shapes)
+# if __name__ == "__main__":
+#     x = torch.rand([1,3,448,448])
+#     deeplab = deeplabv3()
+#     deeplab.eval()
+#     out = deeplab(x)
+#     print(out.shape)
+#     pass
