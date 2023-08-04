@@ -65,7 +65,7 @@ class data_seg(Dataset):
 
 
 if __name__ == '__main__':
-    data = data_seg('D:/desktop/choujianji/roi/mask/train', transform1=transform1, transform2=transform2)
+    data = data_seg('D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/train', transform1=transform1, transform2=transform2)
     data_loader = DataLoader(data, batch_size=1, shuffle=True)
     for image, label in data_loader:
         img = image[0]
