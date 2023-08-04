@@ -12,7 +12,7 @@ from deeplab.deeplabv3 import deeplabv3
 def train(opt):
     os.makedirs(opt.out_path, exist_ok=True)
 
-    device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     datasets_train = data_seg(opt.data_path_train, transform1, transform2)
     datasets_val = data_seg(opt.data_path_val, transform_val)
@@ -96,11 +96,11 @@ def train(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='best-deeplab2.pth', help='指定权重文件，未指定则使用官方权重！')
+    parser.add_argument('--weights', default='pretrain.pth', help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--out_path', default='./run/train', type=str)  # 修改
     parser.add_argument('--resume', default=False, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
-    parser.add_argument('--data_path_train', default='D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/train')  # 修改
-    parser.add_argument('--data_path_val', default='D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/val')  # 修改
+    parser.add_argument('--data_path_train', default='D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/train')  # 修改
+    parser.add_argument('--data_path_val', default='D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/val')  # 修改
     parser.add_argument('--epoch', default=1000, type=int)
     parser.add_argument('--lr', default=0.01, type=float)
     parser.add_argument('--batch_size', default=1, type=int)
