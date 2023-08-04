@@ -38,7 +38,7 @@ def predict(opt):
 
             dis = cv2.copyTo(img,mask)
             cv2.imshow("dis", dis)
-            cv2.waitKey(100)
+            cv2.waitKey()
         
     cv2.destroyAllWindows()
 
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--weights', default='best-deeplab.pth', help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--out_path', default='./run/train', type=str)  # 修改
-    parser.add_argument('--data_path_test', default='D:/work/files/deeplearn_datasets/choujianji/roi-seg/test')  # 修改
+    parser.add_argument('--data_path_test', default='D:/work/files/deeplearn_datasets/choujianji/roi-seg/val')  # 修改
     parser.add_argument('--conf', default=0.9, type=float)
 
     opt = parser.parse_args()
