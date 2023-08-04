@@ -123,3 +123,5 @@ Lib/dist/our1314-0.1.17-py3-none-any.whl
 3.image_segmentation/test_unet/deeplab/__pycache__/deeplabv3.cpython-39.pyc
 3.image_segmentation/test_unet/run/train/best-deeplab.pth
 3.image_segmentation/test_unet/run/train/best-unet.pth
+3.image_segmentation/test_unet/deeplab/deeplabv3.py
+3.image_segmentation/test_unet/run/train/best-deeplab1.pth
