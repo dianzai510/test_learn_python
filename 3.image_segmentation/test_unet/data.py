@@ -14,7 +14,7 @@ from our1314.myutils.ext_transform import *
 
 # 数据增强的种类：1.平移、翻转、旋转、尺寸、仿射变换 2.亮度、颜色、噪声，其中1部分需要同时对图像和标签进行操作，2部分只对图像有效部分进行操作
 #input_size = (448-32, 448-32)#图像尺寸应该为16的倍数
-input_size = (448,448)
+input_size = (304,304)
 transform1 = torchvision.transforms.Compose([
     ToTensors(),
     Resize1(input_size[0]),#等比例缩放
@@ -47,10 +47,6 @@ class data_seg(Dataset):
         return len(self.Images)
 
     def __getitem__(self, item):
-        '''
-        由于输出的图片的尺寸不同，我们需要转换为相同大小的图片。首先转换为正方形图片，然后缩放的同样尺度(256*256)。
-        否则dataloader会报错。
-        '''
         image = Image.open(self.Images[item])
         label = Image.open(self.Labels[item])
 
