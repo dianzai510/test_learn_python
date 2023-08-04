@@ -2,8 +2,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import init
+from torchvision.models.segmentation import deeplabv3_resnet50, DeepLabV3_ResNet50_Weights
+
 
 #代码来至：https://github.com/LeeJunHyun/Image_Segmentation
+
+#region unet
 
 def init_weights(net, init_type='normal', gain=0.02):
     def init_func(m):
@@ -424,8 +428,34 @@ class R2AttU_Net(nn.Module):
 
         return d1
 
+#endregion
+
+
+
+class deeplabv3(nn.Module):
+    def __init__(self, frozen=False):
+        super(deeplabv3, self).__init__()
+        self.deeplabv3 = deeplabv3_resnet50(weights=DeepLabV3_ResNet50_Weights.DEFAULT)
+        self.deeplabv3.classifier = nn.Conv2d(2048, 1, kernel_size=1)
+        self.sigmoid = nn.Sigmoid()
+
+        # 冻结特征层
+        if frozen == True:
+            for name, param in self.deeplabv3.named_parameters():
+                if name == 'classifier.weight':
+                    break
+                else:
+                    param.requires_grad(False)
+
+    def forward(self, x):
+        x = self.deeplabv3(x)
+        x = self.sigmoid(x['out'])
+        return x
 
 if __name__ == "__main__":
+    net = deeplabv3()
+    print(net)
+
     # loss_fn = torch.nn.BCELoss()
     # net = U_Net()
     # x = torch.rand([1,3,512,512],dtype=torch.float)

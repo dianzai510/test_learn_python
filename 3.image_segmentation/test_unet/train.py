@@ -4,9 +4,8 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from data import data_seg, transform1, transform2, transform_val
-from model import UNet
+from model import UNet,deeplabv3
 import datetime 
-from deeplab.deeplabv3 import deeplabv3
 
 
 def train(opt):
@@ -20,7 +19,7 @@ def train(opt):
     dataloader_train = DataLoader(datasets_train, batch_size=opt.batch_size, shuffle=True, num_workers=1, drop_last=True)
     dataloader_val = DataLoader(datasets_val, batch_size=opt.batch_size, shuffle=True, num_workers=1, drop_last=True)
 
-    net = deeplabv3()#deeplabv3() UNet()
+    net = deeplabv3()  # deeplabv3() UNet()
     net.to(device)
 
     loss_fn = nn.BCELoss()
@@ -41,10 +40,10 @@ def train(opt):
     path_weight = os.path.join(opt.out_path,opt.weights)
     if os.path.exists(path_weight):
         checkpoint = torch.load(path_weight)
-        net.load_state_dict(checkpoint['net'])
+        #net.load_state_dict(checkpoint['net'])
         #optimizer.load_state_dict(checkpoint['optimizer'])
         time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
-        loss_best = checkpoint['loss']
+        #loss_best = checkpoint['loss']
         print(f"{time}: epoch: {epoch}, loss: {loss}")
     
     for epoch in range(1, opt.epoch):
