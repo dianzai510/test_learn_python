@@ -196,6 +196,8 @@ if __name__ == "__main__":
     end = time.time()
     print(f'运行时间：{end-start}')
 
+    mask = cv2.merge([np.zeros_like(mask), np.zeros_like(mask), mask])
+    dis = cv2.addWeighted(dis, 1, mask, 0.6, 0)
     cv2.imshow("dis", dis)
     cv2.waitKey()
     
