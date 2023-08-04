@@ -24,7 +24,7 @@ def predict(opt):
             img, = transform_val([src])
             x = net(img.unsqueeze(0))#type:torch.Tensor
             x = x.squeeze_(dim=0)
-            
+
             t = opt.conf
             x[x>t]=1.0
             x[x<=t]=0.0
@@ -38,7 +38,7 @@ def predict(opt):
 
             dis = cv2.copyTo(img,mask)
             cv2.imshow("dis", dis)
-            cv2.waitKey(1)
+            cv2.waitKey(100)
         
     cv2.destroyAllWindows()
 
