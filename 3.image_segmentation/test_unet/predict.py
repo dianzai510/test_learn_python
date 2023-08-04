@@ -1,22 +1,23 @@
+import argparse
 import os
 import torch
 from model import UNet
+from deeplab.deeplabv3 import deeplabv3
 from data import input_size, transform_val
 import cv2
 import numpy as np
 import torchvision
 from our1314.myutils.myutils import tensor2mat
 
-if __name__ == "__main__":
-    path_best = f"./run/train/best.pth"
-    checkpoint = torch.load(path_best)
-    net = UNet()
+def predict(opt):
+    path_weight = os.path.join(opt.out_path,opt.weights)
+    checkpoint = torch.load(path_weight)
+    net = deeplabv3()
     net.load_state_dict(checkpoint['net'])
     net.eval()
 
     with torch.no_grad():
-        dir = 'D:/work/files/deeplearn_datasets/choujianji/roi-seg/val'
-        files = [os.path.join(dir,f) for f in os.listdir(dir) if f.endswith('.jpg')]
+        files = [os.path.join(opt.data_path_test,f) for f in os.listdir(opt.data_path_test) if f.endswith('.jpg')]
         for image_path in files:
             src = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED)   # type:cv2.Mat
             
@@ -39,3 +40,13 @@ if __name__ == "__main__":
             cv2.waitKey(1)
         
     cv2.destroyAllWindows()
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--weights', default='best-deeplab.pth', help='指定权重文件，未指定则使用官方权重！')
+    parser.add_argument('--out_path', default='./run/train', type=str)  # 修改
+    parser.add_argument('--data_path_test', default='D:/work/files/deeplearn_datasets/choujianji/roi-seg/val')  # 修改
+
+    opt = parser.parse_args()
+
+    predict(opt)
