@@ -14,7 +14,7 @@ from our1314.myutils.ext_transform import *
 
 # 数据增强的种类：1.平移、翻转、旋转、尺寸、仿射变换 2.亮度、颜色、噪声，其中1部分需要同时对图像和标签进行操作，2部分只对图像有效部分进行操作
 #input_size = (448-32, 448-32)#图像尺寸应该为16的倍数
-input_size = (448,448)
+input_size = (304,304)
 transform1 = torchvision.transforms.Compose([
     ToTensors(),
     Resize1(input_size[0]),#等比例缩放
@@ -24,9 +24,9 @@ transform1 = torchvision.transforms.Compose([
     randomhflip_imgs(0.5)
 ])
 
-transform2 = torchvision.transforms.Compose([
+transform2 = torchvision.transforms.RandomApply([
     torchvision.transforms.GaussianBlur(kernel_size=(1, 13)),  # 随机高斯模糊
-    torchvision.transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.3)
+    torchvision.transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.3),
 ])
 
 transform_val = torchvision.transforms.Compose([
@@ -47,10 +47,12 @@ class data_seg(Dataset):
         return len(self.Images)
 
     def __getitem__(self, item):
-        '''
-        由于输出的图片的尺寸不同，我们需要转换为相同大小的图片。首先转换为正方形图片，然后缩放的同样尺度(256*256)。
-        否则dataloader会报错。
-        '''
+        
+        file_name1, extension = os.path.splitext(os.path.basename(self.Images[item]))
+        file_name2, extension = os.path.splitext(os.path.basename(self.Labels[item]))
+        if file_name1!=file_name2:
+            assert "文件不相同！"
+
         image = Image.open(self.Images[item])
         label = Image.open(self.Labels[item])
 
@@ -63,7 +65,7 @@ class data_seg(Dataset):
 
 
 if __name__ == '__main__':
-    data = data_seg('D:/desktop/choujianji/roi/mask/train', transform1=transform1, transform2=transform2)
+    data = data_seg('D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/train', transform1=transform1, transform2=transform2)
     data_loader = DataLoader(data, batch_size=1, shuffle=True)
     for image, label in data_loader:
         img = image[0]
