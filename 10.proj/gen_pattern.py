@@ -25,7 +25,6 @@ import json
 import gzip
 from svgfig import *
 
-
 class PatternMaker:
     def __init__(self, cols, rows, output, units, square_size, radius_rate, page_width, page_height, markers, aruco_marker_size, dict_file):
         self.cols = cols
@@ -220,11 +219,11 @@ def main():
     # parse command line options
     parser = argparse.ArgumentParser(description="generate camera-calibration pattern", add_help=False)
     parser.add_argument("-H", "--help", help="show help", action="store_true", dest="show_help")
-    parser.add_argument("-o", "--output", help="output file", default="out.svg", action="store", dest="output")
-    parser.add_argument("-c", "--columns", help="pattern columns", default="8", action="store", dest="columns",
+    parser.add_argument("-o", "--output", help="output file", default="d:desktop/out.png", action="store", dest="output")
+    parser.add_argument("-c", "--columns", help="pattern columns", default="12", action="store", dest="columns",
                         type=int)
-    parser.add_argument("-r", "--rows", help="pattern rows", default="11", action="store", dest="rows", type=int)
-    parser.add_argument("-T", "--type", help="type of pattern", default="circles", action="store", dest="p_type",
+    parser.add_argument("-r", "--rows", help="pattern rows", default="9", action="store", dest="rows", type=int)
+    parser.add_argument("-T", "--type", help="type of pattern", default="checkerboard", action="store", dest="p_type",
                         choices=["circles", "acircles", "checkerboard", "radon_checkerboard", "charuco_board"])
     parser.add_argument("-u", "--units", help="length unit", default="mm", action="store", dest="units",
                         choices=["mm", "inches", "px", "m"])
