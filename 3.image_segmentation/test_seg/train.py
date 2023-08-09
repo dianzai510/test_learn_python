@@ -22,8 +22,8 @@ def train(opt):
     net = deeplabv3()  # deeplabv3() UNet()
     net.to(device)
 
-    loss_fn = nn.BCELoss()
-    # loss_fn = dice_loss()
+    loss_fn = nn.BCELoss(reduction='mean')
+    #loss_fn = nn.CrossEntropyLoss()
 
     optimizer = torch.optim.SGD(net.parameters(), lr=opt.lr)  # 定义优化器 momentum=0.99
     #optimizer = torch.optim.Adam(net.parameters(), opt.lr)  # 定义优化器 momentum=0.99
@@ -76,8 +76,8 @@ def train(opt):
                 loss_val += loss.item()
 
         # 打印一轮的训练结果
-        loss_train = loss_train / len(dataloader_train.dataset)
-        loss_val = loss_val / len(dataloader_val.dataset)
+        loss_train = loss_train / len(dataloader_train)
+        loss_val = loss_val / len(dataloader_val)
         print(f"epoch:{epoch}, loss_train:{round(loss_train, 6)}, loss_val:{round(loss_val, 6)}, lr:{optimizer.param_groups[0]['lr']}")
 
         # 保存权重
@@ -102,8 +102,8 @@ if __name__ == '__main__':
     parser.add_argument('--data_path_train', default='D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/train')
     parser.add_argument('--data_path_val', default='D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/val')
     parser.add_argument('--epoch', default=1000, type=int)
-    parser.add_argument('--lr', default=0.01, type=float)
-    parser.add_argument('--batch_size', default=1, type=int)
+    parser.add_argument('--lr', default=0.001, type=float)
+    parser.add_argument('--batch_size', default=24, type=int)
 
     opt = parser.parse_args()
 

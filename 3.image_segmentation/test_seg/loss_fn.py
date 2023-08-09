@@ -4,16 +4,16 @@ import torch.nn.functional as F
 
 #代码来至：https://github.com/bubbliiiing/unet-pytorch/blob/main/nets/unet_training.py
 
-def CE_Loss(inputs, target, cls_weights, num_classes=21):
-    n, c, h, w = inputs.size()
-    nt, ht, wt = target.size()
+def CE_Loss(input, target, cls_weights, num_classes=21):
+    n, c, h, w = input.size()
+    _, nt, ht, wt = target.size()
     if h != ht and w != wt:
-        inputs = F.interpolate(inputs, size=(ht, wt), mode="bilinear", align_corners=True)
+        input = F.interpolate(input, size=(ht, wt), mode="bilinear", align_corners=True)
 
-    temp_inputs = inputs.transpose(1, 2).transpose(2, 3).contiguous().view(-1, c)
+    temp_input = input.transpose(1, 2).transpose(2, 3).contiguous().view(-1, c)
     temp_target = target.view(-1)
 
-    CE_loss  = nn.CrossEntropyLoss(weight=cls_weights, ignore_index=num_classes)(temp_inputs, temp_target)
+    CE_loss  = nn.CrossEntropyLoss(weight=cls_weights, ignore_index=num_classes)(temp_input, temp_target)
     return CE_loss
 
 def Focal_Loss(inputs, target, cls_weights, num_classes=21, alpha=0.5, gamma=2):
