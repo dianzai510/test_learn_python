@@ -433,7 +433,7 @@ class R2AttU_Net(nn.Module):
 
 
 class deeplabv3(nn.Module):
-    def __init__(self, frozen=False):
+    def __init__(self, frozen=True):
         super(deeplabv3, self).__init__()
         self.deeplabv3 = deeplabv3_resnet50(weights=DeepLabV3_ResNet50_Weights.DEFAULT)
         self.deeplabv3.classifier = nn.Conv2d(2048, 1, kernel_size=1)
@@ -445,7 +445,7 @@ class deeplabv3(nn.Module):
                 if name == 'classifier.weight':
                     break
                 else:
-                    param.requires_grad(False)
+                    param.requires_grad = False
 
     def forward(self, x):
         x = self.deeplabv3(x)

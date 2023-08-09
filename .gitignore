@@ -145,3 +145,4 @@ Lib/dist/our1314-0.1.17-py3-none-any.whl
 3.image_segmentation/test_seg/run/train/best-deeplab2.pth
 3.image_segmentation/test_seg/run/train/best-unet.pth
 3.image_segmentation/test_seg/run/train/pretrain.pth
+3.image_segmentation/test_seg/run/train/best1.pth
