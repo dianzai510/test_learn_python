@@ -12,3 +12,8 @@ pip install mvtec-halcon==20110.0.0
 
 参考：https://blog.csdn.net/yifengchaoran/article/details/113447773
 
+python使用halcon需要将下列库放到代码目录下，且dll版本与pip安装的版本要一致：
+halcon.dll
+halconc.dll
+halconcpp.dll
+hdevenginecpp.dll
