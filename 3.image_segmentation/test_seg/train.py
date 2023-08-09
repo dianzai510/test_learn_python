@@ -39,7 +39,7 @@ def train(opt):
     loss_best = 9999
     if os.path.exists(opt.pretrain):
         checkpoint = torch.load(opt.pretrain)
-        #net.load_state_dict(checkpoint['net'])
+        net.load_state_dict(checkpoint['net'])
         #optimizer.load_state_dict(checkpoint['optimizer'])
         time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
         #loss_best = checkpoint['loss']
