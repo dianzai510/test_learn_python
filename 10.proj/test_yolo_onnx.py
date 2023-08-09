@@ -63,7 +63,7 @@ class yolo:
         #print(outputs[0])
         
         rows = outputs.shape[0]
-
+        
         boxes = []
         scores = []
         class_ids = []
