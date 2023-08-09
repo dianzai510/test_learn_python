@@ -191,7 +191,7 @@ def train(opt):
                               'epoch': epoch,
                               'acc': mean_acc_train,
                               'loss': mean_loss_train}
-                torch.save(checkpoint, f'{opt.out_path}/weights/best.pth')
+                torch.save(checkpoint, os.path.join(opt.out_path,opt.weights))
                 print(f"已保存为best.pth\n{result_epoch_str}")
                 # 写入best.txt
                 with result_best_path.open('w') as fp:
@@ -213,16 +213,14 @@ def train(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='',  # 修改
-                        help='指定权重文件，未指定则使用官方权重！')
-    parser.add_argument('--resume', default=False, type=bool,
-                        help='True表示从--weights参数指定的epoch开始训练,False从0开始')
-    parser.add_argument('--data', default=data_xray_maoci)  # 修改
+    parser.add_argument('--weights', default='best.pt', help='指定权重文件，未指定则使用官方权重！')#修改
+    parser.add_argument('--out_path', default='run/train/agl', type=str)#修改
+    parser.add_argument('--data', default=data_oqa_agl)#修改
 
+    parser.add_argument('--resume', default=False, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
     parser.add_argument('--epoch', default=400, type=int)
     parser.add_argument('--lr', default=0.01, type=float)
     parser.add_argument('--batch_size', default=60, type=int)
-    parser.add_argument('--out_path', default='run/train/xray_maoci', type=str)  # 修改
     parser.add_argument('--add_graph', default=False, type=bool)
     parser.add_argument('--save_period', default=20, type=int, help='多少轮保存一次，')
     parser.add_argument('--train_img', default=200, type=int, help='保存指定数量的训练图像')
