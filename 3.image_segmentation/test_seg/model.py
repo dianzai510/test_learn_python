@@ -435,9 +435,15 @@ class R2AttU_Net(nn.Module):
 class deeplabv3(nn.Module):
     def __init__(self, frozen=False):
         super(deeplabv3, self).__init__()
+
         self.deeplabv3 = deeplabv3_resnet50(weights=DeepLabV3_ResNet50_Weights.DEFAULT)
         self.deeplabv3.classifier = nn.Conv2d(2048, 1, kernel_size=1)
+        self.deeplabv3.aux_classifier = None
         self.sigmoid = nn.Sigmoid()
+
+        # deepv3 = deeplabv3_resnet50(weights=DeepLabV3_ResNet50_Weights.DEFAULT)
+        # self.backbone = nn.Sequential(*list(deepv3.children()))
+        # print(self.backbone)
 
         # 冻结特征层
         if frozen == True:
@@ -450,15 +456,20 @@ class deeplabv3(nn.Module):
     def forward(self, x):
         x = self.deeplabv3(x)
         x = self.sigmoid(x['out'])
+        #x = self.sigmoid(x['aux'])
         return x
 
+
 if __name__ == "__main__":
+    x = torch.rand([1,3,512,512],dtype=torch.float)
     net = deeplabv3()
+    x = net(x)
+    print(x.shape)
     print(net)
 
     # loss_fn = torch.nn.BCELoss()
     # net = U_Net()
-    # x = torch.rand([1,3,512,512],dtype=torch.float)
+
     # out = net(x)
     # out = F.sigmoid(out)
     # out = out.view(out.size(0),-1)

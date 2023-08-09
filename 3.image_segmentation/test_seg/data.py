@@ -10,6 +10,7 @@ from our1314.myutils.ext_transform import Resize1, PadSquare
 import numpy as np
 import torchvision.transforms.functional as F
 from our1314.myutils.ext_transform import *
+from our1314.myutils.myutils import tensor2mat
 
 
 # 数据增强的种类：1.平移、翻转、旋转、尺寸、仿射变换 2.亮度、颜色、噪声，其中1部分需要同时对图像和标签进行操作，2部分只对图像有效部分进行操作
@@ -27,7 +28,7 @@ transform1 = torchvision.transforms.Compose([
 transform2 = torchvision.transforms.RandomApply([
     torchvision.transforms.GaussianBlur(kernel_size=(1, 13)),  # 随机高斯模糊
     torchvision.transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.3),
-])
+], p=0.6)
 
 transform_val = torchvision.transforms.Compose([
     ToTensors(),
@@ -65,12 +66,13 @@ class data_seg(Dataset):
 
 
 if __name__ == '__main__':
-    data = data_seg('D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/train', transform1=transform1, transform2=transform2)
+    data = data_seg('D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/train', transform1=transform1, transform2=transform2)
     data_loader = DataLoader(data, batch_size=1, shuffle=True)
     for image, label in data_loader:
         img = image[0]
         mask = label[0]
 
-        img[0]+=mask[0]
-        F.to_pil_image(img).show()
-
+        img = 0.8*img + 0.2*mask
+        img = tensor2mat(img)
+        cv2.imshow("dis", img)        
+        cv2.waitKey()

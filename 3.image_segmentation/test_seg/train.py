@@ -35,6 +35,7 @@ def train(opt):
     # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
     # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20, eta_min=1e-5)
 
+
     # 加载预训练模型
     loss_best = 9999
     if os.path.exists(opt.pretrain):
@@ -43,7 +44,7 @@ def train(opt):
         #optimizer.load_state_dict(checkpoint['optimizer'])
         time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
         #loss_best = checkpoint['loss']
-        print(f"{time}: epoch: {epoch}, loss: {loss}")
+        print(f"加载权重: {opt.pretrain}, {time}: epoch: {epoch}, loss: {loss}")
     
     for epoch in range(1, opt.epoch):
         # 训练
@@ -93,16 +94,16 @@ def train(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pretrain', default='./run/train/best-deeplab.pth', help='指定权重文件，未指定则使用官方权重！')
+    parser.add_argument('--pretrain', default='./run/train/best_out.pth', help='指定权重文件，未指定则使用官方权重！')  # 修改
     parser.add_argument('--out_path', default='./run/train', type=str)  # 修改
-    parser.add_argument('--weights', default='best1.pth', help='指定权重文件，未指定则使用官方权重！')
+    parser.add_argument('--weights', default='best_out.pth', help='指定权重文件，未指定则使用官方权重！')
 
     parser.add_argument('--resume', default=False, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
-    parser.add_argument('--data_path_train', default='D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/train')  # 修改
-    parser.add_argument('--data_path_val', default='D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/val')  # 修改
+    parser.add_argument('--data_path_train', default='D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/train')
+    parser.add_argument('--data_path_val', default='D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/val')
     parser.add_argument('--epoch', default=1000, type=int)
     parser.add_argument('--lr', default=0.01, type=float)
-    parser.add_argument('--batch_size', default=24, type=int)
+    parser.add_argument('--batch_size', default=1, type=int)
 
     opt = parser.parse_args()
 
