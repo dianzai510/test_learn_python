@@ -132,3 +132,16 @@ Lib/dist/our1314-0.1.17-py3-none-any.whl
 1.image_classification/cnn_imgcls/run/agl/best.pth
 .gitignore
 1.image_classification/cnn_imgcls/run/cls/best.pth
+3.image_segmentation/test_seg/__pycache__/data.cpython-39.pyc
+3.image_segmentation/test_seg/__pycache__/model.cpython-39.pyc
+3.image_segmentation/test_seg/deeplab/__pycache__/deeplabv3.cpython-39.pyc
+3.image_segmentation/test_seg/deeplabv3/__pycache__/mobilenetv2.cpython-39.pyc
+3.image_segmentation/test_seg/deeplabv3/__pycache__/utils.cpython-39.pyc
+3.image_segmentation/test_seg/deeplabv3/__pycache__/xception.cpython-39.pyc
+3.image_segmentation/test_seg/deeplabv3/model_data/mobilenet_v2.pth.tar
+3.image_segmentation/test_seg/run/train/best-deeplab - 副本.pth
+3.image_segmentation/test_seg/run/train/best-deeplab.pth
+3.image_segmentation/test_seg/run/train/best-deeplab1.pth
+3.image_segmentation/test_seg/run/train/best-deeplab2.pth
+3.image_segmentation/test_seg/run/train/best-unet.pth
+3.image_segmentation/test_seg/run/train/pretrain.pth
