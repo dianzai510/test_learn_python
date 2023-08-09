@@ -129,3 +129,6 @@ Lib/dist/our1314-0.1.17-py3-none-any.whl
 3.image_segmentation/test_unet/train.py
 3.image_segmentation/test_unet/run/train/best-deeplab2.pth
 3.image_segmentation/test_unet/run/train/pretrain.pth
+1.image_classification/cnn_imgcls/run/agl/best.pth
+.gitignore
+1.image_classification/cnn_imgcls/run/cls/best.pth
