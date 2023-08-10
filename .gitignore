@@ -153,3 +153,5 @@ Lib/dist/our1314-0.1.17-py3-none-any.whl
 run/train/best_aux.pth
 3.image_segmentation/test_seg/__pycache__/loss_fn.cpython-39.pyc
 3.image_segmentation/test_seg/run/train/best_real_adam.pth
+3.image_segmentation/test_seg/run/train/best_out.onnx
+3.image_segmentation/test_seg/run/train/best-unet.onnx

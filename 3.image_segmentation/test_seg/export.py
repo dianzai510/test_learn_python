@@ -2,7 +2,7 @@ import argparse
 import onnx
 import torch.onnx.utils
 from data import input_size, transform_val
-from model import UNet
+from model import UNet,deeplabv3
 from our1314.myutils import exportsd, importsd
 import onnxruntime
 from PIL import Image
@@ -61,7 +61,7 @@ def export(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='./run/train/best.pth')  # 修改
+    parser.add_argument('--weights', default='./run/train/best-unet.pth')  # 修改
 
     opt = parser.parse_args()
     export(opt)
