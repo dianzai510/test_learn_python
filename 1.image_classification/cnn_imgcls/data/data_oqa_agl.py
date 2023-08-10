@@ -29,7 +29,7 @@ class Dataset_agl(Dataset):
         self.list_files = []
         self.transform = transform
         # 将字符分类文件夹下的文件保存至list_dir
-        list_dir = [os.path.join(data_path, f) for f in os.listdir(data_path) if f != '。']  # 列表解析
+        list_dir = [os.path.join(data_path, f) for f in os.listdir(data_path) if f != '。' and f !='0']  # 列表解析
 
         for Dir in list_dir:
             path = os.path.join(data_path, Dir)
