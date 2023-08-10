@@ -9,10 +9,10 @@ import torchvision.transforms
 from torch import nn
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
-from data import data_oqa_agl
+from data import data_oqa_agl,data_oqa_chr
     # , data_xray_sot23, data_xray_sc88, data_xray_sc70, data_xray_sc89, \
     # data_xray_sod123, data_xray_sod323, data_xray_sot23_juanpan, data_xray_sod523, data_xray_sod723, data_xray_sot25, \
-    # data_xray_sot26, data_xray_sot23e, data_oqa_chr,  data_cleaner, data_xray_allone, data_xray_maoci
+    # data_xray_sot26, data_xray_sot23e, ,  data_cleaner, data_xray_allone, data_xray_maoci
 
 
 from models.net_xray import net_xray
@@ -197,10 +197,10 @@ def train(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pretrain', default='./run/train/agl/weights/best.pth', help='指定权重文件，未指定则使用官方权重！')  # 修改
-    parser.add_argument('--out_path', default='./run/train/agl', type=str)  # 修改
+    parser.add_argument('--pretrain', default='./run/train/chr/weights/best.pth', help='指定权重文件，未指定则使用官方权重！')  # 修改
+    parser.add_argument('--out_path', default='./run/train/chr', type=str)  # 修改
     parser.add_argument('--weights', default='best.pth', help='指定权重文件，未指定则使用官方权重！')
-    parser.add_argument('--data', default=data_oqa_agl)#修改
+    parser.add_argument('--data', default=data_oqa_chr)#修改
 
     parser.add_argument('--resume', default=False, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
     parser.add_argument('--epoch', default=400, type=int)
