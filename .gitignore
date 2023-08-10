@@ -360,3 +360,4 @@ run/train/best_aux.pth
 1.image_classification/cnn_imgcls/run/train/agl/weights/results.txt
 1.image_classification/cnn_imgcls/run/train/cls/best.pth
 1.image_classification/cnn_imgcls/run/train/agl/weights/best.pth
+1.image_classification/cnn_imgcls/run/train/agl/logs/events.out.tfevents.1691657497.dl.30532.0
