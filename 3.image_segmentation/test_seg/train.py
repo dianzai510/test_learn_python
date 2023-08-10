@@ -64,7 +64,7 @@ def train(opt):
             loss_train += loss.item()
 
         scheduler.step()
-        
+
         # 验证
         net.eval()
         loss_val = 0
@@ -82,8 +82,8 @@ def train(opt):
         print(f"epoch:{epoch}, loss_train:{round(loss_train, 6)}, loss_val:{round(loss_val, 6)}, lr:{optimizer.param_groups[0]['lr']}")
 
         # 保存权重
-        if loss_train < loss_best:
-            loss_best = loss_train
+        if loss_val < loss_best:
+            loss_best = loss_val
             checkpoint = {'net': net.state_dict(),
                           'optimizer': optimizer.state_dict(),
                           'epoch': epoch,
