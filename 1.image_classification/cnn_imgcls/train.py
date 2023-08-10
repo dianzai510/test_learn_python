@@ -15,7 +15,7 @@ from data import data_oqa_agl,data_oqa_chr
     # data_xray_sot26, data_xray_sot23e, ,  data_cleaner, data_xray_allone, data_xray_maoci
 
 
-from models.net_xray import net_xray
+from model import net_xray
 import sys
 sys.path.append("D:/work/program/Python/DeepLearning/test_learn_python")
 from our1314.myutils import myutils
