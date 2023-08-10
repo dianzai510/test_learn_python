@@ -83,8 +83,7 @@ def train(opt):
 
         # 训练
         net.train()
-        acc_train = 0
-        loss_train = 0
+        acc_train,loss_train,acc_train_cnt = 0,0,0
 
         for imgs, labels in dataloader_train:
             imgs = imgs.to(device)
@@ -97,7 +96,7 @@ def train(opt):
             optimizer.step()
 
             acc = (out.argmax(1) == labels).sum()
-            acc_train += acc
+            acc_train_cnt += acc
             loss_train += loss
 
             # region 保存指定数量的训练图像
@@ -127,8 +126,8 @@ def train(opt):
 
         # 验证
         net.eval()
-        acc_val = 0
-        loss_val = 0
+        acc_val,loss_val,acc_val_cnt = 0,0,0
+
         with torch.no_grad():
             for imgs, labels in dataloader_val:
                 imgs = imgs.to(device)
@@ -137,7 +136,7 @@ def train(opt):
                 out = net(imgs)
                 loss = loss_fn(out, labels)
                 acc = (out.argmax(1) == labels).sum()
-                acc_val += acc
+                acc_val_cnt += acc
                 loss_val += loss
 
                 # region 保存验证失败的图像
@@ -156,16 +155,16 @@ def train(opt):
         '''************************************************分割线***************************************************'''
 
         # 打印一轮的训练结果
-        acc_train = acc_train / len(data.datasets_train)
+        acc_train = acc_train_cnt / len(data.datasets_train)
         loss_train = loss_train / len(data.datasets_train)
-        acc_val = acc_val / len(data.datasets_val)
+        acc_val = acc_val_cnt / len(data.datasets_val)
         loss_val = loss_val / len(data.datasets_val)
 
         result_epoch_str = f"epoch:{epoch}, " \
                            f"lr:{optimizer.state_dict()['param_groups'][0]['lr']} " \
-                           f"acc_train:{acc_train}({acc_train}/{len(data.datasets_train)}) " \
+                           f"acc_train:{acc_train}({acc_train_cnt}/{len(data.datasets_train)}) " \
                            f"loss_train:{loss_train}, " \
-                           f"acc_val:{acc_val}({acc_val}/{len(data.datasets_val)}) " \
+                           f"acc_val:{acc_val}({acc_val_cnt}/{len(data.datasets_val)}) " \
                            f"loss_val:{loss_val}"
 
         print(f"{result_epoch_str}\n")
@@ -180,9 +179,9 @@ def train(opt):
             fp.write(f"{result_epoch_str}\n")
 
         # 保存权重         
-        if acc_train >= acc_best and loss_train < loss_best:
-            acc_best = acc_train
-            loss_best = loss_train
+        if acc_val >= acc_best and loss_val < loss_best:
+            acc_best = acc_val
+            loss_best = loss_val
 
             checkpoint = {'net': net.state_dict(),
                           'optimizer': optimizer.state_dict(),
