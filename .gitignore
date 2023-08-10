@@ -424,3 +424,6 @@ run/train/best_aux.pth
 1.image_classification/cnn_imgcls/run/train/agl/val_fail_img/2023.08.10_17.24.52.903911_out_0_label_1.png
 1.image_classification/cnn_imgcls/run/train/agl/val_fail_img/2023.08.10_17.24.52.921911_out_0_label_1.png
 1.image_classification/cnn_imgcls/run/train/agl/val_fail_img/2023.08.10_17.24.52.930913_out_0_label_1.png
+1.image_classification/cnn_imgcls/models/net_xray.py
+1.image_classification/cnn_imgcls/run/train/agl/logs/events.out.tfevents.1691661864.dl.34900.0
+1.image_classification/cnn_imgcls/run/train/agl/logs/events.out.tfevents.1691661987.dl.20820.0
