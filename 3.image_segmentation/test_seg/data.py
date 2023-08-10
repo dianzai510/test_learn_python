@@ -10,7 +10,7 @@ from our1314.myutils.ext_transform import Resize1, PadSquare
 import numpy as np
 import torchvision.transforms.functional as F
 from our1314.myutils.ext_transform import *
-from our1314.myutils.myutils import tensor2mat
+from our1314.myutils.myutils import tensor2mat,addWeightedMask
 
 
 # 数据增强的种类：1.平移、翻转、旋转、尺寸、仿射变换 2.亮度、颜色、噪声，其中1部分需要同时对图像和标签进行操作，2部分只对图像有效部分进行操作
@@ -73,7 +73,10 @@ if __name__ == '__main__':
         img = image[0]
         mask = label[0]
 
-        img = 0.8*img + 0.2*mask
         img = tensor2mat(img)
-        cv2.imshow("dis", img)        
+        mask = tensor2mat(mask)
+
+        dis = addWeightedMask(img,0.8,mask,0.2)
+
+        cv2.imshow("dis", dis)        
         cv2.waitKey()

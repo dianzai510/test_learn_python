@@ -644,3 +644,5 @@ run/train/best_aux.pth
 1.image_classification/cnn_imgcls/run/train/chr/weights/best.txt
 1.image_classification/cnn_imgcls/run/train/chr/weights/param.txt
 1.image_classification/cnn_imgcls/run/train/chr/weights/results.txt
+Lib/dist/our1314-0.1.26-py3-none-any.whl
+Lib/dist/our1314-0.1.26.tar.gz

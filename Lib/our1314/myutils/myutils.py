@@ -121,12 +121,29 @@ def yolostr2data(yolostr: str):
 def sigmoid(x):
     return 1. / (1 + np.exp(-x))
 
+def addWeightedMask(src1, alpha, mask, beta, blendChannle=2):
+    src_mask = cv2.copyTo(src1, mask=mask)
+    src_mask[:,:,blendChannle:blendChannle+1] = src_mask[:,:,blendChannle:blendChannle+1] * alpha + mask * beta
+    src1 = cv2.copyTo(src_mask, mask=mask, dst=src1)
+    return src1
 
-# if __name__ == '__main__':
-#     x = torch.rand((3,300,300),dtype=torch.float)
-#     y = tensor2mat(x)
-#     y[y>0]=0
-#     y=drawgrid(y, [10,10])
-#     cv2.imshow('dis', y)
-#     cv2.waitKey()
-#     pass
+
+if __name__ == '__main__':
+    # x = torch.rand((3,300,300),dtype=torch.float)
+    # y = tensor2mat(x)
+    # y[y>0]=0
+    # y=drawgrid(y, [10,10])
+    # cv2.imshow('dis', y)
+    # cv2.waitKey()
+    # pass
+
+    src1 = np.random.rand(256,256,3)*255
+    mask = np.random.rand(256,256,1)*255
+
+    src1 = src1.astype(np.uint8)
+    mask = mask.astype(np.uint8)
+
+    dis = addWeightedMask(src1,0.5,mask,0.5)
+    cv2.imshow("dis",dis)
+    cv2.waitKey()
+
