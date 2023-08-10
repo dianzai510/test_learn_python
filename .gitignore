@@ -359,3 +359,4 @@ run/train/best_aux.pth
 1.image_classification/cnn_imgcls/run/train/agl/weights/param.txt
 1.image_classification/cnn_imgcls/run/train/agl/weights/results.txt
 1.image_classification/cnn_imgcls/run/train/cls/best.pth
+1.image_classification/cnn_imgcls/run/train/agl/weights/best.pth

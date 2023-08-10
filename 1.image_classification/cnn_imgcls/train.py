@@ -30,8 +30,8 @@ def train(opt):
     net = net_xray(True, opt.data.class_num)  # 加载官方预训练权重
 
     # 初始化网络权重
-    if os.path.exists(opt.weights):
-        checkpoint = torch.load(opt.weights)
+    if os.path.exists(opt.pretrain):
+        checkpoint = torch.load(opt.pretrain)
         net.load_state_dict(checkpoint['net'], strict=False)  # 加载checkpoint的网络权重
 
     net.to(device)
@@ -76,8 +76,8 @@ def train(opt):
     print(f"训练集的数量：{len(data.datasets_train)}")
     print(f"验证集的数量：{len(data.datasets_val)}")
 
-    acc_last = 0 #checkpoint['acc']
-    loss_last = 999 #checkpoint['loss']
+    acc_best = 0 #checkpoint['acc']
+    loss_best = 999 #checkpoint['loss']
     for epoch in range(start_epoch, epoch_count):
         print(f"----第{epoch}轮训练----")
 
@@ -156,70 +156,51 @@ def train(opt):
         '''************************************************分割线***************************************************'''
 
         # 打印一轮的训练结果
-        mean_acc_train = acc_train / len(data.datasets_train)
-        mean_loss_train = loss_train / len(data.datasets_train)
-        mean_acc_val = acc_val / len(data.datasets_val)
-        mean_loss_val = loss_val / len(data.datasets_val)
+        acc_train = acc_train / len(data.datasets_train)
+        loss_train = loss_train / len(data.datasets_train)
+        acc_val = acc_val / len(data.datasets_val)
+        loss_val = loss_val / len(data.datasets_val)
 
-        # f"lr:{net.optimizer.state_dict()['param_groups'][0]['lr']}", \
-        #print(optimizer.state_dict()['param_groups'][0]['lr'])
         result_epoch_str = f"epoch:{epoch}, " \
                            f"lr:{optimizer.state_dict()['param_groups'][0]['lr']} " \
-                           f"acc_train:{mean_acc_train}({acc_train}/{len(data.datasets_train)}) " \
-                           f"loss_train:{mean_loss_train}, " \
-                           f"acc_val:{mean_acc_val}({acc_val}/{len(data.datasets_val)}) " \
-                           f"loss_val:{mean_loss_val}"
+                           f"acc_train:{acc_train}({acc_train}/{len(data.datasets_train)}) " \
+                           f"loss_train:{loss_train}, " \
+                           f"acc_val:{acc_val}({acc_val}/{len(data.datasets_val)}) " \
+                           f"loss_val:{loss_val}"
 
         print(f"{result_epoch_str}\n")
 
-        writer.add_scalar("acc_train", mean_acc_train, epoch)
-        writer.add_scalar("loss_train", mean_loss_train, epoch)
-        writer.add_scalar("acc_val", mean_acc_val, epoch)
-        writer.add_scalar("loss_val", mean_loss_val, epoch)
+        writer.add_scalar("acc_train", acc_train, epoch)
+        writer.add_scalar("loss_train", loss_train, epoch)
+        writer.add_scalar("acc_val", acc_val, epoch)
+        writer.add_scalar("loss_val", loss_val, epoch)
 
         # 保存本轮的训练结果
         with result_epoch_path.open('a') as fp:
             fp.write(f"{result_epoch_str}\n")
 
-        # region 保存模型
-        # 保存best
-        # f = myutils.getlastfile(path_weights, ".pth")
-        # if f is not None:
-        #     checkpoint = torch.load(f)
-        #     acc_last = checkpoint['acc']
-        #     loss_last = checkpoint['loss']
-            
-        if mean_acc_train >= acc_last and mean_loss_train < loss_last:
-            # 保存训练模型
+        # 保存权重         
+        if acc_train >= acc_best and loss_train < loss_best:
+            acc_best = acc_train
+            loss_best = loss_train
+
             checkpoint = {'net': net.state_dict(),
-                            'optimizer': optimizer.state_dict(),
-                            'epoch': epoch,
-                            'acc': mean_acc_train,
-                            'loss': mean_loss_train}
+                          'optimizer': optimizer.state_dict(),
+                          'epoch': epoch,
+                          'acc': acc_train,
+                          'loss': loss_train}
             torch.save(checkpoint, os.path.join(opt.out_path,'weights',opt.weights))
-            print(f"已保存为best.pth\n{result_epoch_str}")
+            print(f'已保存:{opt.weights}')
             # 写入best.txt
             with result_best_path.open('w') as fp:
                 fp.write(f'{result_epoch_str}\n')
 
-        # 按周期保存模型
-        # if epoch % opt.save_period == 0:
-        #     # 创建目录
-        #     # 保存训练模型
-        #     checkpoint = {'net': net.state_dict(),
-        #                   'optimizer': optimizer.state_dict(),
-        #                   'epoch': epoch,
-        #                   'acc': mean_acc_train,
-        #                   'loss': mean_loss_train}
-        #     torch.save(checkpoint, f'{path_weights}/epoch={epoch}.pth')
-        #     print(f"第{epoch}轮模型参数已保存")
-        # endregion
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='best_agl.pt', help='指定权重文件，未指定则使用官方权重！')#修改
-    parser.add_argument('--out_path', default='run/train/agl', type=str)#修改
+    parser.add_argument('--pretrain', default='./run/train/agl/weights/best.pth', help='指定权重文件，未指定则使用官方权重！')  # 修改
+    parser.add_argument('--out_path', default='./run/train/agl', type=str)  # 修改
+    parser.add_argument('--weights', default='best.pth', help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--data', default=data_oqa_agl)#修改
 
     parser.add_argument('--resume', default=False, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
