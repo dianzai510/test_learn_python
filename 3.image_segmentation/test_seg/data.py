@@ -52,8 +52,8 @@ class data_seg(Dataset):
         
         file_name1, extension = os.path.splitext(os.path.basename(self.Images[item]))
         file_name2, extension = os.path.splitext(os.path.basename(self.Labels[item]))
-        if file_name1!=file_name2:
-            assert "文件不相同！"
+
+        assert file_name1 == file_name2,"文件不相同！"
 
         image = Image.open(self.Images[item])
         label = Image.open(self.Labels[item])
