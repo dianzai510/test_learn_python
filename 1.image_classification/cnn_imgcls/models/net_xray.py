@@ -1,6 +1,6 @@
 import torch
 from torch.nn import Linear, Module
-from torchvision.models.resnet import resnet18, resnet101, ResNet18_Weights
+from torchvision.models.resnet import resnet18, ResNet18_Weights
 from data import data_xray_sot23
 from our1314.myutils import exportsd
 
