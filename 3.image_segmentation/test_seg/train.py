@@ -25,8 +25,8 @@ def train(opt):
     loss_fn = nn.BCELoss(reduction='mean')
     #loss_fn = nn.CrossEntropyLoss()
 
-    #optimizer = torch.optim.SGD(net.parameters(), lr=opt.lr)  # 定义优化器 momentum=0.99
-    optimizer = torch.optim.Adam(net.parameters(), opt.lr)  # 定义优化器 momentum=0.99
+    optimizer = torch.optim.SGD(net.parameters(), lr=opt.lr)  # 定义优化器 momentum=0.99
+    #optimizer = torch.optim.Adam(net.parameters(), opt.lr)  # 定义优化器 momentum=0.99
 
     # 学习率更新策略
     # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.98)
