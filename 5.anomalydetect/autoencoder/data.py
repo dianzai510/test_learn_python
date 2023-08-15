@@ -6,10 +6,7 @@ from PIL import Image
 import torch
 import torchvision
 from torch.utils.data import Dataset
-import myutils.myutils
-from myutils.myutils import yolostr2data
-from data_xray_毛刺 import data_xray_毛刺
-
+from our1314.myutils.myutils import mat2tensor
 
 class data1(Dataset):
     def __init__(self, data_path):
@@ -24,9 +21,9 @@ class data1(Dataset):
         image_path = self.Images[item]
 
         # 读取图像
-        img = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), -1)  # type:cv2.Mat
-        img = cv2.resize(img, (256, 256))#resize为256,256
-        img_tensor = myutils.myutils.mat2tensor(img)
+        img = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), -1)  #type:cv2.Mat
+        img = cv2.resize(img, (256, 256))  #resize为256,256
+        img_tensor = mat2tensor(img)
         return img_tensor, img_tensor
 
 

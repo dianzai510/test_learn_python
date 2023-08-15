@@ -4,12 +4,8 @@ from torch import nn, optim
 from torch.utils.data import DataLoader
 from data import data1
 from mvtecCAE import mvtecCAE
-import sys
-sys.path.append("D:/work/program/Python/DeepLearning/test_learn_python")
-import myutils.myutils
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 
 def train():
     net = mvtecCAE()
