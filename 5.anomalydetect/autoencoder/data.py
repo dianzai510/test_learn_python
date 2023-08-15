@@ -28,22 +28,4 @@ class data1(Dataset):
 
 
 if __name__ == '__main__':
-    transf = torchvision.transforms.ToTensor()
-    mydata = data_xray_毛刺('D:\desktop\XRay毛刺检测\TO252样品图片\TO252编带好品\ROI\out1/train', transf)
-    # im = Image.open(data[0])
-    # img.show(img)
-
-    for img, pos in mydata:
-        dis = myutils.myutils.tensor2mat(img)
-        H, W, CH = dis.shape
-        x0, y0, w, h = pos
-        x0 *= W
-        y0 *= H
-        w *= W
-        h *= H
-
-        pt1 = (int(x0 - w / 2), int(y0 - h / 2))
-        pt2 = (int(x0 + w / 2), int(y0 + h / 2))
-        cv2.rectangle(dis, pt1, pt2, (0, 0, 255), 1)
-        cv2.imshow("dis", dis)
-        cv2.waitKey(500)
+    pass
