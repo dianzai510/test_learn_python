@@ -65,7 +65,7 @@ class mvtecCAE(Module):
 
         for m in self.encoded:
             x = m(x)
-
+        print(x)
         for i, m in enumerate(self.Decode):
             x = m(x)
 
@@ -74,6 +74,6 @@ class mvtecCAE(Module):
 
 if __name__ == '__main__':
     net = mvtecCAE()
-    x = torch.rand((5, 3, 256, 256), dtype=torch.float32)
+    x = torch.rand((1, 3, 256, 256), dtype=torch.float32)
     y = net(x)
-    pass
+    print(y.shape)
