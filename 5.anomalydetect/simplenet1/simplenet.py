@@ -444,7 +444,7 @@ class SimpleNet(torch.nn.Module):
         
         return best_record
             
-
+    # 训练判别器网络
     def _train_discriminator(self, input_data):
         """Computes and sets the support features for SPADE."""
         _ = self.forward_modules.eval()
@@ -475,7 +475,7 @@ class SimpleNet(torch.nn.Module):
                     if self.pre_proj > 0:
                         true_feats = self.pre_projection(self._embed(img, evaluation=False)[0])
                     else:
-                        true_feats = self._embed(img, evaluation=False)[0]
+                        true_feats = self._embed(img, evaluation=False)[0]#提取特征+适配特征
                     
                     noise_idxs = torch.randint(0, self.mix_noise, torch.Size([true_feats.shape[0]]))
                     noise_one_hot = torch.nn.functional.one_hot(noise_idxs, num_classes=self.mix_noise).to(self.device) # (N, K)
@@ -485,7 +485,7 @@ class SimpleNet(torch.nn.Module):
                     noise = (noise * noise_one_hot.unsqueeze(-1)).sum(1)
                     fake_feats = true_feats + noise
 
-                    scores = self.discriminator(torch.cat([true_feats, fake_feats]))
+                    scores = self.discriminator(torch.cat([true_feats, fake_feats]))#判别器
                     true_scores = scores[:len(true_feats)]
                     fake_scores = scores[len(fake_feats):]
                     

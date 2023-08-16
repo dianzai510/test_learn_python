@@ -678,3 +678,8 @@ Lib/dist/our1314-0.1.26.tar.gz
 5.anomalydetect/simplenet1/datasets/__pycache__/mvtec.cpython-310.pyc
 5.anomalydetect/simplenet1/datasets/__pycache__/sdd.cpython-38.pyc
 5.anomalydetect/simplenet1/datasets/__pycache__/sdd2.cpython-38.pyc
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_capsule/tb/events.out.tfevents.1692177952.dl.804.2
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_capsule/tb/events.out.tfevents.1692179073.dl.3084.2
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_pill/tb/events.out.tfevents.1692177569.dl.804.1
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_pill/tb/events.out.tfevents.1692178686.dl.3084.1
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_screw/tb/events.out.tfevents.1692178275.dl.3084.0

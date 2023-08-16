@@ -410,7 +410,7 @@ if __name__ == "__main__":
              target_embed_dimension=1536,
              patchsize=3,
              embedding_size=256,
-             meta_epochs=200,
+             meta_epochs=40,
              aed_meta_epochs=1,
              gan_epochs=4,
              noise_std=0.015,
