@@ -11,4 +11,5 @@ class FasterRCNN(nn.Module):
         self.head = None
 
     def forward(self,x):
-        pass
+        x = self.backbone(x)
+        

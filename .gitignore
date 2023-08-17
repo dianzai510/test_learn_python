@@ -696,3 +696,7 @@ Lib/dist/our1314-0.1.26.tar.gz
 5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_zipper/ckpt.pth
 5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_zipper/tb/events.out.tfevents.1692222648.dl.3084.7
 2.object_detection/faster-rcnn/model/model_data/resnet50-19c8e357.pth
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_cable/ckpt.pth
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_toothbrush/ckpt.pth
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_toothbrush/tb/events.out.tfevents.1692242258.dl.3084.9
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_transistor/tb/events.out.tfevents.1692246202.dl.3084.10
