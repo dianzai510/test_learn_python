@@ -683,3 +683,16 @@ Lib/dist/our1314-0.1.26.tar.gz
 5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_pill/tb/events.out.tfevents.1692177569.dl.804.1
 5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_pill/tb/events.out.tfevents.1692178686.dl.3084.1
 5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_screw/tb/events.out.tfevents.1692178275.dl.3084.0
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_cable/tb/events.out.tfevents.1692232254.dl.3084.8
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_capsule/ckpt.pth
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_carpet/ckpt.pth
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_carpet/tb/events.out.tfevents.1692189615.dl.3084.3
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_grid/ckpt.pth
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_grid/tb/events.out.tfevents.1692199190.dl.3084.4
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_tile/ckpt.pth
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_tile/tb/events.out.tfevents.1692206687.dl.3084.5
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_wood/ckpt.pth
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_wood/tb/events.out.tfevents.1692215610.dl.3084.6
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_zipper/ckpt.pth
+5.anomalydetect/simplenet1/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_zipper/tb/events.out.tfevents.1692222648.dl.3084.7
+2.object_detection/faster-rcnn/model/model_data/resnet50-19c8e357.pth

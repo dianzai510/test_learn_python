@@ -484,7 +484,7 @@ class SimpleNet(torch.nn.Module):
                         torch.normal(0, self.noise_std * 1.1**(k), true_feats.shape)
                         for k in range(self.mix_noise)], dim=1).to(self.device) # (N, K, C)
                     noise = (noise * noise_one_hot.unsqueeze(-1)).sum(1)
-                    fake_feats = true_feats + noise
+                    fake_feats = true_feats + noise#给正样本的特征添加噪声得到负样本。
 
                     scores = self.discriminator(torch.cat([true_feats, fake_feats]))#判别器
                     true_scores = scores[:len(true_feats)]
