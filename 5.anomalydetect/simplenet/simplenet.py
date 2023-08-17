@@ -475,7 +475,7 @@ class SimpleNet(torch.nn.Module):
                     img = data_item["image"]
                     img = img.to(torch.float).to(self.device)
                     if self.pre_proj > 0:
-                        true_feats = self.pre_projection(self._embed(img, evaluation=False)[0])#提取特征+适配特征+pre_projection
+                        true_feats = self.pre_projection(self._embed(img, evaluation=False)[0])#提取特征+适配特征+pre_projection 10368,1536
                     else:
                         true_feats = self._embed(img, evaluation=False)[0]#提取特征+适配特征
                     

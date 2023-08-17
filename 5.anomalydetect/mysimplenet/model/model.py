@@ -70,10 +70,12 @@ class simplenet(nn.Module):
         self.layers_to_extract_from = ('layer2','layer3')
         self.train_backbone = False
         self.mix_noise = 1
+        self.noise_std = 0.015
 
         #1、主干网
         self.backbone = eval(_BACKBONES['wideresnet50'])
         self.backbone.to(self.device)
+        
         self.patch_maker = PatchMaker(patchsize=3, stride=1)
 
         #2、特征提取和聚合模块(结合了主干网)
@@ -98,6 +100,7 @@ class simplenet(nn.Module):
         self.lr = 0.0002
         self.discriminator = Discriminator(self.target_embed_dimension, n_layers=2, hidden=1024)
         self.discriminator.to(self.device)
+        self.disc_opt = torch.optim.Adam(self.discriminator.parameters(), lr=self.lr, weight_decay=1e-5)
 
         #
         self.pre_proj = 1
@@ -105,6 +108,10 @@ class simplenet(nn.Module):
             self.pre_projection = Projection(self.target_embed_dimension, self.target_embed_dimension, self.pre_proj, layer_type=0)
             self.pre_projection.to(self.device)
             self.proj_opt = torch.optim.AdamW(self.pre_projection.parameters(), self.lr*0.1)
+
+        if self.train_backbone:
+            self.backbone_opt = torch.optim.AdamW(self.forward_modules["feature_aggregator"].backbone.parameters(), self.lr)
+
 
     def forward(self, images, train=True):
         images = images.to(self.device)
@@ -125,7 +132,30 @@ class simplenet(nn.Module):
         scores = self.discriminator(torch.cat([true_feats, fake_feats]))#判别器
         true_scores = scores[:len(true_feats)]
         fake_scores = scores[len(fake_feats):]
-        pass
+
+        th = self.th
+        p_true = (true_scores.detach() >= th).sum() / len(true_scores)
+        p_fake = (fake_scores.detach() < -th).sum() / len(fake_scores)
+        true_loss = torch.clip(-true_scores + th, min=0)
+        fake_loss = torch.clip(fake_scores + th, min=0)
+        
+        loss = true_loss.mean() + fake_loss.mean()
+   
+        loss.backward()
+        if self.pre_proj > 0:
+            self.proj_opt.step()
+        if self.train_backbone:
+            self.backbone_opt.step()
+        self.disc_opt.step()
+        
+        loss = loss.detach().cpu().item()
+        
+        return loss,p_true.cpu().item(),p_fake.cpu().item()
+        #print(loss)
+
+        # all_loss.append(loss.item())
+        # all_p_true.append(p_true.cpu().item())
+        # all_p_fake.append(p_fake.cpu().item())
         
 
     def _embed(self, images, detach=True, provide_patch_shapes=False, evaluation=False):

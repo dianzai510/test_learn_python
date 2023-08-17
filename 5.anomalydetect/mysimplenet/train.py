@@ -50,21 +50,24 @@ def train(opt):
         # 训练
         net.train()
         loss_train = 0
+
+        all_loss=[]
+        all_p_true=[]
+        all_p_fake=[]
         for data in dataloader_train:
             images = data["image"]
             images = images.to(device)
 
-            out = net(images)
-
-            loss = loss_fn(input=out, target=labels) #损失函数参数要分input和labels，反了计算值可能是nan 2023.2.24
-
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            
-            loss_train += loss.item()
+            loss,p_true,p_fake = net(images)
+            all_loss.append(loss)
+            all_p_true.append(p_true)
+            all_p_fake.append(p_fake)
 
         scheduler.step()
+
+        all_loss = sum(all_loss) / len(dataloader_train)
+        all_p_true = sum(all_p_true) / len(dataloader_train)
+        all_p_fake = sum(all_p_fake) / len(dataloader_train)
 
         # 验证
         # net.eval()
@@ -80,19 +83,20 @@ def train(opt):
         # 打印一轮的训练结果
         loss_train = loss_train / len(dataloader_train)
         #loss_val = loss_val / len(dataloader_val)
-        print(f"epoch:{epoch}, loss_train:{round(loss_train, 6)}, lr:{optimizer.param_groups[0]['lr']}")
+        print(f"epoch:{epoch}, loss_train:{round(all_loss, 6)}, p_true:{round(all_p_true, 6)}, p_fake:{round(all_p_fake, 6)}, lr:{optimizer.param_groups[0]['lr']}")
         #print(f"epoch:{epoch}, loss_train:{round(loss_train, 6)}, loss_val:{round(loss_val, 6)}, lr:{optimizer.param_groups[0]['lr']}")
 
-        # 保存权重
-        if loss_train < loss_best:
-            loss_best = loss_train
-            checkpoint = {'net': net.state_dict(),
-                          'optimizer': optimizer.state_dict(),
-                          'epoch': epoch,
-                          'loss': loss_train,
-                          'time': datetime.date.today()}
-            torch.save(checkpoint, os.path.join(opt.out_path,opt.weights))
-            print(f'已保存:{opt.weights}')
+        # loss_train = all_loss
+        # # 保存权重
+        # if loss_train < loss_best:
+        #     loss_best = loss_train
+        #     checkpoint = {'net': net.state_dict(),
+        #                   'optimizer': optimizer.state_dict(),
+        #                   'epoch': epoch,
+        #                   'loss': loss_train,
+        #                   'time': datetime.date.today()}
+        #     torch.save(checkpoint, os.path.join(opt.out_path,opt.weights))
+        #     print(f'已保存:{opt.weights}')
 
 
 if __name__ == '__main__':
