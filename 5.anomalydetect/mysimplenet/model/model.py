@@ -1,9 +1,13 @@
 import torch
+import math
 from torch import nn
+
+import torch.nn.functional as F
 from torchvision import models
-from patchmaker import PatchMaker
-import common
-from discriminator import Discriminator
+from .projection import Projection
+from .patchmaker import PatchMaker
+from .common import NetworkFeatureAggregator,Preprocessing,Aggregator,RescaleSegmentor
+from .discriminator import Discriminator
 
 
 _BACKBONES = {
@@ -63,28 +67,31 @@ class simplenet(nn.Module):
         #0、参数
         self.input_shape = (3,288,288)
         self.pre_proj = 1
+        self.layers_to_extract_from = ('layer2','layer3')
+        self.train_backbone = False
+        self.mix_noise = 1
 
         #1、主干网
         self.backbone = eval(_BACKBONES['wideresnet50'])
-        
+        self.backbone.to(self.device)
         self.patch_maker = PatchMaker(patchsize=3, stride=1)
 
         #2、特征提取和聚合模块(结合了主干网)
         self.forward_modules = torch.nn.ModuleDict({})
 
-        feature_aggregator = common.NetworkFeatureAggregator(self.backbone, self.layers_to_extract_from, self.device, train_backbone=False)
+        feature_aggregator = NetworkFeatureAggregator(self.backbone, self.layers_to_extract_from, self.device, train_backbone=False)
         feature_dimensions = feature_aggregator.feature_dimensions(self.input_shape)
         self.forward_modules["feature_aggregator"] = feature_aggregator#特征预适应聚合器
 
-        preprocessing = common.Preprocessing(feature_dimensions, pretrain_embed_dimension=1536)
+        preprocessing = Preprocessing(feature_dimensions, output_dim=1536)
         self.forward_modules["preprocessing"] = preprocessing#预处理器
 
         self.target_embed_dimension = 1536
-        preadapt_aggregator = common.Aggregator(target_dim=self.target_embed_dimension)
+        preadapt_aggregator = Aggregator(target_dim=self.target_embed_dimension)
         preadapt_aggregator.to(device=self.device)
         self.forward_modules["preadapt_aggregator"] = preadapt_aggregator#预适应聚合器
 
-        self.anomaly_segmentor = common.RescaleSegmentor(device=self.device, target_size=self.input_shape[-2:])
+        self.anomaly_segmentor = RescaleSegmentor(device=self.device, target_size=self.input_shape[-2:])
 
         #3、判别器模块
         self.th = 0.5#判别器阈值
@@ -92,17 +99,94 @@ class simplenet(nn.Module):
         self.discriminator = Discriminator(self.target_embed_dimension, n_layers=2, hidden=1024)
         self.discriminator.to(self.device)
 
-    def forward(self, x, train=True):
-        if train == False:
-            self.forward_modules["feature_aggregator"].train()
-            features = self.forward_modules["feature_aggregator"](x, eval=False)
-        else:
-            self.forward_modules["feature_aggregator"].eval()
-            with torch.no_grad():
-                features = self.forward_modules["feature_aggregator"](x)
+        #
+        self.pre_proj = 1
+        if self.pre_proj > 0:
+            self.pre_projection = Projection(self.target_embed_dimension, self.target_embed_dimension, self.pre_proj, layer_type=0)
+            self.pre_projection.to(self.device)
+            self.proj_opt = torch.optim.AdamW(self.pre_projection.parameters(), self.lr*0.1)
 
+    def forward(self, images, train=True):
+        images = images.to(self.device)
+
+        if self.pre_proj > 0:
+            true_feats = self.pre_projection(self._embed(images, evaluation=False)[0])#提取特征+适配特征+pre_projection 10368,1536
+        else:
+            true_feats = self._embed(images, evaluation=False)[0]#提取特征+适配特征
         
+        noise_idxs = torch.randint(0, self.mix_noise, torch.Size([true_feats.shape[0]]))
+        noise_one_hot = torch.nn.functional.one_hot(noise_idxs, num_classes=self.mix_noise).to(self.device) # (N, K)
+        noise = torch.stack([
+            torch.normal(0, self.noise_std * 1.1**(k), true_feats.shape)
+            for k in range(self.mix_noise)], dim=1).to(self.device) # (N, K, C)
+        noise = (noise * noise_one_hot.unsqueeze(-1)).sum(1)
+        fake_feats = true_feats + noise#给正样本的特征添加噪声得到负样本。
+
+        scores = self.discriminator(torch.cat([true_feats, fake_feats]))#判别器
+        true_scores = scores[:len(true_feats)]
+        fake_scores = scores[len(fake_feats):]
         pass
+        
+
+    def _embed(self, images, detach=True, provide_patch_shapes=False, evaluation=False):
+        """Returns feature embeddings for images."""
+
+        B = len(images)
+        if not evaluation and self.train_backbone:
+            self.forward_modules["feature_aggregator"].train()
+            features = self.forward_modules["feature_aggregator"](images, eval=evaluation)
+        else:
+            _ = self.forward_modules["feature_aggregator"].eval()
+            with torch.no_grad():
+                features = self.forward_modules["feature_aggregator"](images)
+
+        features = [features[layer] for layer in self.layers_to_extract_from]
+
+        for i, feat in enumerate(features):
+            if len(feat.shape) == 3:
+                B, L, C = feat.shape
+                features[i] = feat.reshape(B, int(math.sqrt(L)), int(math.sqrt(L)), C).permute(0, 3, 1, 2)
+
+        features = [
+            self.patch_maker.patchify(x, return_spatial_info=True) for x in features
+        ]
+        patch_shapes = [x[1] for x in features]
+        features = [x[0] for x in features]
+        ref_num_patches = patch_shapes[0]
+
+        for i in range(1, len(features)):
+            _features = features[i]
+            patch_dims = patch_shapes[i]
+
+            # TODO(pgehler): Add comments
+            _features = _features.reshape(
+                _features.shape[0], patch_dims[0], patch_dims[1], *_features.shape[2:]
+            )
+            _features = _features.permute(0, -3, -2, -1, 1, 2)
+            perm_base_shape = _features.shape
+            _features = _features.reshape(-1, *_features.shape[-2:])
+            _features = F.interpolate(
+                _features.unsqueeze(1),
+                size=(ref_num_patches[0], ref_num_patches[1]),
+                mode="bilinear",
+                align_corners=False,
+            )
+            _features = _features.squeeze(1)
+            _features = _features.reshape(
+                *perm_base_shape[:-2], ref_num_patches[0], ref_num_patches[1]
+            )
+            _features = _features.permute(0, -2, -1, 1, 2, 3)
+            _features = _features.reshape(len(_features), -1, *_features.shape[-3:])
+            features[i] = _features
+        features = [x.reshape(-1, *x.shape[-3:]) for x in features]
+        
+        # As different feature backbones & patching provide differently
+        # sized features, these are brought into the correct form here.
+        features = self.forward_modules["preprocessing"](features) # pooling each feature to same channel and stack together
+        features = self.forward_modules["preadapt_aggregator"](features) # further pooling        
+
+
+        return features, patch_shapes
 
 if __name__ == "__main__":
     print(_BACKBONES['wideresnet50'])

@@ -11,7 +11,7 @@ import datetime
 def train(opt):
     os.makedirs(opt.out_path, exist_ok=True)
 
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
     datasets_train = MVTecDataset(opt.data_path_train, "pill")
     #datasets_val = MVTecDataset(opt.data_path_val, "pill")
@@ -55,7 +55,7 @@ def train(opt):
             images = images.to(device)
 
             out = net(images)
-            
+
             loss = loss_fn(input=out, target=labels) #损失函数参数要分input和labels，反了计算值可能是nan 2023.2.24
 
             optimizer.zero_grad()

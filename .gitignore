@@ -831,3 +831,6 @@ Lib/dist/our1314-0.1.26.tar.gz
 5.anomalydetect/mysimplenet/model/__pycache__/patchmaker.cpython-39.pyc
 5.anomalydetect/simplenet/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_screw/tb/events.out.tfevents.1692267629.dl.7544.0
 5.anomalydetect/mysimplenet/__pycache__/data.cpython-39.pyc
+5.anomalydetect/mysimplenet/model/__pycache__/projection.cpython-39.pyc
+5.anomalydetect/simplenet/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_screw/tb/events.out.tfevents.1692271711.dl.1900.0
+5.anomalydetect/simplenet/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_screw/tb/events.out.tfevents.1692273056.dl.19900.0

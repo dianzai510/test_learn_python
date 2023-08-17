@@ -41,7 +41,7 @@ class MVTecDataset(torch.utils.data.Dataset):
         source,
         classname,
         resize=256,
-        imagesize=224,
+        imagesize=288,
         split=DatasetSplit.TRAIN,
         train_val_split=1.0,
         rotate_degrees=0,
