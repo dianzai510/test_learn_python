@@ -62,6 +62,7 @@ class simplenet(nn.Module):
         self.device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
         #0、参数
         self.input_shape = (3,288,288)
+        self.pre_proj = 1
 
         #1、主干网
         self.backbone = eval(_BACKBONES['wideresnet50'])
@@ -92,6 +93,14 @@ class simplenet(nn.Module):
         self.discriminator.to(self.device)
 
     def forward(self, x, train=True):
+        if train == False:
+            self.forward_modules["feature_aggregator"].train()
+            features = self.forward_modules["feature_aggregator"](x, eval=False)
+        else:
+            self.forward_modules["feature_aggregator"].eval()
+            with torch.no_grad():
+                features = self.forward_modules["feature_aggregator"](x)
+
         
         pass
 

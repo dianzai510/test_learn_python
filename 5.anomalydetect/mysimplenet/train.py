@@ -50,11 +50,12 @@ def train(opt):
         # 训练
         net.train()
         loss_train = 0
-        for images, labels in dataloader_train:
+        for data in dataloader_train:
+            images = data["image"]
             images = images.to(device)
-            labels = labels.to(device)
 
             out = net(images)
+            
             loss = loss_fn(input=out, target=labels) #损失函数参数要分input和labels，反了计算值可能是nan 2023.2.24
 
             optimizer.zero_grad()
