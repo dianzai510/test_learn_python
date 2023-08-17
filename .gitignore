@@ -823,3 +823,5 @@ Lib/dist/our1314-0.1.26.tar.gz
 5.anomalydetect/simplenet/results/MVTecAD_Results/simplenet_mvtec/run_备份/models/0/mvtec_zipper/ckpt.pth
 5.anomalydetect/simplenet/results/MVTecAD_Results/simplenet_mvtec/run_备份/models/0/mvtec_zipper/tb/events.out.tfevents.1692222648.dl.3084.7
 5.anomalydetect/simplenet/results/MVTecAD_Results/simplenet_mvtec/run_备份/models/0/mvtec_zipper/tb/events.out.tfevents.1692256771.dl.18856.7
+5.anomalydetect/simplenet/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_screw/tb/events.out.tfevents.1692261424.dl.9840.0
+5.anomalydetect/simplenet/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_screw/tb/events.out.tfevents.1692262404.dl.15996.0
