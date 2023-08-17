@@ -385,7 +385,7 @@ class SimpleNet(torch.nn.Module):
     def train(self, training_data, test_data):
         state_dict = {}
         ckpt_path = os.path.join(self.ckpt_dir, "ckpt.pth")
-        if os.path.exists(ckpt_path):
+        if os.path.exists(ckpt_path):#如果有ckpt.pt文件，则直接在测试集上计算指标，并返回
             state_dict = torch.load(ckpt_path, map_location=self.device)
             if 'discriminator' in state_dict:
                 self.discriminator.load_state_dict(state_dict['discriminator'])
@@ -394,8 +394,8 @@ class SimpleNet(torch.nn.Module):
             else:
                 self.load_state_dict(state_dict, strict=False)
 
-            self.predict(training_data, "train_")
-            scores, segmentations, features, labels_gt, masks_gt = self.predict(test_data)
+            self.predict(training_data, "train_")#对训练数据进行推理
+            scores, segmentations, features, labels_gt, masks_gt = self.predict(test_data)#对测试数据进行推理
             auroc, full_pixel_auroc, anomaly_pixel_auroc = self._evaluate(test_data, scores, segmentations, features, labels_gt, masks_gt)
             
             return auroc, full_pixel_auroc, anomaly_pixel_auroc
@@ -410,6 +410,7 @@ class SimpleNet(torch.nn.Module):
                     k:v.detach().cpu() 
                     for k, v in self.pre_projection.state_dict().items()})
 
+        #没有ckpt.pth文件则启动训练。
         best_record = None
         for i_mepoch in range(self.meta_epochs):
 
