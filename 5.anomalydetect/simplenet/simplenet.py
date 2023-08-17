@@ -641,7 +641,7 @@ class PatchMaker:
         self.top_k = top_k
 
     def patchify(self, features, return_spatial_info=False):
-        """Convert a tensor into a tensor of respective patches.
+        """Convert a tensor into a tensor of respective patches. 将一个张量转换为各自patch的张量
         Args:
             x: [torch.Tensor, bs x c x w x h]
         Returns:
@@ -662,9 +662,9 @@ class PatchMaker:
         unfolded_features = unfolded_features.reshape(
             *features.shape[:2], self.patchsize, self.patchsize, -1
         )
-        unfolded_features = unfolded_features.permute(0, 4, 1, 2, 3)
+        unfolded_features = unfolded_features.permute(0, 4, 1, 2, 3)#展开的特征
 
-        if return_spatial_info:
+        if return_spatial_info:#返回空间信息
             return unfolded_features, number_of_total_patches
         return unfolded_features
 
