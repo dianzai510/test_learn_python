@@ -759,3 +759,7 @@ Lib/dist/our1314-0.1.26.tar.gz
 5.anomalydetect/simplenet/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_screw/tb/events.out.tfevents.1692252443.dl.18856.0
 5.anomalydetect/simplenet/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_capsule/tb/events.out.tfevents.1692254461.dl.18856.2
 5.anomalydetect/simplenet/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_carpet/tb/events.out.tfevents.1692255191.dl.18856.3
+5.anomalydetect/simplenet/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_grid/tb/events.out.tfevents.1692255536.dl.18856.4
+5.anomalydetect/simplenet/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_tile/tb/events.out.tfevents.1692256095.dl.18856.5
+5.anomalydetect/simplenet/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_wood/tb/events.out.tfevents.1692256489.dl.18856.6
+5.anomalydetect/simplenet/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_zipper/tb/events.out.tfevents.1692256771.dl.18856.7

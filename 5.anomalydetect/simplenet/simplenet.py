@@ -385,7 +385,7 @@ class SimpleNet(torch.nn.Module):
     def train(self, training_data, test_data):
         state_dict = {}
         ckpt_path = os.path.join(self.ckpt_dir, "ckpt.pth")
-        if os.path.exists(ckpt_path):#如果有ckpt.pt文件，则直接在测试集上计算指标，并返回
+        if os.path.exists(ckpt_path):#如果有ckpt.pth文件，则直接在测试集上计算指标，并返回
             state_dict = torch.load(ckpt_path, map_location=self.device)
             if 'discriminator' in state_dict:
                 self.discriminator.load_state_dict(state_dict['discriminator'])
@@ -475,7 +475,7 @@ class SimpleNet(torch.nn.Module):
                     img = data_item["image"]
                     img = img.to(torch.float).to(self.device)
                     if self.pre_proj > 0:
-                        true_feats = self.pre_projection(self._embed(img, evaluation=False)[0])
+                        true_feats = self.pre_projection(self._embed(img, evaluation=False)[0])#提取特征+适配特征+pre_projection
                     else:
                         true_feats = self._embed(img, evaluation=False)[0]#提取特征+适配特征
                     
