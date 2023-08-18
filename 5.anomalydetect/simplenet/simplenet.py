@@ -394,7 +394,7 @@ class SimpleNet(torch.nn.Module):
             else:
                 self.load_state_dict(state_dict, strict=False)
 
-            self.predict(training_data, "train_")#对训练数据进行推理
+            #self.predict(training_data, "train_")#对训练数据进行推理
             scores, segmentations, features, labels_gt, masks_gt = self.predict(test_data)#对测试数据进行推理
             auroc, full_pixel_auroc, anomaly_pixel_auroc = self._evaluate(test_data, scores, segmentations, features, labels_gt, masks_gt)
             
@@ -573,15 +573,18 @@ class SimpleNet(torch.nn.Module):
                     img = img.transpose([1,2,0])#np.ndarray
 
                     dis = img.copy()
-                    dis[:,:,2] = dis[:,:,2] + mask
+                    # dis[:,:,2] = dis[:,:,2] + mask
                     
+                    _,thr = cv2.threshold(mask, 0,1,0)
+                    # cv2.imshow("thr",thr)
+                    # cv2.waitKey()
                     # img = cv2.normalize(img,None,0,1,cv2.NORM_MINMAX)
                     #img = myutils.tensor2mat(img_tensor)
                     i+=1
-
-                    dis = cv2.normalize(dis,None,0,1,cv2.NORM_MINMAX)
+                    dis[:,:,2] = 0.5*dis[:,:,2] + 0.5*thr
+                    # dis = cv2.normalize(dis,None,0,1,cv2.NORM_MINMAX)
                     cv2.imshow("dis", dis)
-                    cv2.waitKey(1)
+                    cv2.waitKey()
                     #img = img*IMAGENET_STD+IMAGENET_MEAN
                     # cv2.imshow("dis", img)
                     # cv2.waitKey()

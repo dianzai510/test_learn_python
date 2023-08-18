@@ -3,7 +3,7 @@ import os
 import PIL
 from enum import Enum
 from torchvision.transforms import transforms
-
+import cv2
 
 _CLASSNAMES = [
     "bottle",
@@ -40,7 +40,7 @@ class MVTecDataset(torch.utils.data.Dataset):
         self,
         source,
         classname,
-        resize=256,
+        resize=300,
         imagesize=288,
         split=DatasetSplit.TRAIN,
         train_val_split=1.0,
@@ -184,7 +184,12 @@ class MVTecDataset(torch.utils.data.Dataset):
 
 
 if __name__ == "__main__":
-    data = MVTecDataset('d:/work/files/deeplearn_datasets/anomalydetection/test1', "pill")
+    data = MVTecDataset('d:/work/files/deeplearn_datasets/anomalydetection/test1', "pill",split=DatasetSplit.TEST)
     for d in data:
-        print(d["image"].shape)
-    pass
+        img = d['image']
+        img = img.numpy()
+        img = img.transpose([1,2,0])
+        img = img*IMAGENET_STD + IMAGENET_MEAN
+        cv2.imshow("dis",img)
+        cv2.waitKey()
+        

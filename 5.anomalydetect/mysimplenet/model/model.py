@@ -9,6 +9,10 @@ from .patchmaker import PatchMaker
 from .common import NetworkFeatureAggregator,Preprocessing,Aggregator,RescaleSegmentor
 from .discriminator import Discriminator
 import numpy as np
+import cv2
+
+IMAGENET_MEAN = [0.485, 0.456, 0.406]
+IMAGENET_STD = [0.229, 0.224, 0.225]
 
 _BACKBONES = {
     "cait_s24_224" : "cait.cait_S24_224(True)",
@@ -256,7 +260,22 @@ class simplenet(nn.Module):
             features = features.reshape(batchsize, scales[0], scales[1], -1)
             masks, features = self.anomaly_segmentor.convert_to_segmentation(patch_scores, features)
             print("\nmax=",np.max(masks[0]),"min=",np.min(masks[0]))
+            
+
+            img = images[0]
+            img = img.cpu().numpy()
+            img = img.transpose([1,2,0])
+            img = img*IMAGENET_STD + IMAGENET_MEAN
+            img = img.astype('float32')
+
+            temp = masks[0]
+            _,temp = cv2.threshold(temp, 0, 1, cv2.THRESH_BINARY)
+            temp = cv2.cvtColor(temp, cv2.COLOR_GRAY2BGR)
+            dis = cv2.hconcat([img,temp])
+            cv2.imshow("dis", dis)
+            cv2.waitKey()
             pass
+            
         return list(image_scores), list(masks), list(features)
 
 

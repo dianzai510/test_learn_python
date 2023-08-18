@@ -1,5 +1,6 @@
 import argparse
 import os
+from data import DatasetSplit
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
@@ -63,7 +64,7 @@ def train(opt):
         net.load_state_dict(checkpoint['net'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
-        loss_best = checkpoint['loss']
+        #loss_best = checkpoint['loss']
         print(f"加载权重: {opt.pretrain}, {time}: epoch: {epoch}, loss: {loss}")
     
     for epoch in range(1, opt.epoch):
@@ -123,8 +124,10 @@ def predict(opt):
     checkpoint = torch.load(opt.pretrain)
     net.load_state_dict(checkpoint['net'])
 
-    datasets_train = MVTecDataset(opt.data_path_train, "pill")
-    for data in datasets_train:
+    #datasets_train = MVTecDataset(opt.data_path_train, "pill")
+    datasets_test = MVTecDataset(opt.data_path_train, "pill", split=DatasetSplit.TEST)
+
+    for data in datasets_test:
         img = data['image']#type:torch.Tensor
         img = img.unsqueeze(0)
         net.predict(img)        
@@ -144,5 +147,5 @@ if __name__ == '__main__':
 
     opt = parser.parse_args()
 
-    #train(opt)
-    predict(opt)
+    train(opt)
+    #predict(opt)
