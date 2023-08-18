@@ -104,7 +104,7 @@ class simplenet(nn.Module):
 
         #
         self.pre_proj = 1
-        if self.pre_proj > 0:
+        if self.pre_proj > 0:#Projection只有一层线性层
             self.pre_projection = Projection(self.target_embed_dimension, self.target_embed_dimension, self.pre_proj, layer_type=0)
             self.pre_projection.to(self.device)
             self.proj_opt = torch.optim.AdamW(self.pre_projection.parameters(), self.lr*0.1)
@@ -116,6 +116,11 @@ class simplenet(nn.Module):
     def forward(self, images, train=True):
         images = images.to(self.device)
 
+        self.forward_modules.eval()
+        if self.pre_proj > 0:
+            self.pre_projection.train()
+        self.discriminator.train()
+
         if self.pre_proj > 0:
             true_feats = self.pre_projection(self._embed(images, evaluation=False)[0])#提取特征+适配特征+pre_projection 10368,1536
         else:
@@ -123,9 +128,7 @@ class simplenet(nn.Module):
         
         noise_idxs = torch.randint(0, self.mix_noise, torch.Size([true_feats.shape[0]]))
         noise_one_hot = torch.nn.functional.one_hot(noise_idxs, num_classes=self.mix_noise).to(self.device) # (N, K)
-        noise = torch.stack([
-            torch.normal(0, self.noise_std * 1.1**(k), true_feats.shape)
-            for k in range(self.mix_noise)], dim=1).to(self.device) # (N, K, C)
+        noise = torch.stack([torch.normal(0, self.noise_std * 1.1**(k), true_feats.shape) for k in range(self.mix_noise)], dim=1).to(self.device) # (N, K, C)
         noise = (noise * noise_one_hot.unsqueeze(-1)).sum(1)
         fake_feats = true_feats + noise#给正样本的特征添加噪声得到负样本。
 
@@ -140,23 +143,22 @@ class simplenet(nn.Module):
         fake_loss = torch.clip(fake_scores + th, min=0)
         
         loss = true_loss.mean() + fake_loss.mean()
-   
+    
         loss.backward()
+
         if self.pre_proj > 0:
+            self.proj_opt.zero_grad()
             self.proj_opt.step()
         if self.train_backbone:
             self.backbone_opt.step()
+        
+        self.disc_opt.zero_grad()
         self.disc_opt.step()
         
         loss = loss.detach().cpu().item()
         
         return loss,p_true.cpu().item(),p_fake.cpu().item()
-        #print(loss)
-
-        # all_loss.append(loss.item())
-        # all_p_true.append(p_true.cpu().item())
-        # all_p_fake.append(p_fake.cpu().item())
-        
+           
 
     def _embed(self, images, detach=True, provide_patch_shapes=False, evaluation=False):
         """Returns feature embeddings for images."""

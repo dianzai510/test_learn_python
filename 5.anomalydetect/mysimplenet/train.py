@@ -6,10 +6,30 @@ from torch.utils.data import DataLoader
 from data import MVTecDataset
 from model.model import simplenet
 import datetime 
+import random
+import numpy as np
 
+
+def fix_seeds(seed, with_torch=True, with_cuda=True):
+    """Fixed available seeds for reproducibility.
+    Args:
+        seed: [int] Seed value.
+        with_torch: Flag. If true, torch-related seeds are fixed.
+        with_cuda: Flag. If true, torch+cuda-related seeds are fixed
+    """
+    random.seed(seed)
+    np.random.seed(seed)
+    if with_torch:
+        torch.manual_seed(seed)
+    if with_cuda:
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+        torch.backends.cudnn.deterministic = True
 
 def train(opt):
     os.makedirs(opt.out_path, exist_ok=True)
+
+    fix_seeds(0)
 
     device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
@@ -86,18 +106,19 @@ def train(opt):
         print(f"epoch:{epoch}, loss_train:{round(all_loss, 6)}, p_true:{round(all_p_true, 6)}, p_fake:{round(all_p_fake, 6)}, lr:{optimizer.param_groups[0]['lr']}")
         #print(f"epoch:{epoch}, loss_train:{round(loss_train, 6)}, loss_val:{round(loss_val, 6)}, lr:{optimizer.param_groups[0]['lr']}")
 
-        # loss_train = all_loss
-        # # 保存权重
-        # if loss_train < loss_best:
-        #     loss_best = loss_train
-        #     checkpoint = {'net': net.state_dict(),
-        #                   'optimizer': optimizer.state_dict(),
-        #                   'epoch': epoch,
-        #                   'loss': loss_train,
-        #                   'time': datetime.date.today()}
-        #     torch.save(checkpoint, os.path.join(opt.out_path,opt.weights))
-        #     print(f'已保存:{opt.weights}')
-
+        loss_train = all_loss
+        # 保存权重
+        if loss_train < loss_best:
+            loss_best = loss_train
+            checkpoint = {'net': net.state_dict(),
+                          'optimizer': optimizer.state_dict(),
+                          'epoch': epoch,
+                          'loss': loss_train,
+                          'time': datetime.date.today()}
+            torch.save(checkpoint, os.path.join(opt.out_path,opt.weights))
+            print(f'已保存:{opt.weights}')
+    
+    
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
