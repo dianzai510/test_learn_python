@@ -145,21 +145,22 @@ def predict(opt):
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
         temp = masks[0]
-        temp = 1/(1+np.exp(-temp))
+        _,thr = cv2.threshold(temp, 1, 255, cv2.THRESH_BINARY)
+        thr = thr.astype("uint8")
+        temp = 1/(1+np.exp(-temp))#sigmoid
 
-        #heatmap = cv2.applyColorMap(temp,cv2.COLORMAP_JET)
+        #region 将mask转换为热力图
+        temp = np.uint8(temp*255)
+        img = np.uint8(img*255)
+        temp = cv2.applyColorMap(temp,cv2.COLORMAP_JET)
+        #endregion
 
-        # _,temp = cv2.threshold(temp, 0.5, 1, cv2.THRESH_TOZERO)
-        temp = cv2.cvtColor(temp, cv2.COLOR_GRAY2BGR)
-        
-        # temp = np.uint8(temp*255)
-        # temp = cv2.applyColorMap(temp,cv2.COLORMAP_JET)
-
-        # img = np.uint8(img*255)
+        contours,_ = cv2.findContours(thr, cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
 
         h,w,c = img.shape
         dis = cv2.hconcat([img,temp])
-        cv2.putText(dis, data['filename'], (0,30), cv2.FONT_ITALIC, 0.7, (0,0,255), 1)
+        cv2.drawContours(dis, contours, -1, (0,0,255),3)
+        cv2.putText(dis, data['filename'], (0,18), cv2.FONT_ITALIC, 0.7, (0,0,255), 1)
         cv2.putText(dis, f"max={str(max_value)},min={str(min_value)}", (0,h-2), cv2.FONT_ITALIC, 0.8, (0,0,255), 1)
         cv2.imshow("dis", dis)
         cv2.waitKey()
