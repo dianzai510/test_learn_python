@@ -34,7 +34,7 @@ _BACKBONES = {
     "vgg11": "models.vgg11(pretrained=True)",
     "vgg19": "models.vgg19(pretrained=True)",
     "vgg19_bn": "models.vgg19_bn(pretrained=True)",
-    "wideresnet50": "models.wide_resnet50_2(pretrained=True)",
+    "wideresnet50": "models.wide_resnet50_2(weights=Wide_ResNet50_2_Weights.DEFAULT)",
     "ref_wideresnet50": "load_ref_wrn50()",
     "wideresnet101": "models.wide_resnet101_2(pretrained=True)",
     "mnasnet_100": 'timm.create_model("mnasnet_100", pretrained=True)',
@@ -116,7 +116,8 @@ class simplenet(nn.Module):
     def forward(self, images, train=True):
         images = images.to(self.device)
 
-        self.forward_modules.eval()
+        #1、提取特征
+        self.forward_modules.eval()#特征提取模块改为评估模式
         if self.pre_proj > 0:
             self.pre_projection.train()
         self.discriminator.train()
@@ -126,12 +127,14 @@ class simplenet(nn.Module):
         else:
             true_feats = self._embed(images, evaluation=False)[0]#提取特征+适配特征
         
+        #2、生成噪声，并添加到正样本
         noise_idxs = torch.randint(0, self.mix_noise, torch.Size([true_feats.shape[0]]))
         noise_one_hot = torch.nn.functional.one_hot(noise_idxs, num_classes=self.mix_noise).to(self.device) # (N, K)
         noise = torch.stack([torch.normal(0, self.noise_std * 1.1**(k), true_feats.shape) for k in range(self.mix_noise)], dim=1).to(self.device) # (N, K, C)
         noise = (noise * noise_one_hot.unsqueeze(-1)).sum(1)
         fake_feats = true_feats + noise#给正样本的特征添加噪声得到负样本。
 
+        #3、判别器进行判断
         scores = self.discriminator(torch.cat([true_feats, fake_feats]))#判别器
         true_scores = scores[:len(true_feats)]
         fake_scores = scores[len(fake_feats):]
@@ -143,18 +146,20 @@ class simplenet(nn.Module):
         fake_loss = torch.clip(fake_scores + th, min=0)
         
         loss = true_loss.mean() + fake_loss.mean()
-    
+
+        self.proj_opt.zero_grad()
+        #self.backbone_opt.zero_grad()
+        self.disc_opt.zero_grad()
+
         loss.backward()
 
         if self.pre_proj > 0:
-            self.proj_opt.zero_grad()
             self.proj_opt.step()
+
         if self.train_backbone:
             self.backbone_opt.step()
         
-        self.disc_opt.zero_grad()
         self.disc_opt.step()
-        
         loss = loss.detach().cpu().item()
         
         return loss,p_true.cpu().item(),p_fake.cpu().item()
@@ -179,9 +184,7 @@ class simplenet(nn.Module):
                 B, L, C = feat.shape
                 features[i] = feat.reshape(B, int(math.sqrt(L)), int(math.sqrt(L)), C).permute(0, 3, 1, 2)
 
-        features = [
-            self.patch_maker.patchify(x, return_spatial_info=True) for x in features
-        ]
+        features = [self.patch_maker.patchify(x, return_spatial_info=True) for x in features]
         patch_shapes = [x[1] for x in features]
         features = [x[0] for x in features]
         ref_num_patches = patch_shapes[0]
@@ -191,9 +194,7 @@ class simplenet(nn.Module):
             patch_dims = patch_shapes[i]
 
             # TODO(pgehler): Add comments
-            _features = _features.reshape(
-                _features.shape[0], patch_dims[0], patch_dims[1], *_features.shape[2:]
-            )
+            _features = _features.reshape(_features.shape[0], patch_dims[0], patch_dims[1], *_features.shape[2:])
             _features = _features.permute(0, -3, -2, -1, 1, 2)
             perm_base_shape = _features.shape
             _features = _features.reshape(-1, *_features.shape[-2:])
@@ -204,9 +205,7 @@ class simplenet(nn.Module):
                 align_corners=False,
             )
             _features = _features.squeeze(1)
-            _features = _features.reshape(
-                *perm_base_shape[:-2], ref_num_patches[0], ref_num_patches[1]
-            )
+            _features = _features.reshape(*perm_base_shape[:-2], ref_num_patches[0], ref_num_patches[1])
             _features = _features.permute(0, -2, -1, 1, 2, 3)
             _features = _features.reshape(len(_features), -1, *_features.shape[-3:])
             features[i] = _features
@@ -219,6 +218,46 @@ class simplenet(nn.Module):
 
 
         return features, patch_shapes
+
+
+    def _predict(self, images):
+        """Infer score and mask for a batch of images."""
+        images = images.to(torch.float).to(self.device)
+        _ = self.forward_modules.eval()
+
+        batchsize = images.shape[0]
+        if self.pre_proj > 0:
+            self.pre_projection.eval()
+        self.discriminator.eval()
+        with torch.no_grad():
+            features, patch_shapes = self._embed(images,
+                                                 provide_patch_shapes=True, 
+                                                 evaluation=True)
+            if self.pre_proj > 0:
+                features = self.pre_projection(features)
+
+            # features = features.cpu().numpy()
+            # features = np.ascontiguousarray(features.cpu().numpy())
+            patch_scores = image_scores = -self.discriminator(features)
+            patch_scores = patch_scores.cpu().numpy()
+            image_scores = image_scores.cpu().numpy()
+
+            image_scores = self.patch_maker.unpatch_scores(
+                image_scores, batchsize=batchsize
+            )
+            image_scores = image_scores.reshape(*image_scores.shape[:2], -1)
+            image_scores = self.patch_maker.score(image_scores)
+
+            patch_scores = self.patch_maker.unpatch_scores(
+                patch_scores, batchsize=batchsize
+            )
+            scales = patch_shapes[0]
+            patch_scores = patch_scores.reshape(batchsize, scales[0], scales[1])
+            features = features.reshape(batchsize, scales[0], scales[1], -1)
+            masks, features = self.anomaly_segmentor.convert_to_segmentation(patch_scores, features)
+
+        return list(image_scores), list(masks), list(features)
+
 
 if __name__ == "__main__":
     print(_BACKBONES['wideresnet50'])
