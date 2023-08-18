@@ -53,7 +53,7 @@ def train(opt):
     # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20)
     # scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
     # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=40, eta_min=1e-5)
+    #scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=40, eta_min=1e-5)
 
 
     # 加载预训练模型
@@ -61,9 +61,9 @@ def train(opt):
     if os.path.exists(opt.pretrain):
         checkpoint = torch.load(opt.pretrain)
         net.load_state_dict(checkpoint['net'])
-        #optimizer.load_state_dict(checkpoint['optimizer'])
+        optimizer.load_state_dict(checkpoint['optimizer'])
         time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
-        #loss_best = checkpoint['loss']
+        loss_best = checkpoint['loss']
         print(f"加载权重: {opt.pretrain}, {time}: epoch: {epoch}, loss: {loss}")
     
     for epoch in range(1, opt.epoch):
@@ -83,7 +83,7 @@ def train(opt):
             all_p_true.append(p_true)
             all_p_fake.append(p_fake)
 
-        scheduler.step()
+        #scheduler.step()
 
         all_loss = sum(all_loss) / len(dataloader_train)
         all_p_true = sum(all_p_true) / len(dataloader_train)
@@ -104,7 +104,6 @@ def train(opt):
         loss_train = loss_train / len(dataloader_train)
         #loss_val = loss_val / len(dataloader_val)
         print(f"epoch:{epoch}, loss_train:{round(all_loss, 6)}, p_true:{round(all_p_true, 6)}, p_fake:{round(all_p_fake, 6)}, lr:{optimizer.param_groups[0]['lr']}")
-        #print(f"epoch:{epoch}, loss_train:{round(loss_train, 6)}, loss_val:{round(loss_val, 6)}, lr:{optimizer.param_groups[0]['lr']}")
 
         loss_train = all_loss
         # 保存权重
@@ -118,7 +117,23 @@ def train(opt):
             torch.save(checkpoint, os.path.join(opt.out_path,opt.weights))
             print(f'已保存:{opt.weights}')
     
+def predict(opt):
+
+    net = simplenet()
+    checkpoint = torch.load(opt.pretrain)
+    net.load_state_dict(checkpoint['net'])
+
+    datasets_train = MVTecDataset(opt.data_path_train, "pill")
+    for data in datasets_train:
+        img = data['image']#type:torch.Tensor
+        img = img.unsqueeze(0)
+        net.predict(img)
+
     
+
+    
+
+        
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -129,10 +144,11 @@ if __name__ == '__main__':
     parser.add_argument('--resume', default=False, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
     parser.add_argument('--data_path_train', default='D:/work/files/deeplearn_datasets/anomalydetection/test1')
     parser.add_argument('--data_path_val', default='')
-    parser.add_argument('--epoch', default=40, type=int)
+    parser.add_argument('--epoch', default=100, type=int)
     parser.add_argument('--lr', default=0.0002, type=float)
     parser.add_argument('--batch_size', default=8, type=int)
 
     opt = parser.parse_args()
 
-    train(opt)
+    #train(opt)
+    predict(opt)

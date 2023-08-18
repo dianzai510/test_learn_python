@@ -1,7 +1,7 @@
 import torch
 import math
 from torch import nn
-
+from torchvision.models import Wide_ResNet50_2_Weights
 import torch.nn.functional as F
 from torchvision import models
 from .projection import Projection
@@ -34,7 +34,7 @@ _BACKBONES = {
     "vgg11": "models.vgg11(pretrained=True)",
     "vgg19": "models.vgg19(pretrained=True)",
     "vgg19_bn": "models.vgg19_bn(pretrained=True)",
-    "wideresnet50": "models.wide_resnet50_2(weights=Wide_ResNet50_2_Weights.DEFAULT)",
+    "wideresnet50": "models.wide_resnet50_2(weights=Wide_ResNet50_2_Weights.IMAGENET1K_V1)",
     "ref_wideresnet50": "load_ref_wrn50()",
     "wideresnet101": "models.wide_resnet101_2(pretrained=True)",
     "mnasnet_100": 'timm.create_model("mnasnet_100", pretrained=True)',
@@ -220,7 +220,7 @@ class simplenet(nn.Module):
         return features, patch_shapes
 
 
-    def _predict(self, images):
+    def predict(self, images):
         """Infer score and mask for a batch of images."""
         images = images.to(torch.float).to(self.device)
         _ = self.forward_modules.eval()
