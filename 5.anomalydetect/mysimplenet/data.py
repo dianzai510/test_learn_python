@@ -246,6 +246,7 @@ class CJJDataset(torch.utils.data.Dataset):
 
         return {
                 "image": image,
+                "filename": os.path.basename(image_path),
                 }
 
     def __len__(self):
@@ -265,6 +266,8 @@ if __name__ == "__main__":
         img = img.numpy()
         img = img.transpose([1,2,0])
         img = img*IMAGENET_STD + IMAGENET_MEAN
+        img = img.astype("float32")
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         cv2.imshow("dis",img)
         cv2.waitKey()
         

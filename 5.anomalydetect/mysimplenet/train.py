@@ -1,6 +1,6 @@
 import argparse
 import os
-from data import DatasetSplit
+from data import DatasetSplit,IMAGENET_MEAN,IMAGENET_STD
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
@@ -9,6 +9,7 @@ from model.model import simplenet
 import datetime 
 import random
 import numpy as np
+import cv2
 
 
 def fix_seeds(seed, with_torch=True, with_cuda=True):
@@ -64,7 +65,7 @@ def train(opt):
         net.load_state_dict(checkpoint['net'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
-        #loss_best = checkpoint['loss']
+        loss_best = checkpoint['loss']
         print(f"加载权重: {opt.pretrain}, {time}: epoch: {epoch}, loss: {loss}")
     
     for epoch in range(1, opt.epoch):
@@ -125,12 +126,45 @@ def predict(opt):
     net.load_state_dict(checkpoint['net'])
 
     #datasets_train = MVTecDataset(opt.data_path_train, "pill")
-    datasets_test = MVTecDataset(opt.data_path, split=DatasetSplit.TEST)
-
+    datasets_test = CJJDataset(opt.data_path, split=DatasetSplit.TEST)
+    i=0
     for data in datasets_test:
-        img = data['image']#type:torch.Tensor
-        img = img.unsqueeze(0)
-        net.predict(img)        
+        images = data['image']#type:torch.Tensor
+        images = images.unsqueeze(0)
+        masks = net.predict(images)
+
+        max_value = np.round(np.max(masks[0]),2)
+        min_value = np.round(np.min(masks[0]),2)
+        print("\nmax=",max_value,"min=",min_value)
+            
+        img = images[0]
+        img = img.cpu().numpy()
+        img = img.transpose([1,2,0])
+        img = img*IMAGENET_STD + IMAGENET_MEAN
+        img = img.astype('float32')
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+
+        temp = masks[0]
+        temp = 1/(1+np.exp(-temp))
+
+        #heatmap = cv2.applyColorMap(temp,cv2.COLORMAP_JET)
+
+        # _,temp = cv2.threshold(temp, 0.5, 1, cv2.THRESH_TOZERO)
+        temp = cv2.cvtColor(temp, cv2.COLOR_GRAY2BGR)
+        
+        # temp = np.uint8(temp*255)
+        # temp = cv2.applyColorMap(temp,cv2.COLORMAP_JET)
+
+        # img = np.uint8(img*255)
+
+        h,w,c = img.shape
+        dis = cv2.hconcat([img,temp])
+        cv2.putText(dis, data['filename'], (0,30), cv2.FONT_ITALIC, 0.7, (0,0,255), 1)
+        cv2.putText(dis, f"max={str(max_value)},min={str(min_value)}", (0,h-2), cv2.FONT_ITALIC, 0.8, (0,0,255), 1)
+        cv2.imshow("dis", dis)
+        cv2.waitKey()
+        
+        
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -147,5 +181,5 @@ if __name__ == '__main__':
 
     opt = parser.parse_args()
 
-    train(opt)
-    #predict(opt)
+    #train(opt)
+    predict(opt)
