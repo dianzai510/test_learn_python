@@ -8,7 +8,7 @@ from .projection import Projection
 from .patchmaker import PatchMaker
 from .common import NetworkFeatureAggregator,Preprocessing,Aggregator,RescaleSegmentor
 from .discriminator import Discriminator
-
+import numpy as np
 
 _BACKBONES = {
     "cait_s24_224" : "cait.cait_S24_224(True)",
@@ -255,7 +255,8 @@ class simplenet(nn.Module):
             patch_scores = patch_scores.reshape(batchsize, scales[0], scales[1])
             features = features.reshape(batchsize, scales[0], scales[1], -1)
             masks, features = self.anomaly_segmentor.convert_to_segmentation(patch_scores, features)
-
+            print("\nmax=",np.max(masks[0]),"min=",np.min(masks[0]))
+            pass
         return list(image_scores), list(masks), list(features)
 
 

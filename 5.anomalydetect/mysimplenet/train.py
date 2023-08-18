@@ -127,13 +127,7 @@ def predict(opt):
     for data in datasets_train:
         img = data['image']#type:torch.Tensor
         img = img.unsqueeze(0)
-        net.predict(img)
-
-    
-
-    
-
-        
+        net.predict(img)        
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

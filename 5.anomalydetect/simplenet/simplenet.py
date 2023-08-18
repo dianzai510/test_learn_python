@@ -9,7 +9,7 @@ import logging
 import os
 import pickle
 from collections import OrderedDict
-
+from our1314.myutils import myutils
 import math
 import numpy as np
 import psutil
@@ -17,7 +17,7 @@ import torch
 import torch.nn.functional as F
 import tqdm
 from torch.utils.tensorboard import SummaryWriter
-
+import cv2
 import common
 import metrics
 
@@ -562,9 +562,41 @@ class SimpleNet(torch.nn.Module):
                     image = data["image"]
                     img_paths.extend(data['image_path'])
                 _scores, _masks, _feats = self._predict(image)
+
+                i=0
                 for score, mask, feat, is_anomaly in zip(_scores, _masks, _feats, data["is_anomaly"].numpy().tolist()):
                     scores.append(score)
                     masks.append(mask)
+                    print('\nmax=',np.max(mask),'min=',np.min(mask))
+                    img_tensor=image[i]#torch.Tensor
+                    img = img_tensor.numpy()
+                    img = img.transpose([1,2,0])#np.ndarray
+
+                    dis = img.copy()
+                    dis[:,:,2] = dis[:,:,2] + mask
+                    
+                    # img = cv2.normalize(img,None,0,1,cv2.NORM_MINMAX)
+                    #img = myutils.tensor2mat(img_tensor)
+                    i+=1
+
+                    dis = cv2.normalize(dis,None,0,1,cv2.NORM_MINMAX)
+                    cv2.imshow("dis", dis)
+                    cv2.waitKey(1)
+                    #img = img*IMAGENET_STD+IMAGENET_MEAN
+                    # cv2.imshow("dis", img)
+                    # cv2.waitKey()
+                    #img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+                
+                    # temp = np.array(mask)
+                    # temp = cv2.normalize(temp,None,0,255,cv2.NORM_MINMAX, 0)
+                    
+                    # heatmap = cv2.applyColorMap(temp,cv2.COLORMAP_JET)
+                    # heatmap = heatmap/255.0
+                    # heatmap = heatmap.astype(np.float32)
+
+                    # dis = cv2.hconcat([img,heatmap])
+                    # cv2.imshow("dis", dis)
+                    # cv2.waitKey(1)
 
         return scores, masks, features, labels_gt, masks_gt
 

@@ -82,6 +82,8 @@ def run(
         utils.fix_seeds(seed, device)
 
         dataset_name = dataloaders["training"].name
+        if dataset_name != 'mvtec_pill':
+            continue
 
         imagesize = dataloaders["training"].dataset.imagesize
         simplenet_list = methods["get_simplenet"](imagesize, device)

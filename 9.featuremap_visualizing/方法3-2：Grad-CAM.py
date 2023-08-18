@@ -23,7 +23,7 @@ import torch.nn.functional as F
 import os
 
 sys.path.append("../")
-from myutils.myutils import *
+from our1314.myutils.myutils import *
 import torchvision.transforms as transforms
     
 if __name__ == '__main__':

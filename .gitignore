@@ -838,3 +838,4 @@ Lib/dist/our1314-0.1.26.tar.gz
 5.anomalydetect/simplenet/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_screw/tb/events.out.tfevents.1692273437.dl.24248.0
 5.anomalydetect/mysimplenet/run/train/best_out.pth
 5.anomalydetect/mysimplenet/run/train/best.pth
+5.anomalydetect/simplenet/results/MVTecAD_Results/simplenet_mvtec/run/results.csv
