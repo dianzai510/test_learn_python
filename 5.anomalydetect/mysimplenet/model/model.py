@@ -261,7 +261,6 @@ class simplenet(nn.Module):
             masks, features = self.anomaly_segmentor.convert_to_segmentation(patch_scores, features)
             print("\nmax=",np.max(masks[0]),"min=",np.min(masks[0]))
             
-
             img = images[0]
             img = img.cpu().numpy()
             img = img.transpose([1,2,0])
@@ -269,8 +268,17 @@ class simplenet(nn.Module):
             img = img.astype('float32')
 
             temp = masks[0]
-            _,temp = cv2.threshold(temp, 0, 1, cv2.THRESH_BINARY)
+            # temp = 1/(1+np.exp(-temp))
+
+            #heatmap = cv2.applyColorMap(temp,cv2.COLORMAP_JET)
+
+            # _,temp = cv2.threshold(temp, 0.5, 1, cv2.THRESH_TOZERO)
             temp = cv2.cvtColor(temp, cv2.COLOR_GRAY2BGR)
+            
+            # temp = np.uint8(temp*255)
+            # temp = cv2.applyColorMap(temp,cv2.COLORMAP_JET)
+
+            # img = np.uint8(img*255)
             dis = cv2.hconcat([img,temp])
             cv2.imshow("dis", dis)
             cv2.waitKey()

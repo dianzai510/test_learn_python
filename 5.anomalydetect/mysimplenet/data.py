@@ -183,8 +183,83 @@ class MVTecDataset(torch.utils.data.Dataset):
         return imgpaths_per_class, data_to_iterate
 
 
+class CJJDataset(torch.utils.data.Dataset):
+    """
+    PyTorch Dataset for MVTec.
+    """
+
+    def __init__(
+        self,
+        source,
+        resize=300,
+        imagesize=288,
+        split=DatasetSplit.TRAIN,
+        train_val_split=1.0,
+        rotate_degrees=0,
+        translate=0,
+        brightness_factor=0,
+        contrast_factor=0,
+        saturation_factor=0,
+        gray_p=0,
+        h_flip_p=0,
+        v_flip_p=0,
+        scale=0,
+        **kwargs,
+    ):
+        super().__init__()
+        self.source = source
+        self.split = split
+        self.train_val_split = train_val_split
+
+        self.imgpaths = self.get_image_data()
+
+        self.transform_img = [
+            transforms.Resize(resize),
+            # transforms.RandomRotation(rotate_degrees, transforms.InterpolationMode.BILINEAR),
+            transforms.ColorJitter(brightness_factor, contrast_factor, saturation_factor),
+            transforms.RandomHorizontalFlip(h_flip_p),
+            transforms.RandomVerticalFlip(v_flip_p),
+            transforms.RandomGrayscale(gray_p),
+            transforms.RandomAffine(rotate_degrees, 
+                                    translate=(translate, translate),
+                                    scale=(1.0-scale, 1.0+scale),
+                                    interpolation=transforms.InterpolationMode.BILINEAR),
+            transforms.CenterCrop(imagesize),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD),
+        ]
+        self.transform_img = transforms.Compose(self.transform_img)
+
+        self.transform_mask = [
+            transforms.Resize(resize),
+            transforms.CenterCrop(imagesize),
+            transforms.ToTensor(),
+        ]
+        self.transform_mask = transforms.Compose(self.transform_mask)
+
+        self.imagesize = (3, imagesize, imagesize)
+
+    def __getitem__(self, idx):
+        image_path = self.imgpaths[idx]
+        image = PIL.Image.open(image_path).convert("RGB")
+        image = self.transform_img(image)
+
+        return {
+                "image": image,
+                }
+
+    def __len__(self):
+        return len(self.imgpaths)
+
+    def get_image_data(self):
+        data_dir = os.path.join(self.source, self.split.value)
+        imgpaths = [os.path.join(data_dir,f) for f in os.listdir(data_dir)]
+        return imgpaths
+
 if __name__ == "__main__":
-    data = MVTecDataset('d:/work/files/deeplearn_datasets/anomalydetection/test1', "pill",split=DatasetSplit.TEST)
+    #data = MVTecDataset('d:/work/files/deeplearn_datasets/anomalydetection/test1', "pill",split=DatasetSplit.TEST)
+    
+    data = CJJDataset('D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test',split=DatasetSplit.TEST)
     for d in data:
         img = d['image']
         img = img.numpy()

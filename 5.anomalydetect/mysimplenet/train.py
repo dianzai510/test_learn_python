@@ -4,7 +4,7 @@ from data import DatasetSplit
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
-from data import MVTecDataset
+from data import MVTecDataset,CJJDataset
 from model.model import simplenet
 import datetime 
 import random
@@ -34,7 +34,7 @@ def train(opt):
 
     device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
-    datasets_train = MVTecDataset(opt.data_path_train, "pill")
+    datasets_train = CJJDataset(opt.data_path) #MVTecDataset(opt.data_path, "pill")
     #datasets_val = MVTecDataset(opt.data_path_val, "pill")
 
     dataloader_train = DataLoader(datasets_train, batch_size=opt.batch_size, shuffle=True, num_workers=8, drop_last=True)
@@ -125,7 +125,7 @@ def predict(opt):
     net.load_state_dict(checkpoint['net'])
 
     #datasets_train = MVTecDataset(opt.data_path_train, "pill")
-    datasets_test = MVTecDataset(opt.data_path_train, "pill", split=DatasetSplit.TEST)
+    datasets_test = MVTecDataset(opt.data_path, split=DatasetSplit.TEST)
 
     for data in datasets_test:
         img = data['image']#type:torch.Tensor
@@ -134,12 +134,12 @@ def predict(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pretrain', default='./run/train/best.pth', help='指定权重文件，未指定则使用官方权重！')  # 修改
-    parser.add_argument('--out_path', default='./run/train', type=str)  # 修改
+    parser.add_argument('--pretrain', default='./run/train_ic/best.pth', help='指定权重文件，未指定则使用官方权重！')  # 修改
+    parser.add_argument('--out_path', default='./run/train_ic', type=str)  # 修改
     parser.add_argument('--weights', default='best.pth', help='指定权重文件，未指定则使用官方权重！')
 
     parser.add_argument('--resume', default=False, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
-    parser.add_argument('--data_path_train', default='D:/work/files/deeplearn_datasets/anomalydetection/test1')
+    parser.add_argument('--data_path', default='D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test')
     parser.add_argument('--data_path_val', default='')
     parser.add_argument('--epoch', default=100, type=int)
     parser.add_argument('--lr', default=0.0002, type=float)

@@ -839,3 +839,4 @@ Lib/dist/our1314-0.1.26.tar.gz
 5.anomalydetect/mysimplenet/run/train/best_out.pth
 5.anomalydetect/mysimplenet/run/train/best.pth
 5.anomalydetect/simplenet/results/MVTecAD_Results/simplenet_mvtec/run/results.csv
+5.anomalydetect/mysimplenet/run/train_ic/best.pth
