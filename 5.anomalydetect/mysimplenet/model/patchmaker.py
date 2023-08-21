@@ -54,3 +54,7 @@ class PatchMaker:
         if was_numpy:
             return x.numpy()
         return x
+
+if __name__ == "__main__":
+    patch_maker = PatchMaker(patchsize=3, stride=1)
+    rr = patch_maker.patchify(x, return_spatial_info=True)
