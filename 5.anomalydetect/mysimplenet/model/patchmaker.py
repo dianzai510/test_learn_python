@@ -50,6 +50,7 @@ class PatchMaker:
             return x.numpy()
         return x
 
+
 if __name__ == "__main__":
     x = torch.rand(1,512,36,36)
     patch_maker = PatchMaker(patchsize=3, stride=1)

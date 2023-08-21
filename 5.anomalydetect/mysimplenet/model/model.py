@@ -6,7 +6,9 @@ import torch.nn.functional as F
 from torchvision import models
 from .projection import Projection
 from .patchmaker import PatchMaker
-from .common import NetworkFeatureAggregator,Preprocessing,Aggregator,RescaleSegmentor
+from .common import NetworkFeatureAggregator,RescaleSegmentor
+from .Preprocessing import Preprocessing
+from .Aggregator import Aggregator
 from .discriminator import Discriminator
 import numpy as np
 import cv2
@@ -187,7 +189,9 @@ class simplenet(nn.Module):
             if len(feat.shape) == 3:
                 B, L, C = feat.shape
                 features[i] = feat.reshape(B, int(math.sqrt(L)), int(math.sqrt(L)), C).permute(0, 3, 1, 2)
+        #至此使用resnet主干网提取了layer2、layer3特征
 
+        #从特征图提取patch
         features = [self.patch_maker.patchify(x, return_spatial_info=True) for x in features]#[bs,512,36,36]→[36,36]    [bs,1024,18,18]→[18,18]
         patch_shapes = [x[1] for x in features]
         features = [x[0] for x in features]
@@ -202,23 +206,18 @@ class simplenet(nn.Module):
             _features = _features.permute(0, -3, -2, -1, 1, 2)
             perm_base_shape = _features.shape
             _features = _features.reshape(-1, *_features.shape[-2:])
-            _features = F.interpolate(
-                _features.unsqueeze(1),
-                size=(ref_num_patches[0], ref_num_patches[1]),
-                mode="bilinear",
-                align_corners=False,
-            )
+            _features = F.interpolate(_features.unsqueeze(1),size=(ref_num_patches[0],ref_num_patches[1]), mode="bilinear",align_corners=False,)#对特征图进行双线性插值
             _features = _features.squeeze(1)
             _features = _features.reshape(*perm_base_shape[:-2], ref_num_patches[0], ref_num_patches[1])
             _features = _features.permute(0, -2, -1, 1, 2, 3)
             _features = _features.reshape(len(_features), -1, *_features.shape[-3:])
             features[i] = _features
-        features = [x.reshape(-1, *x.shape[-3:]) for x in features]
+        features = [x.reshape(-1, *x.shape[-3:]) for x in features]#1296,512,3,3    1296,1024,3,3
         
         # As different feature backbones & patching provide differently
         # sized features, these are brought into the correct form here.
-        features = self.forward_modules["preprocessing"](features) # pooling each feature to same channel and stack together
-        features = self.forward_modules["preadapt_aggregator"](features) # further pooling        
+        features = self.forward_modules["preprocessing"](features) # pooling each feature to same channel and stack together  自适应平均池化并合并特征，没有可学习参数
+        features = self.forward_modules["preadapt_aggregator"](features) # further pooling  自适应平均池化，没有可学习参数
 
 
         return features, patch_shapes
@@ -234,9 +233,7 @@ class simplenet(nn.Module):
             self.pre_projection.eval()
         self.discriminator.eval()
         with torch.no_grad():
-            features, patch_shapes = self._embed(images,
-                                                 provide_patch_shapes=True, 
-                                                 evaluation=True)
+            features, patch_shapes = self._embed(images,provide_patch_shapes=True,evaluation=True)
             if self.pre_proj > 0:
                 features = self.pre_projection(features)
 
@@ -246,21 +243,15 @@ class simplenet(nn.Module):
             patch_scores = patch_scores.cpu().numpy()
             image_scores = image_scores.cpu().numpy()
 
-            image_scores = self.patch_maker.unpatch_scores(
-                image_scores, batchsize=batchsize
-            )
+            image_scores = self.patch_maker.unpatch_scores(image_scores, batchsize=batchsize)
             image_scores = image_scores.reshape(*image_scores.shape[:2], -1)
             image_scores = self.patch_maker.score(image_scores)
 
-            patch_scores = self.patch_maker.unpatch_scores(
-                patch_scores, batchsize=batchsize
-            )
+            patch_scores = self.patch_maker.unpatch_scores(patch_scores, batchsize=batchsize)
             scales = patch_shapes[0]
             patch_scores = patch_scores.reshape(batchsize, scales[0], scales[1])
             features = features.reshape(batchsize, scales[0], scales[1], -1)
             masks, features = self.anomaly_segmentor.convert_to_segmentation(patch_scores, features)
-            
-        
         return masks
         #return list(image_scores), list(masks), list(features)
 

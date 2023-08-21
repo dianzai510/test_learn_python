@@ -36,3 +36,11 @@ class Projection(torch.nn.Module):
         # x = .1 * self.layers(x) + x
         x = self.layers(x)
         return x
+    
+if __name__ == "__main__":
+    net = Projection(1536,1536)
+    print(net)
+
+    total_trainable_params = sum(p.numel() for p in net.parameters() if p.requires_grad)
+    print(total_trainable_params)
+    pass
