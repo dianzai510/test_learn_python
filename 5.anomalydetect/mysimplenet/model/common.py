@@ -127,6 +127,7 @@ class NetworkFeatureAggregator(torch.nn.Module):
     def __init__(self, backbone, layers_to_extract_from, device, train_backbone=False):
         super(NetworkFeatureAggregator, self).__init__()
         """Extraction of network features.
+        个人理解：用主干网进行推理，然后提取layers_to_extract_from指示层的特征
 
         Runs a network only to the last layer of the list of layers where
         network features should be extracted from.

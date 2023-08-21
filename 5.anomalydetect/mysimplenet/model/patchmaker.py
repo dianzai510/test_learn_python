@@ -17,20 +17,15 @@ class PatchMaker:
             patchsize]
         """
         padding = int((self.patchsize - 1) / 2)
-        unfolder = torch.nn.Unfold(
-            kernel_size=self.patchsize, stride=self.stride, padding=padding, dilation=1
-        )
-        unfolded_features = unfolder(features)
+        unfolder = torch.nn.Unfold(kernel_size=self.patchsize, stride=self.stride, padding=padding, dilation=1)
+        unfolded_features = unfolder(features)#Unfold操作与卷积一样滑窗，但不进行计算，只提取窗口内的数据，提取后的数据作为一列，多个patch在X方向上进行合并。
         number_of_total_patches = []
+        print(features.shape[-2:])
         for s in features.shape[-2:]:
-            n_patches = (
-                s + 2 * padding - 1 * (self.patchsize - 1) - 1
-            ) / self.stride + 1
+            n_patches = (s + 2 * padding - 1 * (self.patchsize - 1) - 1) / self.stride + 1
             number_of_total_patches.append(int(n_patches))
-        unfolded_features = unfolded_features.reshape(
-            *features.shape[:2], self.patchsize, self.patchsize, -1
-        )
-        unfolded_features = unfolded_features.permute(0, 4, 1, 2, 3)#展开的特征
+        unfolded_features = unfolded_features.reshape(*features.shape[:2], self.patchsize, self.patchsize, -1)
+        unfolded_features = unfolded_features.permute(0, 4, 1, 2, 3)#相当于将特征图差分为1296个patch，每个patch的尺寸为512,3,3
 
         if return_spatial_info:#返回空间信息
             return unfolded_features, number_of_total_patches
@@ -56,5 +51,8 @@ class PatchMaker:
         return x
 
 if __name__ == "__main__":
+    x = torch.rand(1,512,36,36)
     patch_maker = PatchMaker(patchsize=3, stride=1)
-    rr = patch_maker.patchify(x, return_spatial_info=True)
+    a,b = patch_maker.patchify(x, return_spatial_info=True)
+    print(a.shape,b)
+    pass

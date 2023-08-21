@@ -82,7 +82,7 @@ class simplenet(nn.Module):
         
         self.patch_maker = PatchMaker(patchsize=3, stride=1)
 
-        #2、特征提取和聚合模块(结合了主干网)
+        #2、特征提取和聚合模块(有三个子模块：主干网、预处理器、特征聚合器)
         self.forward_modules = torch.nn.ModuleDict({})
 
         feature_aggregator = NetworkFeatureAggregator(self.backbone, self.layers_to_extract_from, self.device, train_backbone=False)
@@ -96,8 +96,6 @@ class simplenet(nn.Module):
         preadapt_aggregator = Aggregator(target_dim=self.target_embed_dimension)
         preadapt_aggregator.to(device=self.device)
         self.forward_modules["preadapt_aggregator"] = preadapt_aggregator#预适应聚合器
-
-        self.anomaly_segmentor = RescaleSegmentor(device=self.device, target_size=self.input_shape[-2:])
 
         #3、判别器模块
         self.th = 0.5#判别器阈值
@@ -115,6 +113,8 @@ class simplenet(nn.Module):
 
         if self.train_backbone:
             self.backbone_opt = torch.optim.AdamW(self.forward_modules["feature_aggregator"].backbone.parameters(), self.lr)
+
+        self.anomaly_segmentor = RescaleSegmentor(device=self.device, target_size=self.input_shape[-2:])
 
 
     def forward(self, images, train=True):
@@ -188,7 +188,7 @@ class simplenet(nn.Module):
                 B, L, C = feat.shape
                 features[i] = feat.reshape(B, int(math.sqrt(L)), int(math.sqrt(L)), C).permute(0, 3, 1, 2)
 
-        features = [self.patch_maker.patchify(x, return_spatial_info=True) for x in features]
+        features = [self.patch_maker.patchify(x, return_spatial_info=True) for x in features]#[bs,512,36,36]→[36,36]    [bs,1024,18,18]→[18,18]
         patch_shapes = [x[1] for x in features]
         features = [x[0] for x in features]
         ref_num_patches = patch_shapes[0]
