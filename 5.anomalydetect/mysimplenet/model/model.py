@@ -76,7 +76,7 @@ class simplenet(nn.Module):
         self.layers_to_extract_from = ('layer2','layer3')
         self.train_backbone = False
         self.mix_noise = 1
-        self.noise_std = 0.015
+        self.noise_std = 0.005#0.015
 
         #1、主干网
         self.backbone = eval(_BACKBONES['wideresnet50'])
@@ -129,17 +129,18 @@ class simplenet(nn.Module):
         self.discriminator.train()
 
         if self.pre_proj > 0:
-            true_feats = self.pre_projection(self._embed(images, evaluation=False)[0])#提取特征+适配特征+pre_projection 10368,1536
+            true_feats = self.pre_projection(self._embed(images, evaluation=False)[0])#提取特征+适配特征(自适应平均池化+Stack)+pre_projection 10368,1536
         else:
             true_feats = self._embed(images, evaluation=False)[0]#提取特征+适配特征
         
-        #2、生成噪声，并添加到正样本
+        #2、生成噪声，并添加到正样本#（优化方案：判断添加噪声的样本与未添加时的相似度，如相似度超过某一阈值则删除。）
         noise_idxs = torch.randint(0, self.mix_noise, torch.Size([true_feats.shape[0]]))
         noise_one_hot = torch.nn.functional.one_hot(noise_idxs, num_classes=self.mix_noise).to(self.device) # (N, K)
+        shape = noise_one_hot.shape
         noise = torch.stack([torch.normal(0, self.noise_std * 1.1**(k), true_feats.shape) for k in range(self.mix_noise)], dim=1).to(self.device) # (N, K, C)
         noise = (noise * noise_one_hot.unsqueeze(-1)).sum(1)
         fake_feats = true_feats + noise#给正样本的特征添加噪声得到负样本。
-
+        
         #3、判别器进行判断
         scores = self.discriminator(torch.cat([true_feats, fake_feats]))#判别器
         true_scores = scores[:len(true_feats)]

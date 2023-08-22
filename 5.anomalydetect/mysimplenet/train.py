@@ -4,7 +4,7 @@ from data import DatasetSplit,IMAGENET_MEAN,IMAGENET_STD
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
-from data import MVTecDataset,CJJDataset
+from data import CJJDataset
 from model.model import simplenet
 import datetime 
 import random
@@ -65,7 +65,7 @@ def train(opt):
         net.load_state_dict(checkpoint['net'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
-        loss_best = checkpoint['loss']
+        #loss_best = checkpoint['loss']
         print(f"加载权重: {opt.pretrain}, {time}: epoch: {epoch}, loss: {loss}")
     
     for epoch in range(1, opt.epoch):
@@ -145,7 +145,7 @@ def predict(opt):
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
         temp = masks[0]
-        _,thr = cv2.threshold(temp, 1, 255, cv2.THRESH_BINARY)
+        _,thr = cv2.threshold(temp, 1.5, 255, cv2.THRESH_BINARY)
         thr = thr.astype("uint8")
         temp = 1/(1+np.exp(-temp))#sigmoid
 
@@ -178,9 +178,9 @@ if __name__ == '__main__':
     parser.add_argument('--data_path_val', default='')
     parser.add_argument('--epoch', default=100, type=int)
     parser.add_argument('--lr', default=0.0002, type=float)
-    parser.add_argument('--batch_size', default=8, type=int)
+    parser.add_argument('--batch_size', default=16, type=int)
 
     opt = parser.parse_args()
 
-    #train(opt)
-    predict(opt)
+    train(opt)
+    #predict(opt)

@@ -197,9 +197,9 @@ class CJJDataset(torch.utils.data.Dataset):
         train_val_split=1.0,
         rotate_degrees=0,
         translate=0,
-        brightness_factor=0,
-        contrast_factor=0,
-        saturation_factor=0,
+        brightness_factor=0.05,
+        contrast_factor=0.1,
+        saturation_factor=0.1,
         gray_p=0,
         h_flip_p=0,
         v_flip_p=0,
@@ -224,26 +224,33 @@ class CJJDataset(torch.utils.data.Dataset):
                                     translate=(translate, translate),
                                     scale=(1.0-scale, 1.0+scale),
                                     interpolation=transforms.InterpolationMode.BILINEAR),
+            
+            transforms.GaussianBlur(kernel_size=(7,7),sigma=(0.1,2.0)),#随机高斯模糊          
+
             transforms.CenterCrop(imagesize),
             transforms.ToTensor(),
             transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD),
         ]
-        self.transform_img = transforms.Compose(self.transform_img)
 
         self.transform_mask = [
             transforms.Resize(resize),
             transforms.CenterCrop(imagesize),
             transforms.ToTensor(),
+            transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD),
         ]
-        self.transform_mask = transforms.Compose(self.transform_mask)
+
+        if split == DatasetSplit.TRAIN:
+            self.transform = transforms.Compose(self.transform_img)
+        else:
+            self.transform = transforms.Compose(self.transform_mask)
 
         self.imagesize = (3, imagesize, imagesize)
+
 
     def __getitem__(self, idx):
         image_path = self.imgpaths[idx]
         image = PIL.Image.open(image_path).convert("RGB")
-        image = self.transform_img(image)
-
+        image = self.transform(image)
         return {
                 "image": image,
                 "filename": os.path.basename(image_path),
@@ -257,10 +264,10 @@ class CJJDataset(torch.utils.data.Dataset):
         imgpaths = [os.path.join(data_dir,f) for f in os.listdir(data_dir)]
         return imgpaths
 
+
 if __name__ == "__main__":
     #data = MVTecDataset('d:/work/files/deeplearn_datasets/anomalydetection/test1', "pill",split=DatasetSplit.TEST)
-    
-    data = CJJDataset('D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test',split=DatasetSplit.TEST)
+    data = CJJDataset('D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test',split=DatasetSplit.TRAIN)
     for d in data:
         img = d['image']
         img = img.numpy()

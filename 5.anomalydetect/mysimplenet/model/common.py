@@ -4,6 +4,7 @@ import numpy as np
 import scipy.ndimage as ndimage
 import torch
 import torch.nn.functional as F
+import torchvision
 
 
 class _BaseMerger:
@@ -128,8 +129,6 @@ class NetworkFeatureAggregator(torch.nn.Module):
     def __init__(self, backbone, layers_to_extract_from, device, train_backbone=False):
         super(NetworkFeatureAggregator, self).__init__()
         """Extraction of network features.
-        个人理解：用主干网进行推理，然后提取layers_to_extract_from指示层的特征
-
         Runs a network only to the last layer of the list of layers where
         network features should be extracted from.
 
@@ -148,9 +147,7 @@ class NetworkFeatureAggregator(torch.nn.Module):
         self.outputs = {}
 
         for extract_layer in layers_to_extract_from:
-            forward_hook = ForwardHook(
-                self.outputs, extract_layer, layers_to_extract_from[-1]
-            )
+            forward_hook = ForwardHook(self.outputs, extract_layer, layers_to_extract_from[-1])
             if "." in extract_layer:
                 extract_block, extract_idx = extract_layer.split(".")
                 network_layer = backbone.__dict__["_modules"][extract_block]
@@ -163,13 +160,9 @@ class NetworkFeatureAggregator(torch.nn.Module):
                 network_layer = backbone.__dict__["_modules"][extract_layer]
 
             if isinstance(network_layer, torch.nn.Sequential):
-                self.backbone.hook_handles.append(
-                    network_layer[-1].register_forward_hook(forward_hook)
-                )
+                self.backbone.hook_handles.append(network_layer[-1].register_forward_hook(forward_hook))
             else:
-                self.backbone.hook_handles.append(
-                    network_layer.register_forward_hook(forward_hook)
-                )
+                self.backbone.hook_handles.append(network_layer.register_forward_hook(forward_hook))
         self.to(self.device)
 
     def forward(self, images, eval=True):
@@ -212,3 +205,7 @@ class LastLayerToExtractReachedException(Exception):
     pass
 
 
+if __name__ == "__main__":
+    # resnet = torchvision.models.resnet50(weights=torchvision.models.ResNet50_Weights.DEFAULT)
+    # net = NetworkFeatureAggregator(resnet,("layer2","layer3"),device=torch.cuda.device(0))
+    pass

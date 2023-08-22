@@ -20,7 +20,7 @@ class PatchMaker:
         unfolder = torch.nn.Unfold(kernel_size=self.patchsize, stride=self.stride, padding=padding, dilation=1)
         unfolded_features = unfolder(features)#Unfold操作与卷积一样滑窗，但不进行计算，只提取窗口内的数据，提取后的数据作为一列，多个patch在X方向上进行合并。
         number_of_total_patches = []
-        print(features.shape[-2:])
+        #print(features.shape[-2:])
         for s in features.shape[-2:]:
             n_patches = (s + 2 * padding - 1 * (self.patchsize - 1) - 1) / self.stride + 1
             number_of_total_patches.append(int(n_patches))
