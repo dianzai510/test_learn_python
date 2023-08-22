@@ -76,7 +76,7 @@ class simplenet(nn.Module):
         self.layers_to_extract_from = ('layer2','layer3')
         self.train_backbone = False
         self.mix_noise = 1
-        self.noise_std = 0.005#0.015
+        self.noise_std = 0.045#0.015
 
         #1、主干网
         self.backbone = eval(_BACKBONES['wideresnet50'])
