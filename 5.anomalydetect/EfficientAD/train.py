@@ -156,37 +156,37 @@ def train(opt):
         student.eval()
         autoencoder.eval()
 
-        q_st_start, q_st_end, q_ae_start, q_ae_end = map_normalization(
-            validation_loader=dataloader_val, 
-            teacher=teacher, 
-            student=student,
-            autoencoder=autoencoder, 
-            teacher_mean=teacher_mean,
-            teacher_std=teacher_std, 
-            desc='Final map normalization',
-            device=device)
+        # q_st_start, q_st_end, q_ae_start, q_ae_end = map_normalization(
+        #     validation_loader=dataloader_val, 
+        #     teacher=teacher, 
+        #     student=student,
+        #     autoencoder=autoencoder, 
+        #     teacher_mean=teacher_mean,
+        #     teacher_std=teacher_std, 
+        #     desc='Final map normalization',
+        #     device=device)
 
-        auc = test(
-            test_set=dataloader_test, 
-            teacher=teacher, 
-            student=student,
-            autoencoder=autoencoder, 
-            teacher_mean=teacher_mean,
-            teacher_std=teacher_std, 
-            q_st_start=q_st_start, 
-            q_st_end=q_st_end,
-            q_ae_start=q_ae_start, 
-            q_ae_end=q_ae_end,
-            test_output_dir=opt,
-            desc='Final inference',
-            device=device)
+        # auc = test(
+        #     test_set=dataloader_test, 
+        #     teacher=teacher, 
+        #     student=student,
+        #     autoencoder=autoencoder, 
+        #     teacher_mean=teacher_mean,
+        #     teacher_std=teacher_std, 
+        #     q_st_start=q_st_start, 
+        #     q_st_end=q_st_end,
+        #     q_ae_start=q_ae_start, 
+        #     q_ae_end=q_ae_end,
+        #     test_output_dir=opt,
+        #     desc='Final inference',
+        #     device=device)
         
         # 打印一轮的训练结果
         #loss_train = loss_train / len(dataloader_train)
         #loss_val = loss_val / len(dataloader_val)
         
         loss_train = loss_train/len(dataloader_train.dataset)
-        print(f"epoch:{epoch}, loss_train:{round(loss_train, 6)}, auc:{round(auc, 6)}, lr:{optimizer.param_groups[0]['lr']}")
+        print(f"epoch:{epoch}, loss_train:{round(loss_train, 6)}, auc:{round(0, 6)}, lr:{optimizer.param_groups[0]['lr']}")
 
 
         # 保存权重
