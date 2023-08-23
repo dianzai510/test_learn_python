@@ -847,3 +847,4 @@ Lib/dist/our1314-0.1.26.tar.gz
 5.anomalydetect/EfficientAD/__pycache__/data.cpython-39.pyc
 5.anomalydetect/EfficientAD/__pycache__/model.cpython-39.pyc
 5.anomalydetect/EfficientAD/run/train/best.pth
+5.anomalydetect/EfficientAD/run/train/best - 备份.pth

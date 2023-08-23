@@ -75,8 +75,8 @@ def train(opt):
     dataloader_val = DataLoader(datasets_val, batch_size=opt.batch_size, shuffle=True, num_workers=8, drop_last=True)
     dataloader_test = DataLoader(datasets_test, batch_size=opt.batch_size, shuffle=True, drop_last=True)
 
-    teacher = Teacher()
-    student = Student()
+    teacher = Teacher(384)
+    student = Student(384*2)
     autoencoder = AutoEncoder()
 
     teacher.to(device)
@@ -332,7 +332,7 @@ if __name__ == '__main__':
     parser.add_argument('--weights', default='best.pth', help='指定权重文件，未指定则使用官方权重！')
 
     parser.add_argument('--resume', default=False, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
-    parser.add_argument('--data_path', default='D:/work/files/deeplearn_datasets/anomalydetection/mvtec_anomaly_detection/bottle')
+    parser.add_argument('--data_path', default='D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test')
     parser.add_argument('--data_path_val', default='')
     parser.add_argument('--epoch', default=300, type=int)
     parser.add_argument('--lr', default=1e-4, type=float)
