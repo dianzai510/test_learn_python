@@ -5,13 +5,15 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from data import CJJDataset
-from model import Teacher, Student, AutoEncoder
+from model import Teacher, Student, AutoEncoder, PDN_small
 import datetime 
 import random
 import numpy as np
 import cv2
 import itertools
 from tqdm import tqdm
+from sklearn.metrics import roc_auc_score
+from torchvision.transforms import functional as F
 
 
 def set_seeds(seed, with_torch=True, with_cuda=True):
@@ -59,14 +61,19 @@ def teacher_normalization(teacher, train_loader, device):
 
 def train(opt):
     os.makedirs(opt.out_path, exist_ok=True)
-    set_seeds(0)
-    device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+    set_seeds(42)
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    datasets_train = CJJDataset(opt.data_path) #MVTecDataset(opt.data_path, "pill")
-    #datasets_val = MVTecDataset(opt.data_path_val, "pill")
+    full_train_set = CJJDataset(opt.data_path, split=DatasetSplit.TRAIN) #MVTecDataset(opt.data_path, "pill")
+    train_size = int(0.9 * len(full_train_set))
+    validation_size = len(full_train_set) - train_size
+    rng = torch.Generator().manual_seed(42)
+    datasets_train, datasets_val = torch.utils.data.random_split(full_train_set, [train_size, validation_size], rng)
+    datasets_test = CJJDataset(opt.data_path, split=DatasetSplit.TEST)
 
     dataloader_train = DataLoader(datasets_train, batch_size=opt.batch_size, shuffle=True, num_workers=8, drop_last=True)
-    #dataloader_val = DataLoader(datasets_val, batch_size=opt.batch_size, shuffle=True, num_workers=8, drop_last=True)
+    dataloader_val = DataLoader(datasets_val, batch_size=opt.batch_size, shuffle=True, num_workers=8, drop_last=True)
+    dataloader_test = DataLoader(datasets_test, batch_size=opt.batch_size, shuffle=True, drop_last=True)
 
     teacher = Teacher()
     student = Student()
@@ -83,7 +90,6 @@ def train(opt):
     # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.98)
     # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20)
     # scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
-    # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
     #scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=40, eta_min=1e-5)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=int(0.95 * 70000), gamma=0.1)
 
@@ -92,7 +98,7 @@ def train(opt):
     loss_best = 9999
     if os.path.exists(opt.pretrain):
         checkpoint = torch.load(opt.pretrain)
-        teacher.load_state_dict(checkpoint['teacher'])
+        teacher.load_state_dict(checkpoint['net_teacher'])
         student.load_state_dict(checkpoint['net_student'])
         autoencoder.load_state_dict(checkpoint['net_autoencoder'])
         optimizer.load_state_dict(checkpoint['optimizer'])
@@ -136,22 +142,51 @@ def train(opt):
             loss_ae = torch.mean(distance_ae)
             loss_stae = torch.mean(distance_stae)
 
-            loss_train = loss_st + loss_ae + loss_stae
+            loss_total = loss_st + loss_ae + loss_stae
+            loss_train = loss_train + loss_total.item()
 
             optimizer.zero_grad()
-            loss_train.backward()
+            loss_total.backward()
             optimizer.step()
             scheduler.step()
 
 
         # 验证
-        # net.eval()
+        teacher.eval()
+        student.eval()
+        autoencoder.eval()
 
+        q_st_start, q_st_end, q_ae_start, q_ae_end = map_normalization(
+            validation_loader=dataloader_val, 
+            teacher=teacher, 
+            student=student,
+            autoencoder=autoencoder, 
+            teacher_mean=teacher_mean,
+            teacher_std=teacher_std, 
+            desc='Final map normalization',
+            device=device)
 
+        auc = test(
+            test_set=dataloader_test, 
+            teacher=teacher, 
+            student=student,
+            autoencoder=autoencoder, 
+            teacher_mean=teacher_mean,
+            teacher_std=teacher_std, 
+            q_st_start=q_st_start, 
+            q_st_end=q_st_end,
+            q_ae_start=q_ae_start, 
+            q_ae_end=q_ae_end,
+            test_output_dir=opt,
+            desc='Final inference',
+            device=device)
+        
         # 打印一轮的训练结果
         #loss_train = loss_train / len(dataloader_train)
         #loss_val = loss_val / len(dataloader_val)
-        print(f"epoch:{epoch}, loss_train:{round(loss_train.item(), 6)}, lr:{optimizer.param_groups[0]['lr']}")
+        
+        loss_train = loss_train/len(dataloader_train.dataset)
+        print(f"epoch:{epoch}, loss_train:{round(loss_train, 6)}, auc:{round(auc, 6)}, lr:{optimizer.param_groups[0]['lr']}")
 
 
         # 保存权重
@@ -174,56 +209,121 @@ def train(opt):
             torch.save(checkpoint, os.path.join(opt.out_path,opt.weights))
             print(f'已保存:{opt.weights}')
     
+def test(test_set, teacher, student, autoencoder, teacher_mean, teacher_std, q_st_start, q_st_end, q_ae_start, q_ae_end, test_output_dir=None, desc='Running inference', device=None):
+    y_true = []
+    y_score = []
+    for image, label in tqdm(test_set, desc=desc):
+        orig_width = 256
+        orig_height = 256
 
-def predict(opt):
-    student = Student()
-    autoencoder = AutoEncoder()
-    checkpoint = torch.load(opt.pretrain)
-    student.load_state_dict(checkpoint['net_student'])
-    autoencoder.load_state_dict(checkpoint['net_autoencoder'])
-    teacher_mean = checkpoint['teacher_mean']
-    teacher_std = checkpoint['teacher_std']
+        image = image.to(device)
+
+        map_combined, map_st, map_ae = predict(
+            image=image, teacher=teacher, student=student,
+            autoencoder=autoencoder, teacher_mean=teacher_mean,
+            teacher_std=teacher_std, q_st_start=q_st_start, q_st_end=q_st_end,
+            q_ae_start=q_ae_start, q_ae_end=q_ae_end)
+        map_combined = torch.nn.functional.pad(map_combined, (4, 4, 4, 4))
+        map_combined = torch.nn.functional.interpolate(map_combined, (orig_height, orig_width), mode='bilinear')
+        map_combined = map_combined[0, 0].cpu().numpy()
+
+        # if test_output_dir is not None:
+        #     img_nm = os.path.split(path)[1].split('.')[0]
+        #     if not os.path.exists(os.path.join(test_output_dir, defect_class)):
+        #         os.makedirs(os.path.join(test_output_dir, defect_class))
+        #     file = os.path.join(test_output_dir, defect_class, img_nm + '.tiff')
+        #     tifffile.imwrite(file, map_combined)
+
+        y_true_image = 0 if label[0] == 'good' else 1
+        y_score_image = np.max(map_combined)
+        y_true.append(y_true_image)
+        y_score.append(y_score_image)
+    auc = roc_auc_score(y_true=y_true, y_score=y_score)
+    return auc * 100
+
+@torch.no_grad()
+def predict(image, teacher, student, autoencoder, teacher_mean, teacher_std, q_st_start=None, q_st_end=None, q_ae_start=None, q_ae_end=None):
+    teacher_output = teacher(image)#图像经过teacher网络得到输出
+    teacher_output = (teacher_output - teacher_mean) / teacher_std#对teacher网络的输出进行归一化
+    student_output = student(image)#图像经过student网络得到输出
+    autoencoder_output = autoencoder(image)#图像经过autoencoder网络得到输出
+
+    map_st = torch.mean((teacher_output - student_output[:, :384])**2, dim=1, keepdim=True)#求teacher网络输出与student网络输出的差，并求均值
+    map_ae = torch.mean((autoencoder_output - student_output[:, 384:])**2, dim=1, keepdim=True)#求autoencoder网络输出与student网络输出的差，并求均值
+    if q_st_start is not None:
+        map_st = 0.1 * (map_st - q_st_start) / (q_st_end - q_st_start)
+    if q_ae_start is not None:
+        map_ae = 0.1 * (map_ae - q_ae_start) / (q_ae_end - q_ae_start)
+
+    map_combined = 0.5 * map_st + 0.5 * map_ae
+    return map_combined, map_st, map_ae   
+
+@torch.no_grad()
+def map_normalization(validation_loader, teacher, student, autoencoder, teacher_mean, teacher_std, desc='Map normalization', device=None):
+    maps_st = []
+    maps_ae = []
+    # ignore augmented ae image
+    for image, _ in tqdm(validation_loader, desc=desc):
+        image = image.to(device)
+        map_combined, map_st, map_ae = predict(image=image, teacher=teacher, student=student, autoencoder=autoencoder, teacher_mean=teacher_mean, teacher_std=teacher_std)
+        maps_st.append(map_st)
+        maps_ae.append(map_ae)
+    maps_st = torch.cat(maps_st)
+    maps_ae = torch.cat(maps_ae)
+    q_st_start = torch.quantile(maps_st, q=0.9)
+    q_st_end = torch.quantile(maps_st, q=0.995)
+    q_ae_start = torch.quantile(maps_ae, q=0.9)
+    q_ae_end = torch.quantile(maps_ae, q=0.995)
+    return q_st_start, q_st_end, q_ae_start, q_ae_end
+
+def mytest(opt):
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     datasets_test = CJJDataset(opt.data_path, split=DatasetSplit.TEST)
-    i=0
-    for data in datasets_test:
-        images = data['image']#type:torch.Tensor
-        images = images.unsqueeze(0)
-        masks = net.predict(images)
+    dataloader_test = DataLoader(datasets_test, batch_size=opt.batch_size, shuffle=True, drop_last=True)
 
-        max_value = np.round(np.max(masks[0]),2)
-        min_value = np.round(np.min(masks[0]),2)
-        print("\nmax=",max_value,"min=",min_value)
-            
-        img = images[0]
-        img = img.cpu().numpy()
+    teacher = PDN_small()
+    student = Student(384*2)
+    autoencoder = AutoEncoder()
+
+    checkpoint = torch.load(opt.pretrain)
+    teacher.load_state_dict(checkpoint['net_teacher'])
+    student.load_state_dict(checkpoint['net_student'])
+    autoencoder.load_state_dict(checkpoint['net_autoencoder'])
+    teacher_mean,teacher_std = checkpoint['teacher_mean'],checkpoint['teacher_std']
+    time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
+    print(f"加载权重: {opt.pretrain}, {time}: epoch: {epoch}, loss: {loss}")
+
+    teacher.eval()
+    student.eval()
+    autoencoder.eval()
+
+    teacher.to(device)
+    student.to(device)
+    autoencoder.to(device)
+
+    for image,label in dataloader_test:
+        image = image.to(device)
+        map_combined, map_st, map_ae = predict(image, teacher, student, autoencoder, teacher_mean, teacher_std, q_st_start=None, q_st_end=None, q_ae_start=None, q_ae_end=None)
+        
+        map_combined = torch.nn.functional.pad(map_combined, (4, 4, 4, 4))
+        map_combined = torch.nn.functional.interpolate(map_combined, (256, 256), mode='bilinear')
+        map_combined = map_combined[0, 0].cpu().numpy()
+        # F.to_pil_image(map_combined*255).show()
+        mask = map_combined
+        mask = cv2.cvtColor(mask, cv2.COLOR_RGB2BGR)
+        
+        img = image.to('cpu')#type:torch.Tensor
+        img = img.squeeze(dim=0)
+        img = img.numpy()
         img = img.transpose([1,2,0])
         img = img*IMAGENET_STD + IMAGENET_MEAN
-        img = img.astype('float32')
+        img = img.astype("float32")
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
-        temp = masks[0]
-        _,thr = cv2.threshold(temp, 1.5, 255, cv2.THRESH_BINARY)
-        thr = thr.astype("uint8")
-        temp = 1/(1+np.exp(-temp))#sigmoid
-
-        #region 将mask转换为热力图
-        temp = np.uint8(temp*255)
-        img = np.uint8(img*255)
-        temp = cv2.applyColorMap(temp,cv2.COLORMAP_JET)
-        #endregion
-
-        contours,_ = cv2.findContours(thr, cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
-
-        h,w,c = img.shape
-        dis = cv2.hconcat([img,temp])
-        cv2.drawContours(dis, contours, -1, (0,0,255),3)
-        cv2.putText(dis, data['filename'], (0,18), cv2.FONT_ITALIC, 0.7, (0,0,255), 1)
-        cv2.putText(dis, f"max={str(max_value)},min={str(min_value)}", (0,h-2), cv2.FONT_ITALIC, 0.8, (0,0,255), 1)
-        cv2.imshow("dis", dis)
+        dis = cv2.hconcat([img,mask])
+        cv2.imshow('dis',dis)
         cv2.waitKey()
-        
-        
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -232,13 +332,14 @@ if __name__ == '__main__':
     parser.add_argument('--weights', default='best.pth', help='指定权重文件，未指定则使用官方权重！')
 
     parser.add_argument('--resume', default=False, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
-    parser.add_argument('--data_path', default='D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test')
+    parser.add_argument('--data_path', default='D:/work/files/deeplearn_datasets/anomalydetection/mvtec_anomaly_detection/bottle')
     parser.add_argument('--data_path_val', default='')
     parser.add_argument('--epoch', default=300, type=int)
     parser.add_argument('--lr', default=1e-4, type=float)
-    parser.add_argument('--batch_size', default=16, type=int)
+    parser.add_argument('--batch_size', default=1, type=int)
 
     opt = parser.parse_args()
 
     train(opt)
+    #mytest(opt)
     #predict(opt)
