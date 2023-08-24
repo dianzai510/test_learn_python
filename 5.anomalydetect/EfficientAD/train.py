@@ -103,7 +103,7 @@ def train(opt):
         autoencoder.load_state_dict(checkpoint['net_autoencoder'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
-        #loss_best = checkpoint['loss']
+        loss_best = checkpoint['loss']
         print(f"加载权重: {opt.pretrain}, {time}: epoch: {epoch}, loss: {loss}")
     
     teacher_mean, teacher_std = teacher_normalization(teacher, dataloader_train, device=device)
@@ -280,7 +280,7 @@ def mytest(opt):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     datasets_test = CJJDataset(opt.data_path, split=DatasetSplit.TEST)
-    dataloader_test = DataLoader(datasets_test, batch_size=opt.batch_size, shuffle=True, drop_last=True)
+    dataloader_test = DataLoader(datasets_test, batch_size=opt.batch_size, shuffle=False, drop_last=True)
 
     teacher = PDN_small()
     student = Student(384*2)
@@ -311,6 +311,7 @@ def mytest(opt):
         map_combined = map_combined[0, 0].cpu().numpy()
         # F.to_pil_image(map_combined*255).show()
         mask = map_combined
+        txt = f"max={str(np.round(np.max(mask),3))},min={str(np.round(np.min(mask),3))}"
         mask = cv2.cvtColor(mask, cv2.COLOR_RGB2BGR)
         
         img = image.to('cpu')#type:torch.Tensor
@@ -322,6 +323,7 @@ def mytest(opt):
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
         dis = cv2.hconcat([img,mask])
+        dis = cv2.putText(dis, txt, (0,250), cv2.FONT_ITALIC, 1, (0,0,255))
         cv2.imshow('dis',dis)
         cv2.waitKey()
 
@@ -335,11 +337,11 @@ if __name__ == '__main__':
     parser.add_argument('--data_path', default='D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test')
     parser.add_argument('--data_path_val', default='')
     parser.add_argument('--epoch', default=300, type=int)
-    parser.add_argument('--lr', default=1e-4, type=float)
+    parser.add_argument('--lr', default=1e-3, type=float)
     parser.add_argument('--batch_size', default=1, type=int)
 
     opt = parser.parse_args()
 
-    train(opt)
-    #mytest(opt)
+    #train(opt)
+    mytest(opt)
     #predict(opt)
