@@ -203,17 +203,17 @@ class simplenet(nn.Module):
             patch_dims = patch_shapes[i]
 
             # TODO(pgehler): Add comments
-            _features = _features.reshape(_features.shape[0], patch_dims[0], patch_dims[1], *_features.shape[2:])
-            _features = _features.permute(0, -3, -2, -1, 1, 2)
+            _features = _features.reshape(_features.shape[0], patch_dims[0], patch_dims[1], *_features.shape[2:])#[16, 18, 18, 1024, 3, 3]
+            _features = _features.permute(0, -3, -2, -1, 1, 2)#[16, 1024, 3, 3, 18, 18]
             perm_base_shape = _features.shape
-            _features = _features.reshape(-1, *_features.shape[-2:])
-            _features = F.interpolate(_features.unsqueeze(1),size=(ref_num_patches[0],ref_num_patches[1]), mode="bilinear",align_corners=False,)#对特征图进行双线性插值
-            _features = _features.squeeze(1)
-            _features = _features.reshape(*perm_base_shape[:-2], ref_num_patches[0], ref_num_patches[1])
-            _features = _features.permute(0, -2, -1, 1, 2, 3)
-            _features = _features.reshape(len(_features), -1, *_features.shape[-3:])
+            _features = _features.reshape(-1, *_features.shape[-2:])#147456,18,18
+            _features = F.interpolate(_features.unsqueeze(1),size=(ref_num_patches[0],ref_num_patches[1]), mode="bilinear",align_corners=False,)#对特征图进行双线性插值[147456, 1, 36, 36]
+            _features = _features.squeeze(1)#[147456, 36, 36]
+            _features = _features.reshape(*perm_base_shape[:-2], ref_num_patches[0], ref_num_patches[1])#[16, 1024, 3, 3, 36, 36])
+            _features = _features.permute(0, -2, -1, 1, 2, 3)#[16, 36, 36, 1024, 3, 3]
+            _features = _features.reshape(len(_features), -1, *_features.shape[-3:])#[16, 1296, 1024, 3, 3]
             features[i] = _features
-        features = [x.reshape(-1, *x.shape[-3:]) for x in features]#1296,512,3,3    1296,1024,3,3
+        features = [x.reshape(-1, *x.shape[-3:]) for x in features]#20736,512,3,3    20736,1024,3,3
         
         # As different feature backbones & patching provide differently
         # sized features, these are brought into the correct form here.

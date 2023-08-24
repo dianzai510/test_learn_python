@@ -31,21 +31,27 @@ class PDN_small(nn.Module):
 class PDN_medium(nn.Module):
     def __init__(self, out_channels=384, padding=False):
         super(PDN_medium, self).__init__()
+
         pad_mult = 1 if padding else 0
 
         self.pdn = nn.Sequential(
             nn.Conv2d(in_channels=3, out_channels=256, kernel_size=4, padding=3 * pad_mult),
             nn.ReLU(inplace=True),
             nn.AvgPool2d(kernel_size=2, stride=2, padding=1 * pad_mult),
+
             nn.Conv2d(in_channels=256, out_channels=512, kernel_size=4, padding=3 * pad_mult),
             nn.ReLU(inplace=True),
             nn.AvgPool2d(kernel_size=2, stride=2, padding=1 * pad_mult),
+
             nn.Conv2d(in_channels=512, out_channels=512, kernel_size=1),
             nn.ReLU(inplace=True),
+
             nn.Conv2d(in_channels=512, out_channels=512, kernel_size=3, padding=1 * pad_mult),
             nn.ReLU(inplace=True),
+
             nn.Conv2d(in_channels=512, out_channels=out_channels, kernel_size=4),
             nn.ReLU(inplace=True),
+            
             nn.Conv2d(in_channels=out_channels, out_channels=out_channels, kernel_size=1)
         )
 
@@ -107,11 +113,11 @@ class AutoEncoder(nn.Module):
         return x
 
 
-class Teacher(PDN_small):
+class Teacher(PDN_medium):
     pass
 
 
-class Student(PDN_small):
+class Student(PDN_medium):
     pass
 
 

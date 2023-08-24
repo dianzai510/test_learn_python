@@ -51,9 +51,7 @@ class CJJDataset(torch.utils.data.Dataset):
         if self.split == DatasetSplit.TRAIN or self.split == DatasetSplit.VAL:
             return self.default_transform(image), self.default_transform(self.transform_ae(image))
         else:
-            label = os.path.basename(image_path)
-            ff = image_path.replace("\\"+label, "")
-            label = os.path.basename(ff)
+            label = os.path.basename(os.path.dirname(image_path))
             return self.default_transform(image),label
 
     def __len__(self):
@@ -85,8 +83,9 @@ class CJJDataset(torch.utils.data.Dataset):
 
         return Filelist
 
+
 if __name__ ==  "__main__":
-    data = CJJDataset('D:/work/files/deeplearn_datasets/anomalydetection/mvtec_anomaly_detection/bottle',split=DatasetSplit.TRAIN)
+    data = CJJDataset('D:/work/files/deeplearn_datasets/anomalydetection/mvtec_anomaly_detection/bottle',split=DatasetSplit.TEST)
     for d in data:
         img_st,a = d
         img_st = img_st.numpy()

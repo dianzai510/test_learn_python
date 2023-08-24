@@ -14,6 +14,7 @@ import itertools
 from tqdm import tqdm
 from sklearn.metrics import roc_auc_score
 from torchvision.transforms import functional as F
+from our1314.myutils.myutils import addWeightedMask
 
 
 def set_seeds(seed, with_torch=True, with_cuda=True):
@@ -62,7 +63,7 @@ def teacher_normalization(teacher, train_loader, device):
 def train(opt):
     os.makedirs(opt.out_path, exist_ok=True)
     set_seeds(42)
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
     full_train_set = CJJDataset(opt.data_path, split=DatasetSplit.TRAIN) #MVTecDataset(opt.data_path, "pill")
     train_size = int(0.9 * len(full_train_set))
@@ -83,15 +84,15 @@ def train(opt):
     student.to(device)
     autoencoder.to(device)
 
-    optimizer = torch.optim.Adam(itertools.chain(student.parameters(), autoencoder.parameters()), lr=opt.lr, weight_decay=1e-5)  # 定义优化器 momentum=0.99
-    #optimizer = torch.optim.Adam(net.parameters(), opt.lr)  # 定义优化器 momentum=0.99
+    #optimizer = torch.optim.Adam(itertools.chain(student.parameters(), autoencoder.parameters()), lr=opt.lr, weight_decay=1e-5)  # 定义优化器 momentum=0.99
+    optimizer = torch.optim.SGD(itertools.chain(student.parameters(), autoencoder.parameters()), lr=opt.lr)  # 定义优化器 momentum=0.99
 
     # 学习率更新策略
     # scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.98)
     # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20)
     # scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
     #scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=40, eta_min=1e-5)
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=int(0.95 * 70000), gamma=0.1)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=int(0.95 * opt.epoch), gamma=0.1)
 
 
     # 加载预训练模型
@@ -101,11 +102,13 @@ def train(opt):
         teacher.load_state_dict(checkpoint['net_teacher'])
         student.load_state_dict(checkpoint['net_student'])
         autoencoder.load_state_dict(checkpoint['net_autoencoder'])
-        optimizer.load_state_dict(checkpoint['optimizer'])
+        #optimizer.load_state_dict(checkpoint['optimizer'])
         time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
-        loss_best = checkpoint['loss']
+        #loss_best = checkpoint['loss']
         print(f"加载权重: {opt.pretrain}, {time}: epoch: {epoch}, loss: {loss}")
     
+    p = torch.load("D:/desktop/EfficientAD-main/models/teacher_medium.pth")
+    teacher.pdn.load_state_dict(p)
     teacher_mean, teacher_std = teacher_normalization(teacher, dataloader_train, device=device)
 
     for epoch in range(1, opt.epoch):
@@ -148,8 +151,8 @@ def train(opt):
             optimizer.zero_grad()
             loss_total.backward()
             optimizer.step()
-            scheduler.step()
-
+            
+        scheduler.step()
 
         # 验证
         teacher.eval()
@@ -282,7 +285,7 @@ def mytest(opt):
     datasets_test = CJJDataset(opt.data_path, split=DatasetSplit.TEST)
     dataloader_test = DataLoader(datasets_test, batch_size=opt.batch_size, shuffle=False, drop_last=True)
 
-    teacher = PDN_small()
+    teacher = Teacher()
     student = Student(384*2)
     autoencoder = AutoEncoder()
 
@@ -301,6 +304,8 @@ def mytest(opt):
     teacher.to(device)
     student.to(device)
     autoencoder.to(device)
+    teacher_mean = teacher_mean.to(device)
+    teacher_std = teacher_std.to(device)
 
     for image,label in dataloader_test:
         image = image.to(device)
@@ -312,7 +317,6 @@ def mytest(opt):
         # F.to_pil_image(map_combined*255).show()
         mask = map_combined
         txt = f"max={str(np.round(np.max(mask),3))},min={str(np.round(np.min(mask),3))}"
-        mask = cv2.cvtColor(mask, cv2.COLOR_RGB2BGR)
         
         img = image.to('cpu')#type:torch.Tensor
         img = img.squeeze(dim=0)
@@ -322,7 +326,13 @@ def mytest(opt):
         img = img.astype("float32")
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
-        dis = cv2.hconcat([img,mask])
+        # thr = mask.astype('uint8')
+        # _,thr = cv2.threshold(thr, 0.5, 1, cv2.THRESH_BINARY)
+        # contours,_ = cv2.findContours(thr, cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+        # cv2.drawContours(img, contours, -1, (0,0,255),3)
+
+        mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+        dis = cv2.hconcat([img, mask])
         dis = cv2.putText(dis, txt, (0,250), cv2.FONT_ITALIC, 1, (0,0,255))
         cv2.imshow('dis',dis)
         cv2.waitKey()

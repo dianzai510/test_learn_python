@@ -5,7 +5,8 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from data import CJJDataset
-from model.model import simplenet
+#from model.model import simplenet
+from model.simplenet import SimpleNet
 import datetime 
 import random
 import numpy as np
@@ -41,7 +42,7 @@ def train(opt):
     dataloader_train = DataLoader(datasets_train, batch_size=opt.batch_size, shuffle=True, num_workers=8, drop_last=True)
     #dataloader_val = DataLoader(datasets_val, batch_size=opt.batch_size, shuffle=True, num_workers=8, drop_last=True)
 
-    net = simplenet()
+    net = SimpleNet()
     net.to(device)
 
     loss_fn = nn.BCELoss(reduction='mean')
@@ -122,6 +123,8 @@ def train(opt):
 def predict(opt):
 
     net = simplenet()
+    for name, n in net.named_children():
+        print(name)
     checkpoint = torch.load(opt.pretrain)
     net.load_state_dict(checkpoint['net'])
 

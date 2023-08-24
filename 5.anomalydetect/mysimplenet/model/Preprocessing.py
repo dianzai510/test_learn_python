@@ -8,7 +8,7 @@ class MeanMapper(torch.nn.Module):
         self.preprocessing_dim = preprocessing_dim
 
     def forward(self, features):
-        features = features.reshape(len(features), 1, -1)
+        features = features.reshape(len(features), 1, -1)#[20736, 1, 4608] [20736, 1, 9216] 
         return F.adaptive_avg_pool1d(features, self.preprocessing_dim).squeeze(1)
 
 class Preprocessing(torch.nn.Module):
@@ -25,7 +25,7 @@ class Preprocessing(torch.nn.Module):
     def forward(self, features):
         _features = []
         for module, feature in zip(self.preprocessing_modules, features):
-            _features.append(module(feature))
+            _features.append(module(feature))#[20736, 1536]
         return torch.stack(_features, dim=1)
     
 if __name__ == "__main__":

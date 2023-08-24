@@ -848,3 +848,7 @@ Lib/dist/our1314-0.1.26.tar.gz
 5.anomalydetect/EfficientAD/__pycache__/model.cpython-39.pyc
 5.anomalydetect/EfficientAD/run/train/best.pth
 5.anomalydetect/EfficientAD/run/train/best - 备份.pth
+5.anomalydetect/EfficientAD/run/train/best_small - 备份1.pth
+5.anomalydetect/EfficientAD/run/train/best_small - 备份.pth
+5.anomalydetect/mysimplenet/model/__pycache__/simplenet.cpython-39.pyc
+5.anomalydetect/mysimplenet/run/train_ic/best3.pth

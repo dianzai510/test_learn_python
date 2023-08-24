@@ -253,7 +253,7 @@ class CJJDataset(torch.utils.data.Dataset):
         image = self.transform(image)
         return {
                 "image": image,
-                "filename": os.path.basename(image_path),
+                "filename": os.path.basename(os.path.dirname(image_path)),
                 }
 
     def __len__(self):
@@ -261,8 +261,25 @@ class CJJDataset(torch.utils.data.Dataset):
 
     def get_image_data(self):
         data_dir = os.path.join(self.source, self.split.value)
-        imgpaths = [os.path.join(data_dir,f) for f in os.listdir(data_dir)]
+        imgpaths = []#[os.path.join(data_dir,f) for f in os.listdir(data_dir)]
+        self.get_filelist(data_dir, imgpaths)
         return imgpaths
+    
+    def get_filelist(self, dir, Filelist):
+        newDir = dir
+        if os.path.isfile(dir):
+            Filelist.append(dir)
+            # # 若只是要返回文件文，使用这个
+            # Filelist.append(os.path.basename(dir))
+        elif os.path.isdir(dir):
+            for s in os.listdir(dir):
+                # 如果需要忽略某些文件夹，使用以下代码
+                #if s == "xxx":
+                    #continue
+                newDir=os.path.join(dir,s)
+                self.get_filelist(newDir, Filelist)
+
+        return Filelist
 
 
 if __name__ == "__main__":
