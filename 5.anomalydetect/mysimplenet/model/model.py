@@ -66,9 +66,9 @@ _BACKBONES = {
     "efficientnet_b3a": 'timm.create_model("efficientnet_b3a", pretrained=True)',
 }
 
-class simplenet(nn.Module):
+class SimpleNet(nn.Module):
     def __init__(self):
-        super(simplenet, self).__init__()
+        super(SimpleNet, self).__init__()
         self.device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
         #0、参数
         self.input_shape = (3,288,288)
@@ -120,7 +120,7 @@ class simplenet(nn.Module):
 
 
     def forward(self, images, train=True):
-        images = images.to(self.device)
+        #images = images.to(self.device)
 
         #1、提取特征
         self.forward_modules.eval()#特征提取模块改为评估模式
@@ -135,9 +135,9 @@ class simplenet(nn.Module):
         
         #2、生成噪声，并添加到正样本#（优化方案：判断添加噪声的样本与未添加时的相似度，如相似度超过某一阈值则删除。）
         noise_idxs = torch.randint(0, self.mix_noise, torch.Size([true_feats.shape[0]]))
-        noise_one_hot = torch.nn.functional.one_hot(noise_idxs, num_classes=self.mix_noise).to(self.device) # (N, K)
+        noise_one_hot = torch.nn.functional.one_hot(noise_idxs, num_classes=self.mix_noise).to(images.device) # (N, K)
         shape = noise_one_hot.shape
-        noise = torch.stack([torch.normal(0, self.noise_std * 1.1**(k), true_feats.shape) for k in range(self.mix_noise)], dim=1).to(self.device) # (N, K, C)
+        noise = torch.stack([torch.normal(0, self.noise_std * 1.1**(k), true_feats.shape) for k in range(self.mix_noise)], dim=1).to(images.device) # (N, K, C)
         noise = (noise * noise_one_hot.unsqueeze(-1)).sum(1)
         fake_feats = true_feats + noise#给正样本的特征添加噪声得到负样本。
         
@@ -226,7 +226,7 @@ class simplenet(nn.Module):
 
     def predict(self, images):
         """Infer score and mask for a batch of images."""
-        images = images.to(torch.float).to(self.device)
+        #images = images.to(torch.float).to(self.device)
         _ = self.forward_modules.eval()
 
         batchsize = images.shape[0]
@@ -234,24 +234,24 @@ class simplenet(nn.Module):
             self.pre_projection.eval()
         self.discriminator.eval()
         with torch.no_grad():
-            features, patch_shapes = self._embed(images,provide_patch_shapes=True,evaluation=True)
+            features, patch_shapes = self._embed(images,provide_patch_shapes=True,evaluation=True)#[1296, 1536] [36,36] [18,18]
             if self.pre_proj > 0:
-                features = self.pre_projection(features)
+                features = self.pre_projection(features)#[1296, 1536]
 
             # features = features.cpu().numpy()
             # features = np.ascontiguousarray(features.cpu().numpy())
-            patch_scores = image_scores = -self.discriminator(features)
+            patch_scores = image_scores = -self.discriminator(features)#[1296, 1]
             patch_scores = patch_scores.cpu().numpy()
             image_scores = image_scores.cpu().numpy()
 
-            image_scores = self.patch_maker.unpatch_scores(image_scores, batchsize=batchsize)
-            image_scores = image_scores.reshape(*image_scores.shape[:2], -1)
-            image_scores = self.patch_maker.score(image_scores)
+            image_scores = self.patch_maker.unpatch_scores(image_scores, batchsize=batchsize)#(1, 1296, 1)
+            image_scores = image_scores.reshape(*image_scores.shape[:2], -1)#(1, 1296, 1)
+            image_scores = self.patch_maker.score(image_scores)#(1,) [4.389655]
 
             patch_scores = self.patch_maker.unpatch_scores(patch_scores, batchsize=batchsize)
-            scales = patch_shapes[0]
-            patch_scores = patch_scores.reshape(batchsize, scales[0], scales[1])
-            features = features.reshape(batchsize, scales[0], scales[1], -1)
+            scales = patch_shapes[0]#[36, 36]
+            patch_scores = patch_scores.reshape(batchsize, scales[0], scales[1])#(1, 36, 36)
+            features = features.reshape(batchsize, scales[0], scales[1], -1)#[1, 36, 36, 1536]
             masks, features = self.anomaly_segmentor.convert_to_segmentation(patch_scores, features)
         return masks
         #return list(image_scores), list(masks), list(features)

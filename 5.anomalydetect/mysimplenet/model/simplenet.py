@@ -47,7 +47,8 @@ class SimpleNet(nn.Module):
 
         #self.apply(self.init_weight)#初始化权重
 
-    def forward(self, x):
+    def forward(self, x, train=True):
+        #1、提取特征
         x = self.backbone(x)
         x = [self.cvt2patch(f) for f in x]#将特征图转换为patch格式，[1,1296,512,3,3] [1,324,1024,3,3]                
         
@@ -59,6 +60,9 @@ class SimpleNet(nn.Module):
         x = x.reshape(len(x), -1)#[20736,1536]
 
         x = self.project(x)#[20736, 1536]
+
+        if train == False:
+            return x
 
         #2、生成噪声，并添加到正样本#（优化方案：判断添加噪声的样本与未添加时的相似度，如相似度超过某一阈值则删除。）
         true_feats = x
@@ -127,9 +131,81 @@ class SimpleNet(nn.Module):
         feature_patch = torch.unsqueeze(feature_patch, 0)
         feature_patch = F.interpolate(feature_patch, pathsize, mode="bilinear",align_corners=False)
         feature_patch = torch.squeeze(feature_patch, 0)
-
-
         return feature_patch
+
+
+    def predict(self, images):
+        """Infer score and mask for a batch of images."""
+        import cv2
+        import numpy as np
+
+        self.eval()
+        batchsize = images.shape[0]
+        x = self(images, train=False)
+        score = -self.discriminator(x)#[1296, 1]
+        score = score.reshape([36,36,1])
+        print(score, torch.max(score).item(), torch.min(score).item())
+        score = score.permute([2,0,1])
+        score = score.unsqueeze(dim=0)
+        score = F.interpolate(score, (288,288), mode="bilinear", align_corners=False)
+        score = score.squeeze(dim=0)
+        score = score.squeeze(dim=0)
+
+        mask = score.detach().numpy()
+        temp = mask
+        
+        _,temp = cv2.threshold(temp, 0, 1, cv2.THRESH_BINARY)
+        #temp = temp.astype("uint8")
+        #temp = 1/(1+np.exp(-temp))#sigmoid
+
+        max_value = np.round(np.max(mask),2)
+        min_value = np.round(np.min(mask),2)
+        print("\nmax=",max_value,"min=",min_value)
+        temp = cv2.cvtColor(temp, cv2.COLOR_GRAY2BGR)
+
+
+        IMAGENET_MEAN = [0.485, 0.456, 0.406]
+        IMAGENET_STD = [0.229, 0.224, 0.225]
+        img = images[0]
+        img = img.cpu().numpy()
+        img = img.transpose([1,2,0])
+        img = img*IMAGENET_STD + IMAGENET_MEAN
+        img = img.astype('float32')
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+
+        dis = cv2.hconcat([img, temp])
+
+        cv2.imshow("dis",dis)
+        cv2.waitKey()
+        return
+    
+        torchvision.transforms.ToPILImage()(score).show()
+        return
+    
+        if self.pre_proj > 0:
+            self.pre_projection.eval()
+        self.discriminator.eval()
+        with torch.no_grad():
+            features, patch_shapes = self._embed(images,provide_patch_shapes=True,evaluation=True)
+            if self.pre_proj > 0:
+                features = self.pre_projection(features)
+
+            # features = features.cpu().numpy()
+            # features = np.ascontiguousarray(features.cpu().numpy())
+            patch_scores = image_scores = -self.discriminator(features)
+            patch_scores = patch_scores.cpu().numpy()
+            image_scores = image_scores.cpu().numpy()
+
+            image_scores = self.patch_maker.unpatch_scores(image_scores, batchsize=batchsize)
+            image_scores = image_scores.reshape(*image_scores.shape[:2], -1)
+            image_scores = self.patch_maker.score(image_scores)
+
+            patch_scores = self.patch_maker.unpatch_scores(patch_scores, batchsize=batchsize)
+            scales = patch_shapes[0]
+            patch_scores = patch_scores.reshape(batchsize, scales[0], scales[1])
+            features = features.reshape(batchsize, scales[0], scales[1], -1)
+            masks, features = self.anomaly_segmentor.convert_to_segmentation(patch_scores, features)
+        return masks
 
 
 if __name__ == "__main__":

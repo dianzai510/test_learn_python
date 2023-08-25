@@ -87,10 +87,8 @@ class RescaleSegmentor:
             if isinstance(patch_scores, np.ndarray):
                 patch_scores = torch.from_numpy(patch_scores)
             _scores = patch_scores.to(self.device)
-            _scores = _scores.unsqueeze(1)
-            _scores = F.interpolate(
-                _scores, size=self.target_size, mode="bilinear", align_corners=False
-            )
+            _scores = _scores.unsqueeze(1)#[1, 1, 36, 36]
+            _scores = F.interpolate(_scores, size=self.target_size, mode="bilinear", align_corners=False)#[1, 1, 288, 288]
             _scores = _scores.squeeze(1)
             patch_scores = _scores.cpu().numpy()
 
@@ -103,24 +101,14 @@ class RescaleSegmentor:
                 for i_subbatch in range(int(features.shape[0] / subbatch_size + 1)):
                     subfeatures = features[i_subbatch*subbatch_size:(i_subbatch+1)*subbatch_size]
                     subfeatures = subfeatures.unsuqeeze(0) if len(subfeatures.shape) == 3 else subfeatures
-                    subfeatures = F.interpolate(
-                        subfeatures, size=self.target_size, mode="bilinear", align_corners=False
-                    )
+                    subfeatures = F.interpolate(subfeatures, size=self.target_size, mode="bilinear", align_corners=False)
                     interpolated_features.append(subfeatures)
                 features = torch.cat(interpolated_features, 0)
             else:
-                features = F.interpolate(
-                    features, size=self.target_size, mode="bilinear", align_corners=False
-                )
+                features = F.interpolate(features, size=self.target_size, mode="bilinear", align_corners=False)
             features = features.cpu().numpy()
 
-        return [
-            ndimage.gaussian_filter(patch_score, sigma=self.smoothing)
-            for patch_score in patch_scores
-        ], [ 
-            feature
-            for feature in features
-        ]
+        return [ndimage.gaussian_filter(patch_score, sigma=self.smoothing) for patch_score in patch_scores], [feature for feature in features]
 
 
 class NetworkFeatureAggregator(torch.nn.Module):

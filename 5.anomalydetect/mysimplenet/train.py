@@ -5,8 +5,8 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from data import CJJDataset
-#from model.model import simplenet
-from model.simplenet import SimpleNet
+from model.model import SimpleNet
+#from model.simplenet import SimpleNet
 import datetime 
 import random
 import numpy as np
@@ -66,7 +66,7 @@ def train(opt):
         net.load_state_dict(checkpoint['net'])
         optimizer.load_state_dict(checkpoint['optimizer'])
         time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
-        #loss_best = checkpoint['loss']
+        loss_best = checkpoint['loss']
         print(f"加载权重: {opt.pretrain}, {time}: epoch: {epoch}, loss: {loss}")
     
     for epoch in range(1, opt.epoch):
@@ -112,30 +112,31 @@ def train(opt):
         # 保存权重
         if loss_train < loss_best:
             loss_best = loss_train
-            checkpoint = {'net': net.state_dict(),
+            checkpoint = {'net': net.cpu().state_dict(),
                           'optimizer': optimizer.state_dict(),
                           'epoch': epoch,
                           'loss': loss_train,
                           'time': datetime.date.today()}
             torch.save(checkpoint, os.path.join(opt.out_path,opt.weights))
             print(f'已保存:{opt.weights}')
-    
-def predict(opt):
 
-    net = simplenet()
-    for name, n in net.named_children():
-        print(name)
+def predict(opt):
+    device = torch.device("cpu")
+    #device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+    net = SimpleNet()
     checkpoint = torch.load(opt.pretrain)
     net.load_state_dict(checkpoint['net'])
-
+    net.eval()
+    net = net.cpu()
     #datasets_train = MVTecDataset(opt.data_path_train, "pill")
     datasets_test = CJJDataset(opt.data_path, split=DatasetSplit.TEST)
     i=0
     for data in datasets_test:
         images = data['image']#type:torch.Tensor
+        #images.to(device)
         images = images.unsqueeze(0)
         masks = net.predict(images)
-
+        #continue
         max_value = np.round(np.max(masks[0]),2)
         min_value = np.round(np.min(masks[0]),2)
         print("\nmax=",max_value,"min=",min_value)
@@ -148,7 +149,7 @@ def predict(opt):
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
         temp = masks[0]
-        _,thr = cv2.threshold(temp, 1.5, 255, cv2.THRESH_BINARY)
+        _,thr = cv2.threshold(temp, 0, 255, cv2.THRESH_BINARY)
         thr = thr.astype("uint8")
         temp = 1/(1+np.exp(-temp))#sigmoid
 
@@ -172,7 +173,7 @@ def predict(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pretrain', default='./run/train_ic/best.pth', help='指定权重文件，未指定则使用官方权重！')  # 修改
+    parser.add_argument('--pretrain', default='./run/train_ic/best3.pth', help='指定权重文件，未指定则使用官方权重！')  # 修改
     parser.add_argument('--out_path', default='./run/train_ic', type=str)  # 修改
     parser.add_argument('--weights', default='best.pth', help='指定权重文件，未指定则使用官方权重！')
 
@@ -185,5 +186,5 @@ if __name__ == '__main__':
 
     opt = parser.parse_args()
 
-    train(opt)
-    #predict(opt)
+    #train(opt)
+    predict(opt)
