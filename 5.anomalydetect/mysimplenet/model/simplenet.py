@@ -26,6 +26,8 @@ class SimpleNet(nn.Module):
         self.device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
         self.backbone = backbone_pretrain()
+        self.backbone.eval()
+
         self.project = nn.Linear(1536,1536)
         self.discriminator = nn.Sequential(
             nn.Linear(1536,1024),
@@ -33,6 +35,8 @@ class SimpleNet(nn.Module):
             nn.LeakyReLU(0.2),
             nn.Linear(1024,1,bias=False)
         )
+        self.project.train()
+        self.discriminator.train()
 
         self.backbone.to(self.device)
         self.project.to(self.device)
@@ -48,12 +52,17 @@ class SimpleNet(nn.Module):
         #self.apply(self.init_weight)#初始化权重
 
     def forward(self, x, train=True):
+        if train == False:
+            self.backbone.eval()
+            self.project.eval()
+            self.discriminator.eval()
+
         #1、提取特征
         x = self.backbone(x)
         x = [self.cvt2patch(f) for f in x]#将特征图转换为patch格式，[1,1296,512,3,3] [1,324,1024,3,3]                
         
         feas = [F.adaptive_avg_pool1d(f, 1536).squeeze(1) for f in x]#特征融合 [20736, 1, 1536] [20736, 1, 1536]
-        x = torch.stack(feas,dim=1)#合并 [20736, 2, 1536]
+        x = torch.stack(feas, dim=1)#合并 [20736, 2, 1536]
 
         x = x.reshape(len(x), 1, -1)#[20736,1,3072]
         x = F.adaptive_avg_pool1d(x, 1536)#[20736,1,1536]
@@ -113,9 +122,9 @@ class SimpleNet(nn.Module):
         unfolder_feature = unfolder_feature.reshape([-1, *feature_shape[-2:]])
         
         feature_patch = unfolder_feature
-        feature_patch = torch.unsqueeze(feature_patch, 0)
+        feature_patch = torch.unsqueeze(feature_patch, 1)
         feature_patch = F.interpolate(feature_patch, pathsize, mode="bilinear",align_corners=False)#插值为36x36尺寸
-        feature_patch = torch.squeeze(feature_patch, 0)
+        feature_patch = torch.squeeze(feature_patch, 1)
         feature_patch = feature_patch.reshape([*feature_shape[:2],kerner_size,kerner_size,*pathsize])
         feature_patch = feature_patch.permute(0,4,5,1,2,3)
         feature_patch = feature_patch.reshape([len(feature_patch), -1, *feature_patch.shape[-3:]])
@@ -140,11 +149,14 @@ class SimpleNet(nn.Module):
         import numpy as np
 
         self.eval()
-        batchsize = images.shape[0]
-        x = self(images, train=False)
-        score = -self.discriminator(x)#[1296, 1]
+        with torch.no_grad():
+            x = self(images, train=False)
+            score = -self.discriminator(x)#[1296, 1]
+            score = score.numpy()
+            return score
+    
         score = score.reshape([36,36,1])
-        print(score, torch.max(score).item(), torch.min(score).item())
+        #print(score, torch.max(score).item(), torch.min(score).item())
         score = score.permute([2,0,1])
         score = score.unsqueeze(dim=0)
         score = F.interpolate(score, (288,288), mode="bilinear", align_corners=False)
@@ -152,6 +164,8 @@ class SimpleNet(nn.Module):
         score = score.squeeze(dim=0)
 
         mask = score.detach().numpy()
+        return mask
+
         temp = mask
         
         _,temp = cv2.threshold(temp, 0, 1, cv2.THRESH_BINARY)

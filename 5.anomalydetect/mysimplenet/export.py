@@ -20,7 +20,7 @@ def export(opt):
     torch.onnx.export(net,
                       x,
                       f,
-                      opset_version=10,
+                      opset_version=11,
                       # do_constant_folding=True,
                       input_names=['input'],
                       output_names=['output'],
