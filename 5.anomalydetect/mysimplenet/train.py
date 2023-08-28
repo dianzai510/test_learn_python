@@ -6,7 +6,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 from data import CJJDataset
 #from model.model import SimpleNet
-from model.simplenet import SimpleNet
+from simplenet import SimpleNet
 import datetime 
 import random
 import numpy as np
