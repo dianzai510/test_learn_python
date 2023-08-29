@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from math import *
 from scipy.interpolate import interp1d
 from scipy import interpolate
+import cv2
 
 '''
 https://www.blobmaker.app/
@@ -15,55 +16,32 @@ https://www.blobmaker.app/
 https://www.codenong.com/33962717/
 '''
 
-# for i in range(100):
-#     num = 3
 
-#     theta = np.linspace(0, 2*pi - 2*pi/num, num)
-#     r = np.random.rand(num)*30+0
-
-#     x = r*np.cos(theta)
-#     y = r*np.sin(theta)
-
-    
-#     tck, u = interpolate.splprep([x,y], s=0, per=True)
-
-#     plt.xlim(-50,50)
-#     plt.ylim(-50,50)
-#     plt.plot(x,y, '.')
-#     plt.show()
-    
-#     pass
-
-
-
-import numpy as np
-from scipy import interpolate
-from matplotlib import pyplot as plt
-
-for i in range(100):
-    num = 3
+for i in range(700,900):
+    num = 9
     theta = np.linspace(0, 2*pi - 2*pi/num, num)
-    r = np.random.rand(num)*30+0
+    r = np.random.rand(num)*60+30
     x = r*np.cos(theta)
     y = r*np.sin(theta)
 
-    # append the starting x,y coordinates
     x = np.append(x, x[0])
     y = np.append(y, y[0])
 
-    # fit splines to x=f(u) and y=g(u), treating both as periodic. also note that s=0
-    # is needed in order to force the spline fit to pass through all the input points.
+    #插值
     tck, u = interpolate.splprep([x, y], s=0, per=True)
+    xi, yi = interpolate.splev(np.linspace(0, 1, 100), tck)
+    
+    #opencv 显示
+    xi = xi - np.min(xi)
+    yi = yi - np.min(yi)
+    pts = np.stack([xi,yi],axis=0)
+    w, h = int(np.max(xi))+1, int(np.max(yi))+1
+    dis = np.zeros([h,w], dtype=np.uint8)
+    pts = np.int32(pts).T
+    dis = cv2.fillPoly(dis, [pts], 255)
+    cv2.imshow("dis", dis)
+    cv2.waitKey(1)
+    #cv2.destroyAllWindows()
 
-    # evaluate the spline fits for 1000 evenly spaced distance values
-    xi, yi = interpolate.splev(np.linspace(0, 1, 1000), tck)
-
-    # plot the result
-    fig, ax = plt.subplots(1, 1)
-
-    plt.xlim(-50,50)
-    plt.ylim(-50,50)
-    ax.plot(x, y, 'or')
-    ax.plot(xi, yi, '-b')
-    plt.show()
+    cv2.imwrite(f'D:/desktop/mask/{i}.png', dis)
     pass
