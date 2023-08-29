@@ -45,7 +45,7 @@ import matplotlib.pyplot as plt
 if __name__ == "__main__":
 
     for i in range(100):
-        n = 5
+        n = 200
         if len(sys.argv) == 2:
             n = int(sys.argv[1])
         points = get_xyq(n)

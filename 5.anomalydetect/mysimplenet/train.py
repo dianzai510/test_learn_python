@@ -5,8 +5,8 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from data import CJJDataset
-#from model.model import SimpleNet
-from simplenet import SimpleNet
+from model.model import SimpleNet
+#from simplenet import SimpleNet
 import datetime 
 import random
 import numpy as np
@@ -28,6 +28,7 @@ def fix_seeds(seed, with_torch=True, with_cuda=True):
         torch.cuda.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
         torch.backends.cudnn.deterministic = True
+
 
 def train(opt):
     os.makedirs(opt.out_path, exist_ok=True)
@@ -236,5 +237,5 @@ if __name__ == '__main__':
 
     opt = parser.parse_args()
 
-    #train(opt)
-    predict(opt)
+    train(opt)
+    #predict(opt)
