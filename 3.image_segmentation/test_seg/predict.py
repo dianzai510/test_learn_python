@@ -25,21 +25,15 @@ def predict(opt):
             img, = transform_val([src])
             x = net(img.unsqueeze(0))#type:torch.Tensor
             x = x.squeeze_(dim=0)
-
-            t = opt.conf
-            x[x>t]=1.0
-            x[x<=t]=0.0
+            print("max=", torch.max(x).item(),"min=", torch.min(x).item())
             
-            # dis = img.clone()
-            # dis[0] = 0.7*img[0]+0.5*x
-            # dis = tensor2mat(dis)
+            img = np.transpose(img.numpy(), (1, 2, 0))
+            mask = np.transpose(x.numpy(), (1, 2, 0))
 
-            mask = tensor2mat(x)
-            img = tensor2mat(img)
+            tmp = img.copy()
+            tmp[:,:,2:3] = tmp[:,:,2:3]*0.5 + mask*0.5
 
-            mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
-            dis = cv2.addWeighted(img, 0.7, mask, 0.3, 0)
-            #dis = cv2.copyTo(img,mask)
+            dis = cv2.hconcat([img, cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR), tmp])
             cv2.imshow("dis", dis)
             cv2.waitKey()
         
@@ -47,10 +41,10 @@ def predict(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='best_out.pth', help='指定权重文件，未指定则使用官方权重！')
+    parser.add_argument('--weights', default='best_kongdong.pth', help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--out_path', default='./run/train', type=str)  # 修改
-    parser.add_argument('--data_path_test', default='D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/train')  # 修改
-    parser.add_argument('--conf', default=0.7, type=float)
+    parser.add_argument('--data_path_test', default='D:/work/files/deeplearn_datasets/xray空洞检测/空洞检测生成数据集/test')  # 修改
+    parser.add_argument('--conf', default=0.3, type=float)
 
     opt = parser.parse_args()
 

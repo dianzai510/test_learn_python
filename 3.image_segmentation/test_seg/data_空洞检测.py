@@ -12,7 +12,12 @@ import torchvision.transforms.functional as F
 from our1314.myutils.ext_transform import *
 from our1314.myutils.myutils import tensor2mat,addWeightedMask
 
-
+class addnoise():
+    def __call__(self, x):
+        noise = torch.randn_like(x[0])*(random.random()*0.02+0.01)
+        x[0] = x[0] + noise
+        return x
+    
 # 数据增强的种类：1.平移、翻转、旋转、尺寸、仿射变换 2.亮度、颜色、噪声，其中1部分需要同时对图像和标签进行操作，2部分只对图像有效部分进行操作
 #input_size = (448-32, 448-32)#图像尺寸应该为16的倍数
 input_size = (304,304)
@@ -23,12 +28,14 @@ transform1 = torchvision.transforms.Compose([
     randomaffine_imgs(0.5, [-5,5], [-0.1,0.1], [-0.1,0.1], [0.7,0.9]),
     #randomaffine_imgs(1, [-0,0], [-0.0,0.0], [-0.0,0.0], [0.7,1/0.8]),
     randomvflip_imgs(0.5),
-    randomhflip_imgs(0.5)
+    randomhflip_imgs(0.5),
+    #addnoise()
 ])
 
 transform2 = torchvision.transforms.RandomApply([
     torchvision.transforms.GaussianBlur(kernel_size=(3, 13)),  # 随机高斯模糊
     torchvision.transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.3),
+    
 ], p=0.6)
 
 transform_val = torchvision.transforms.Compose([
@@ -36,6 +43,8 @@ transform_val = torchvision.transforms.Compose([
     Resize1(input_size[0]),  # 按比例缩放
     PadSquare()  # 四周补零
 ])
+
+
 
 class data_seg(Dataset):
     def __init__(self, data_path, transform1=None, transform2=None):
@@ -55,7 +64,7 @@ class data_seg(Dataset):
 
         assert file_name1 == file_name2,"文件不相同！"
 
-        image = Image.open(self.Images[item]).convert("L")
+        image = Image.open(self.Images[item]).convert("RGB")
         label = Image.open(self.Labels[item]).convert("L")
 
         if self.transform1 != None:
@@ -73,11 +82,12 @@ if __name__ == '__main__':
         img = image[0]
         mask = label[0]
 
-        img = tensor2mat(img)
-        mask = tensor2mat(mask)
+        img = np.transpose(img.numpy(), (1, 2, 0))
+        mask = np.transpose(mask.numpy(), (1, 2, 0))
+        
+        tmp = img.copy()
+        tmp[:,:,2:3] = tmp[:,:,2:3]*0.5 + mask*0.5
 
-        #dis = addWeightedMask(img, 0.8, mask, 0.2)
-        dis = cv2.addWeighted(img, 0.8, mask, 0.2, 0)
-
+        dis = cv2.hconcat([img, cv2.cvtColor(mask,cv2.COLOR_GRAY2BGR), tmp])
         cv2.imshow("dis", dis)        
         cv2.waitKey()

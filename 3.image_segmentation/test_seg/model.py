@@ -441,17 +441,22 @@ class deeplabv3(nn.Module):
         self.deeplabv3.aux_classifier = None
         self.sigmoid = nn.Sigmoid()
 
+        # self.deeplabv3 = deeplabv3_resnet50(weights=DeepLabV3_ResNet50_Weights.DEFAULT)
+        # self.linear1 = nn.Conv2d(21, 1, kernel_size=1)
+        # self.sigmoid = nn.Sigmoid()
+
+
         # deepv3 = deeplabv3_resnet50(weights=DeepLabV3_ResNet50_Weights.DEFAULT)
         # self.backbone = nn.Sequential(*list(deepv3.children()))
         # print(self.backbone)
 
         # 冻结特征层
-        if frozen == True:
-            for name, param in self.deeplabv3.named_parameters():
-                if name == 'classifier.weight':
-                    break
-                else:
-                    param.requires_grad = False
+        # if frozen == True:
+        #     for name, param in self.deeplabv3.named_parameters():
+        #         if name == 'classifier.weight':
+        #             break
+        #         else:
+        #             param.requires_grad = False
 
     def forward(self, x):
         x = self.deeplabv3(x)
@@ -459,9 +464,14 @@ class deeplabv3(nn.Module):
         #x = self.sigmoid(x['aux'])
         return x
 
+    # def forward(self, x):
+    #         x = self.deeplabv3(x)
+    #         x = self.linear1(x['out'])
+    #         x = self.sigmoid(x)
+    #         return x
 
 if __name__ == "__main__":
-    x = torch.rand([1,3,512,512],dtype=torch.float)
+    x = torch.rand([5,3,512,512],dtype=torch.float)
     net = deeplabv3()
     x = net(x)
     print(x.shape)

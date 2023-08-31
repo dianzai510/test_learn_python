@@ -854,3 +854,9 @@ Lib/dist/our1314-0.1.26.tar.gz
 5.anomalydetect/mysimplenet/run/train_ic/best3.pth
 5.anomalydetect/mysimplenet/run/train_ic/best_new.pth
 3.image_segmentation/test_seg/__pycache__/data_空洞检测.cpython-39.pyc
+3.image_segmentation/test_seg/run/train/best_kongdong.pth
+3.image_segmentation/test_seg/run/train/best_kongdong1.pth
+3.image_segmentation/test_seg/run/train/best_kongdong.onnx
+3.image_segmentation/test_seg/run/train/best_kongdong1.onnx
+Lib/dist/our1314-0.1.27-py3-none-any.whl
+Lib/dist/our1314-0.1.27.tar.gz

@@ -3,7 +3,8 @@ import os
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
-from data import data_seg, transform1, transform2, transform_val
+#from data import data_seg, transform1, transform2, transform_val
+from data_空洞检测 import data_seg, transform1, transform2, transform_val
 from model import UNet,deeplabv3
 import datetime 
 
@@ -33,7 +34,7 @@ def train(opt):
     # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20)
     # scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
     # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=3, gamma=0.1)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=40, eta_min=1e-5)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=opt.epoch/20, eta_min=1e-5)
 
 
     # 加载预训练模型
@@ -44,7 +45,7 @@ def train(opt):
         #optimizer.load_state_dict(checkpoint['optimizer'])
         time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
         #loss_best = checkpoint['loss']
-        print(f"加载权重: {opt.pretrain}, {time}: epoch: {epoch}, loss: {loss}")
+        print(f"加载权重: {opt.pretrain}, {time}: epoch: {epoch}, best loss: {loss}")
     
     for epoch in range(1, opt.epoch):
         # 训练
@@ -82,12 +83,12 @@ def train(opt):
         print(f"epoch:{epoch}, loss_train:{round(loss_train, 6)}, loss_val:{round(loss_val, 6)}, lr:{optimizer.param_groups[0]['lr']}")
 
         # 保存权重
-        if loss_val < loss_best:
-            loss_best = loss_val
+        if loss_train < loss_best:
+            loss_best = loss_train
             checkpoint = {'net': net.state_dict(),
                           'optimizer': optimizer.state_dict(),
                           'epoch': epoch,
-                          'loss': loss_train,
+                          'loss': loss_best,
                           'time': datetime.date.today()}
             torch.save(checkpoint, os.path.join(opt.out_path,opt.weights))
             print(f'已保存:{opt.weights}')
@@ -95,16 +96,16 @@ def train(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pretrain', default='./run/train/best_out.pth', help='指定权重文件，未指定则使用官方权重！')  # 修改
+    parser.add_argument('--pretrain', default='./run/train/best_kongdong.pth', help='指定权重文件，未指定则使用官方权重！')  # 修改
     parser.add_argument('--out_path', default='./run/train', type=str)  # 修改
-    parser.add_argument('--weights', default='best_out.pth', help='指定权重文件，未指定则使用官方权重！')
+    parser.add_argument('--weights', default='best_kongdong.pth', help='指定权重文件，未指定则使用官方权重！')
 
     parser.add_argument('--resume', default=False, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
-    parser.add_argument('--data_path_train', default='D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/train')
-    parser.add_argument('--data_path_val', default='D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/val')
-    parser.add_argument('--epoch', default=3000, type=int)
+    parser.add_argument('--data_path_train', default='D:/work/files/deeplearn_datasets/xray空洞检测/空洞检测生成数据集/train')
+    parser.add_argument('--data_path_val', default='D:/work/files/deeplearn_datasets/xray空洞检测/空洞检测生成数据集/val')
+    parser.add_argument('--epoch', default=1000, type=int)
     parser.add_argument('--lr', default=0.001, type=float)
-    parser.add_argument('--batch_size', default=24, type=int)
+    parser.add_argument('--batch_size', default=8, type=int)
 
     opt = parser.parse_args()
 

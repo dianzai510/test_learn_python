@@ -1,7 +1,8 @@
 import argparse
 import onnx
 import torch.onnx.utils
-from data import input_size, transform_val
+#from data import input_size, transform_val
+from data_空洞检测 import input_size, transform_val
 from model import UNet,deeplabv3
 from our1314.myutils import exportsd, importsd
 import onnxruntime
@@ -15,7 +16,7 @@ def export(opt):
     x = torch.randn(size)
     checkpoint = torch.load(path)
 
-    net = UNet()  # classify_net1()
+    net = deeplabv3()  # classify_net1()
     net.load_state_dict(checkpoint['net'])
     net.eval()
     torch.onnx.export(net,
@@ -61,7 +62,7 @@ def export(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='./run/train/best-unet.pth')  # 修改
+    parser.add_argument('--weights', default='./run/train/best_kongdong.pth')  # 修改
 
     opt = parser.parse_args()
     export(opt)

@@ -13,7 +13,7 @@ def mat2pil(mat):
     image = Image.fromarray(cv2.cvtColor(mat, cv2.COLOR_BGR2RGB))
     return image
 
-def tensor2mat(data, dtype=np.uint8):
+def tensor2mat(data, dtype=None):
     """
     将给定的张量转换为Mat类型图像，并自动*255，并交换通道RGB→BGR
     :param data:张量,三个维度，[c,h,w]
@@ -24,10 +24,8 @@ def tensor2mat(data, dtype=np.uint8):
 
     img = data.detach().numpy()  # type:np.ndarray
     img = img.copy()  # 没有这句会报错：Layout of the output array img is incompatible with cv::Mat
-    img *= 255
-    img = img.astype(np.uint8)
     img = np.transpose(img, (1, 2, 0))  # c,h,w → h,w,c
-    img = img.copy()
+    # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     return img
 
 def mat2tensor(img:np.array, dtype=np.uint8):

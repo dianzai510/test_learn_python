@@ -17,10 +17,10 @@ https://www.codenong.com/33962717/
 '''
 
 
-for i in range(700,900):
-    num = 9
+for i in range(100,500):
+    num = 5
     theta = np.linspace(0, 2*pi - 2*pi/num, num)
-    r = np.random.rand(num)*60+30
+    r = np.random.rand(num)*30+0
     x = r*np.cos(theta)
     y = r*np.sin(theta)
 
