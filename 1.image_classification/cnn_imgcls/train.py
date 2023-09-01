@@ -18,7 +18,7 @@ from data import data_oqa_agl,data_oqa_chr
 from model import net_xray
 import sys
 sys.path.append("D:/work/program/Python/DeepLearning/test_learn_python")
-from our1314.myutils import myutils
+from our1314.work import Utils
 
 
 def train(opt):
