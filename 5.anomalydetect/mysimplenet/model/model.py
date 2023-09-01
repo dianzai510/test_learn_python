@@ -193,7 +193,7 @@ class SimpleNet(nn.Module):
         #至此使用resnet主干网提取了layer2、layer3特征
 
         #从特征图提取patch
-        features = [self.patch_maker.patchify(x, return_spatial_info=True) for x in features]#[bs,512,36,36]→[36,36]    [bs,1024,18,18]→[18,18]
+        features = [self.patch_maker.patchify(x, return_spatial_info=True) for x in features]#[bs,512,36,36]→[bs,1296,512,3,3]   [bs,1024,18,18]→[bs,324,1024,3,3]
         patch_shapes = [x[1] for x in features]
         features = [x[0] for x in features]
         ref_num_patches = patch_shapes[0]

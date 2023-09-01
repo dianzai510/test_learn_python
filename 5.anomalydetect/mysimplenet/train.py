@@ -46,7 +46,7 @@ def train(opt):
     net = SimpleNet()
     net.to(device)
 
-    loss_fn = nn.BCELoss(reduction='mean')
+    #loss_fn = nn.BCELoss(reduction='mean')
     #loss_fn = nn.CrossEntropyLoss()
 
     optimizer = torch.optim.SGD(net.parameters(), lr=opt.lr)  # 定义优化器 momentum=0.99
@@ -224,7 +224,7 @@ def predict1(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pretrain', default='./run/train_ic/best.pth', help='指定权重文件，未指定则使用官方权重！')  # 修改
+    parser.add_argument('--pretrain', default='./run/train_ic/best1.pth', help='指定权重文件，未指定则使用官方权重！')  # 修改
     parser.add_argument('--out_path', default='./run/train_ic', type=str)  # 修改
     parser.add_argument('--weights', default='best.pth', help='指定权重文件，未指定则使用官方权重！')
 

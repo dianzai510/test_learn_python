@@ -68,6 +68,7 @@ class SimpleNet(nn.Module):
         x = F.adaptive_avg_pool1d(x, 1536)#[20736,1,1536]
         x = x.reshape(len(x), -1)#[20736,1536]
 
+        self.project.train()
         x = self.project(x)#[20736, 1536]
 
         if train == False:
