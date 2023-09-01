@@ -1,7 +1,6 @@
 import argparse
 import onnx
 import torch.onnx.utils
-from our1314.myutils import exportsd, importsd
 from model.model import SimpleNet
 
 
