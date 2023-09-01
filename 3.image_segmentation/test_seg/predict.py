@@ -7,7 +7,7 @@ from data import transform_val
 import cv2
 import numpy as np
 import torchvision
-from our1314.myutils.myutils import tensor2mat
+from our1314.work.Utils import tensor2mat
 
 
 def predict(opt):
@@ -18,7 +18,7 @@ def predict(opt):
     net.eval()
 
     with torch.no_grad():
-        files = [os.path.join(opt.data_path_test,f) for f in os.listdir(opt.data_path_test) if f.endswith('.jpg')]
+        files = [os.path.join(opt.data_path_test,f) for f in os.listdir(opt.data_path_test)]
         for image_path in files:
             src = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED)   # type:cv2.Mat
             
@@ -38,6 +38,7 @@ def predict(opt):
             cv2.waitKey()
         
     cv2.destroyAllWindows()
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
