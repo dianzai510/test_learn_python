@@ -58,7 +58,10 @@ class SimpleNet(nn.Module):
             self.discriminator.eval()
 
         #1、提取特征
-        x = self.backbone(x)
+        with torch.no_grad():
+            self.backbone.eval()
+            x = self.backbone(x)
+            
         x = [self.cvt2patch(f) for f in x]#将特征图转换为patch格式，[1,1296,512,3,3] [1,324,1024,3,3]                
         
         feas = [F.adaptive_avg_pool1d(f, 1536).squeeze(1) for f in x]#特征融合 [20736, 1, 1536] [20736, 1, 1536]

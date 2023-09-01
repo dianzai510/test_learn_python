@@ -5,8 +5,8 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from data import CJJDataset
-from model.model import SimpleNet
-#from simplenet import SimpleNet
+#from model.model import SimpleNet
+from simplenet import SimpleNet
 import datetime 
 import random
 import numpy as np
@@ -64,8 +64,8 @@ def train(opt):
     loss_best = 9999
     if os.path.exists(opt.pretrain):
         checkpoint = torch.load(opt.pretrain)
-        net.load_state_dict(checkpoint['net'])
-        optimizer.load_state_dict(checkpoint['optimizer'])
+        # net.load_state_dict(checkpoint['net'])
+        # optimizer.load_state_dict(checkpoint['optimizer'])
         time,epoch,loss = checkpoint['time'],checkpoint['epoch'],checkpoint['loss']
         #loss_best = checkpoint['loss']
         print(f"加载权重: {opt.pretrain}, {time}: epoch: {epoch}, loss: {loss}")
@@ -224,7 +224,7 @@ def predict1(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pretrain', default='./run/train_ic/best1.pth', help='指定权重文件，未指定则使用官方权重！')  # 修改
+    parser.add_argument('--pretrain', default='./run/train_ic/best.pth', help='指定权重文件，未指定则使用官方权重！')  # 修改
     parser.add_argument('--out_path', default='./run/train_ic', type=str)  # 修改
     parser.add_argument('--weights', default='best.pth', help='指定权重文件，未指定则使用官方权重！')
 
@@ -237,5 +237,5 @@ if __name__ == '__main__':
 
     opt = parser.parse_args()
 
-    train(opt)
-    #predict(opt)
+    #train(opt)
+    predict(opt)
