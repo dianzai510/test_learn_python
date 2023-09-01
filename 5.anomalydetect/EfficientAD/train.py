@@ -337,6 +337,7 @@ def mytest(opt):
         cv2.imshow('dis',dis)
         cv2.waitKey()
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--pretrain', default='./run/train/best.pth', help='指定权重文件，未指定则使用官方权重！')  # 修改
