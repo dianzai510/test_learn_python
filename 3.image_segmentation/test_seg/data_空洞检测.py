@@ -6,11 +6,9 @@ import torchvision
 from PIL import Image
 import cv2
 from torchvision.transforms import InterpolationMode
-from our1314.work.Utils import Resize1, PadSquare
 import numpy as np
 import torchvision.transforms.functional as F
 from our1314.work.Utils import *
-from our1314.work.Utils import tensor2mat,addWeightedMask
 
 class addnoise():
     def __call__(self, x):
