@@ -83,16 +83,17 @@ for i in range(0,500):
     mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
     mix = np.uint8(back*0.9 + mask*(random.random()*0.1+0.1))
 
-    #6、保存
+    #6、显示
+    dis = cv2.hconcat([back, mask, mix])
+    cv2.putText(dis, os.path.basename(files_back[idx]), (0,100), cv2.FONT_ITALIC, 2, (0,0,255))
+    cv2.imshow("dis", dis)
+    cv2.waitKey()
+    continue
+
+    #7、保存
     from datetime import datetime
     name  = Utils.Now()
     path = 'D:/desktop/train'
     os.makedirs(path, exist_ok=True)
     cv2.imwrite(f'{path}/{name}.jpg', mix)
     cv2.imwrite(f'{path}/{name}.png', mask)
-
-    #7、显示
-    dis = cv2.hconcat([back, mask, mix])
-    cv2.putText(dis, os.path.basename(files_back[idx]), (0,100), cv2.FONT_ITALIC, 2, (0,0,255))
-    cv2.imshow("dis", dis)
-    cv2.waitKey(1)
