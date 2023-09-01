@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import halcon
-from our1314.myutils.myutils import rad, contours2coord
+from our1314.work.Utils import rad, contours2coord
 from halcon.numpy_interop import himage_as_numpy_array, himage_from_numpy_array
 
 class templateMatch():
@@ -43,11 +43,11 @@ class templateMatch():
 
 
 if __name__ == '__main__':
-    from our1314.cv.mouseselect import mouseSelect
+    from our1314.work.Utils import mouseSelect_simple
 
     path = 'd:/desktop/1.jpg'
     src = cv2.imdecode(np.fromfile(path, dtype=np.uint8), cv2.IMREAD_COLOR)#type:np.ndarray
-    a = mouseSelect(src)
+    a = mouseSelect_simple(src)
 
     coord = a.pt1[0], a.pt1[1], a.pt2[0], a.pt2[1]
     src = himage_from_numpy_array(src)

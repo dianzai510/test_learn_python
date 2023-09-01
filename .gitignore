@@ -860,3 +860,7 @@ Lib/dist/our1314-0.1.26.tar.gz
 3.image_segmentation/test_seg/run/train/best_kongdong1.onnx
 Lib/dist/our1314-0.1.27-py3-none-any.whl
 Lib/dist/our1314-0.1.27.tar.gz
+Lib/our1314/work/halcon.dll
+Lib/our1314/work/halconc.dll
+Lib/our1314/work/halconcpp.dll
+Lib/our1314/work/hdevenginecpp.dll
