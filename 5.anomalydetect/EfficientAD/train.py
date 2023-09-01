@@ -14,7 +14,7 @@ import itertools
 from tqdm import tqdm
 from sklearn.metrics import roc_auc_score
 from torchvision.transforms import functional as F
-from our1314.myutils.myutils import addWeightedMask
+from our1314.work.Utils import addWeightedMask
 
 
 def set_seeds(seed, with_torch=True, with_cuda=True):
