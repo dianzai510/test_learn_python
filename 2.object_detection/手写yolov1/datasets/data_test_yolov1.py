@@ -3,8 +3,8 @@ import cv2
 import torch
 import torchvision
 from torch.utils.data import Dataset, DataLoader
-from utils123 import utils
-from object_detection.手写yolov1.model import basic
+from our1314.work import Utils
+from ..model import basic
 import numpy as np
 
 
@@ -68,6 +68,7 @@ class data_test_yolov1(Dataset):
                 h = h * shape_resize[0] / self.image_size
                 w = w * shape_resize[1] / self.image_size
                 labels[i, :] = torch.tensor([cls, x, y, w, h])
+        # endregion 
 
         labels = basic.encode(labels, self.grid_size, self.num_bboxes, self.num_classes)
         return img, labels
@@ -80,8 +81,8 @@ if __name__ == '__main__':
     dataloader_train = DataLoader(datasets_train, 1, shuffle=True)
     for imgs, labels in dataloader_train:
         img1 = imgs[0, ...]
-        dis = utils.tensor2mat(img1)
-        dis = utils.drawgrid(dis, (7, 7))
+        dis = Utils.tensor2mat(img1)
+        dis = Utils.drawgrid(dis, (7, 7))
 
         label = labels[0]
         # obj_mask = label[:, :, 4] > 0
