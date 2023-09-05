@@ -96,7 +96,7 @@ if __name__ == '__main__':
                     ij = torch.tensor([i, j]) * d
                     xy = ij + data[:2] * d
                     wh = data[2:4] * image_size
-                    utils.rectangle(dis, xy.numpy(), wh.numpy(), (255, 0, 0), 2)
+                    Utils.rectangle(dis, xy.numpy(), wh.numpy(), (255, 0, 0), 2)
                     cv2.circle(dis, tuple(xy.numpy().astype(np.int)), 3, (255, 0, 0), -1)
         cv2.imshow('dis', dis)
         cv2.waitKey()
