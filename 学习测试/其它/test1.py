@@ -12,7 +12,7 @@ from torchvision.models import resnet18
 import torch
 from torch import nn
 
-from myutils import exportsd, myutils
+from our1314.work.Utils import exportsd
 
 
 class mynet(nn.Module):
