@@ -19,7 +19,7 @@ n_sample=50
 n_feature=2
 n_cluster=3
 
-# 轮廓系数是对聚类数据进行评价
+# 轮廓系数是对聚类质量进行评价
 X = np.random.rand(n_sample,n_feature)
 Y = np.random.choice(range(n_cluster), size=n_sample) # random assign cluster label
 score = silhouette_score(X, Y, metric='euclidean')
