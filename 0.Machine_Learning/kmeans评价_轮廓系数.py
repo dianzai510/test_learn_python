@@ -15,13 +15,18 @@ a = np.unique([1,3,2,2,2,3,3,4,4,4,4])#对于一维数组或者列表，np.uniqu
 print(a)
 #endregion
 
-n_sample=50
+n_sample=10
 n_feature=2
 n_cluster=3
 
 # 轮廓系数是对聚类质量进行评价
 X = np.random.rand(n_sample,n_feature)
 Y = np.random.choice(range(n_cluster), size=n_sample) # random assign cluster label
+# X = np.array([[1,2],[1,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11]],dtype=float)
+# Y = np.array([0,1,2,0,1,2,0,1,2,1],dtype=int)
+X = np.array([[0,9],[2,3],[2,4],[3,3],[3,4],[5,9]],dtype=float)
+Y = np.array([0,1,1,1,1,0],dtype=int)
+
 score = silhouette_score(X, Y, metric='euclidean')
 print("sklearn calculate silhouette:",score)
 
@@ -37,9 +42,6 @@ for i in cluster_dict:
     for idx in range(len(cluster_dict[i])): ##
         temp=cluster_dict[i][idx].reshape(1,-1) #
         temp_a=pairwise_distances(temp,cluster_dict[i]) #same cluster
-        d0 = np.linalg.norm(temp-cluster_dict[i][0])
-        d1 = np.linalg.norm(temp-cluster_dict[i][1])
-        d2 = np.linalg.norm(temp-cluster_dict[i][2])
         a=np.sum(temp_a)/(len(cluster_dict[i])-1) # mean
         b=np.inf
         for j in cluster_dict:
