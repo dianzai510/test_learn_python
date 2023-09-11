@@ -4,7 +4,7 @@ import torch.onnx.utils
 #from data import input_size, transform_val
 from data_空洞检测 import input_size, transform_val
 from model import UNet,deeplabv3
-from our1314.myutils import exportsd, importsd
+from our1314.work.Utils import exportsd, importsd
 import onnxruntime
 from PIL import Image
 
