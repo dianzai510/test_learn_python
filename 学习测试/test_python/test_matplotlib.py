@@ -7,6 +7,7 @@ x = np.linspace(-np.pi, np.pi, 500)
 y1,y2 = np.cos(x),np.sin(x)
 plt.plot(x,y1)
 plt.plot(x,y2)
+plt.axis([0,6,0,6])#
 plt.show()
  
 

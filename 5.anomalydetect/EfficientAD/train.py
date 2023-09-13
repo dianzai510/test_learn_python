@@ -353,6 +353,6 @@ if __name__ == '__main__':
 
     opt = parser.parse_args()
 
-    train(opt)
-    #mytest(opt)
+    #train(opt)
+    mytest(opt)
     #predict(opt)

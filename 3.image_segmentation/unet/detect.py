@@ -3,15 +3,15 @@ import cv2
 import torch
 from torch.utils.data import DataLoader
 
-from image_segmentation.unet.data.data_segment import data_oqa
-from image_segmentation.unet.models.unet import UNet
-from utils123 import utils
+# from image_segmentation.unet.data.data_segment import data_oqa
+# from image_segmentation.unet.models.unet import UNet
+# from utils123 import utils
 
 
 def detect(opt):
     # 0、加载参数
     conf = opt.conf
-
+    cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
     # 1、加载网络
     checkpoint = torch.load(opt.weights)
     net = UNet(3, 2)
