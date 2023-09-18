@@ -24,7 +24,6 @@ plt.plot(subpts1[:,0],subpts1[:,1],".r")
 #plt.axis([0,200,0,200])#
 #endregion
 
-
 #region 2、贪婪策略
 """
 1、随机采集10个点，计算其与集合的平均距离
