@@ -57,7 +57,7 @@ for i in tqdm.tqdm(range(1000),desc="jj"):
     d1 = torch.cat([d1,d2],dim=-1)
     d1 = torch.min(d1,dim=1).values.reshape(-1,1)
     
-    #region 一个个显示
+    #region 逐点显示(需要打断点)
     # subpts = pts[idx]
     # plt.subplot(1,2,2)
     # plt.plot(subpts[0],subpts[1],".r")
