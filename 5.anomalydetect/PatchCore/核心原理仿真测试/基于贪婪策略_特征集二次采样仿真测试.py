@@ -32,6 +32,7 @@ plt.plot(subpts1[:,0],subpts1[:,1],".r")
 3、计算选择点与集合的
 """
 
+#按batch计算向量的欧氏距离
 def _compute_batchwise_differences(matrix_a: torch.Tensor, matrix_b: torch.Tensor) -> torch.Tensor:
     """Computes batchwise Euclidean distances using PyTorch. 使用pytorch计算batchwise的欧氏距离"""
     a_times_a = matrix_a.unsqueeze(1).bmm(matrix_a.unsqueeze(2)).reshape(-1, 1)#bmm为计算两个tensor的矩阵乘法
