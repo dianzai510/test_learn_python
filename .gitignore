@@ -918,3 +918,9 @@ Lib/our1314/work/hdevenginecpp.dll
 5.anomalydetect/SimpleNet/simplenet/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_zipper/ckpt.pth
 5.anomalydetect/SimpleNet/simplenet/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_zipper/tb/events.out.tfevents.1692222648.dl.3084.7
 5.anomalydetect/SimpleNet/simplenet/results/MVTecAD_Results/simplenet_mvtec/run/models/0/mvtec_zipper/tb/events.out.tfevents.1692256771.dl.18856.7
+3.image_segmentation/test_seg/run/train/best_deeplab.pth
+3.image_segmentation/test_seg/run/train/best_deeplab1.pth
+3.image_segmentation/test_seg/run/train/best_deeplab3.pth
+3.image_segmentation/test_seg/run/train/best_kongdong2.pth
+3.image_segmentation/test_seg/run/train/best_unet.onnx
+3.image_segmentation/test_seg/run/train/best_unet.pth

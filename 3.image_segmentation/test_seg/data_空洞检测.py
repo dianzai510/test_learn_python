@@ -18,7 +18,7 @@ class addnoise():
     
 # 数据增强的种类：1.平移、翻转、旋转、尺寸、仿射变换 2.亮度、颜色、噪声，其中1部分需要同时对图像和标签进行操作，2部分只对图像有效部分进行操作
 #input_size = (448-32, 448-32)#图像尺寸应该为16的倍数
-input_size = (512,512)
+input_size = (304,304)
 transform1 = torchvision.transforms.Compose([
     ToTensors(),
     Resize1(input_size[0]),#等比例缩放
