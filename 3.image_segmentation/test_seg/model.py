@@ -441,15 +441,6 @@ class deeplabv3(nn.Module):
         self.deeplabv3.aux_classifier = None
         self.sigmoid = nn.Sigmoid()
 
-        # self.deeplabv3 = deeplabv3_resnet50(weights=DeepLabV3_ResNet50_Weights.DEFAULT)
-        # self.linear1 = nn.Conv2d(21, 1, kernel_size=1)
-        # self.sigmoid = nn.Sigmoid()
-
-
-        # deepv3 = deeplabv3_resnet50(weights=DeepLabV3_ResNet50_Weights.DEFAULT)
-        # self.backbone = nn.Sequential(*list(deepv3.children()))
-        # print(self.backbone)
-
         # 冻结特征层
         # if frozen == True:
         #     for name, param in self.deeplabv3.named_parameters():
