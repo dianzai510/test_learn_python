@@ -12,6 +12,7 @@ import copy
 from data import CJJDataset,DatasetSplit
 from torch.utils.data import DataLoader
 import torchvision
+import scipy.ndimage as ndimage
 
 # from ..patchcore import backbones
 # from ..patchcore import sampler
@@ -62,11 +63,11 @@ class PatchCore(torch.nn.Module):
         self.forward_modules["preadapt_aggregator"] = preadapt_aggregator
 
         #self.anomaly_scorer = NearestNeighbourScorer(n_nearest_neighbours=anomaly_score_num_nn, nn_method=nn_method)
-        #self.anomaly_segmentor = RescaleSegmentor(device=self.device, target_size=input_shape[-2:])
+        self.anomaly_segmentor = RescaleSegmentor(device=self.device, target_size=self.input_shape[-2:])
         #self.featuresampler = featuresampler
 
         faiss.omp_set_num_threads(4)
-        self.faiss_index = faiss.IndexFlatL2(1024)
+        self.faiss_index = faiss.GpuIndexFlatL2(faiss.StandardGpuResources(), 1024, faiss.GpuIndexFlatConfig()) #faiss.IndexFlatL2(1024)
         
     def embed(self, data):
         if isinstance(data, torch.utils.data.DataLoader):#如果是DataLoader，则遍历每张图片提取特征
@@ -150,11 +151,12 @@ class PatchCore(torch.nn.Module):
         #2、精简特征
         features = np.concatenate(features, axis=0)#对多个张量进行拼接
         mapper = torch.nn.Linear(features.shape[1], 128, bias=False)
-        features = mapper(torch.tensor(features))
+        features_map = mapper(torch.tensor(features))
+        features_map = features_map.to(self.device)
 
-        sample_indices = self._compute_greedy_coreset_indices(features)#减小特征维度，并根据论文原理减少特征数量。
+        sample_indices = self._compute_greedy_coreset_indices(features_map)#减小特征维度，并根据论文原理减少特征数量。
         features = features[sample_indices]#根据索引进行过滤
-        features = features.numpy()
+        
         
         #3、knn
         self.faiss_index.add(features)
@@ -210,8 +212,8 @@ class PatchCore(torch.nn.Module):
         with tqdm.tqdm(dataloader, desc="Inferring...", leave=False) as data_iterator:
             for image in data_iterator:
                 if isinstance(image, dict):
-                    labels_gt.extend(image["is_anomaly"].numpy().tolist())
-                    masks_gt.extend(image["mask"].numpy().tolist())
+                    # labels_gt.extend(image["is_anomaly"].numpy().tolist())
+                    # masks_gt.extend(image["mask"].numpy().tolist())
                     image = image["image"]
                 _scores, _masks = self._predict(image)
                 for score, mask in zip(_scores, _masks):
@@ -252,7 +254,8 @@ class PatchCore(torch.nn.Module):
             features, patch_shapes = self._embed(images, provide_patch_shapes=True)#提取特征
             features = np.asarray(features)
 
-            patch_scores = image_scores = self.anomaly_scorer.predict([features])[0]#采用knn进行分类，FAISS Nearest neighbourhood search.
+            patch_scores = image_scores = self.faiss_index.search(features, 1)[0]
+            #patch_scores = image_scores = self.anomaly_scorer.predict([features])[0]#采用knn进行分类，FAISS Nearest neighbourhood search.
             image_scores = self.patch_maker.unpatch_scores(image_scores, batchsize=batchsize)
             image_scores = image_scores.reshape(*image_scores.shape[:2], -1)
             image_scores = self.patch_maker.score(image_scores)
@@ -483,10 +486,35 @@ class Aggregator(torch.nn.Module):
         features = features.reshape(len(features), 1, -1)
         features = F.adaptive_avg_pool1d(features, self.target_dim)
         return features.reshape(len(features), -1)
+
+class RescaleSegmentor:
+    def __init__(self, device, target_size=224):
+        self.device = device
+        self.target_size = target_size
+        self.smoothing = 4
+
+    def convert_to_segmentation(self, patch_scores):
+
+        with torch.no_grad():
+            if isinstance(patch_scores, np.ndarray):
+                patch_scores = torch.from_numpy(patch_scores)
+            _scores = patch_scores.to(self.device)
+            _scores = _scores.unsqueeze(1)
+            _scores = F.interpolate(
+                _scores, size=self.target_size, mode="bilinear", align_corners=False
+            )
+            _scores = _scores.squeeze(1)
+            patch_scores = _scores.cpu().numpy()
+
+        return [ndimage.gaussian_filter(patch_score, sigma=self.smoothing) for patch_score in patch_scores]
     
 if __name__ == "__main__":
     patchcore = PatchCore(torch.device("cuda"))
     datasets_train = CJJDataset('D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test',split=DatasetSplit.TRAIN)
     dataloader_train = DataLoader(datasets_train, batch_size=2, shuffle=True, num_workers=8, drop_last=False)
     patchcore.fit(dataloader_train)
+
+    datasets_test = CJJDataset('D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test',split=DatasetSplit.TEST)
+    dataloader_test = DataLoader(datasets_test, batch_size=2, drop_last=True)
+    patchcore.predict(dataloader_test)
     pass
