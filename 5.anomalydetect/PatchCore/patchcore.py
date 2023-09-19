@@ -507,7 +507,8 @@ class RescaleSegmentor:
             patch_scores = _scores.cpu().numpy()
 
         return [ndimage.gaussian_filter(patch_score, sigma=self.smoothing) for patch_score in patch_scores]
-    
+
+
 if __name__ == "__main__":
     patchcore = PatchCore(torch.device("cuda"))
     datasets_train = CJJDataset('D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test',split=DatasetSplit.TRAIN)
