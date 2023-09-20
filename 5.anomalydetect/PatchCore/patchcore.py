@@ -369,7 +369,6 @@ class PatchMaker:
             return x.numpy()
         return x
 
-
 class NetworkFeatureAggregator(torch.nn.Module):
     """Efficient extraction of network features."""
 
@@ -435,7 +434,6 @@ class NetworkFeatureAggregator(torch.nn.Module):
         _output = self(_input)
         return [_output[layer].shape[1] for layer in self.layers_to_extract_from]
     
-
 class ForwardHook:
     def __init__(self, hook_dict, layer_name: str, last_layer_to_extract: str):
         self.hook_dict = hook_dict
@@ -465,7 +463,6 @@ class Preprocessing(torch.nn.Module):
             _features.append(module(feature))
         return torch.stack(_features, dim=1)
     
-
 class MeanMapper(torch.nn.Module):
     def __init__(self, preprocessing_dim):
         super(MeanMapper, self).__init__()
