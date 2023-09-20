@@ -158,7 +158,7 @@ class PatchCore(torch.nn.Module):
         features = features[sample_indices]#根据索引进行过滤
         
         
-        #3、knn
+        #3、添加到索引器
         self.faiss_index.add(features)
 
     def _compute_greedy_coreset_indices(self, features: torch.Tensor) -> np.ndarray:
