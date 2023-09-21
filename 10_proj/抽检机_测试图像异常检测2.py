@@ -8,7 +8,7 @@ from model1 import Model1
 from model2 import Model2
 import torch
 from torchvision import transforms
-from ...test_learn_python
+from ...test_learn_python._5_anomalydetect
 
 net = Model2()
 net.eval()
