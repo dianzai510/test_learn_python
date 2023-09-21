@@ -54,58 +54,71 @@ transform_img1 = [
         ]
 transform1 = transforms.Compose(transform_img1)
 
+cnt = 0
+dir_image = "D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/test"
+# files_all = [os.path.join(dir_image, f) for f in os.listdir(dir_image) if f.endswith('.png') or f.endswith('.jpg') or f.endswith('.bmp')]
+files_all = []
+for root,dirs,files in os.walk(dir_image):
+        for file in files:
+            files_all.append(os.path.join(root,file))
 
-path = 'D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/test/ng/0 (0).png'#input('输入图像路径：')
-src = cv2.imdecode(np.fromfile(path, dtype=np.uint8), cv2.IMREAD_COLOR)#type:np.ndarray
+for fff in files_all:
+    path = 'D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/test/ng/0 (1).png'#input('输入图像路径：')
+    path = fff
+    src = cv2.imdecode(np.fromfile(path, dtype=np.uint8), cv2.IMREAD_COLOR)#type:np.ndarray
 
-dir_image = "D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/train/good"
-files_all = os.listdir(dir_image)
+    dir_image = "D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/train/good"
+    files_all = os.listdir(dir_image)
 
-images_path = [os.path.join(dir_image, f) for f in files_all if f.endswith('.png') or f.endswith('.jpg') or f.endswith('.bmp')]
-images_path = images_path[:100]
+    images_path = [os.path.join(dir_image, f) for f in files_all if f.endswith('.png') or f.endswith('.jpg') or f.endswith('.bmp')]
+    images_path = images_path[:100]
 
-src = Image.open(path).convert("RGB")
-d = transform1(src)
-src = F.to_tensor(d).numpy()
-src = src.transpose([1,2,0])
-src = cv2.cvtColor(src,cv2.COLOR_RGB2BGR)
+    src = Image.open(path).convert("RGB")
+    d = transform1(src)
+    src = F.to_tensor(d).numpy()
+    src = src.transpose([1,2,0])
+    src = cv2.cvtColor(src,cv2.COLOR_RGB2BGR)
 
-# images_path.append(path)
-#shuffle(images_path)#随机排序
-images_path.insert(0, path)
+    # images_path.append(path)
+    #shuffle(images_path)#随机排序
+    images_path.insert(0, path)
 
-imgs = [cv2.imdecode(np.fromfile(f, dtype=np.uint8), cv2.IMREAD_COLOR) for f in images_path]
-imgs = [transform(Image.open(f).convert('RGB')) for f in images_path]
-imgs = torch.stack(imgs,dim=0)
+    imgs = [cv2.imdecode(np.fromfile(f, dtype=np.uint8), cv2.IMREAD_COLOR) for f in images_path]
+    imgs = [transform(Image.open(f).convert('RGB')) for f in images_path]
+    imgs = torch.stack(imgs,dim=0)
 
-#region patchcore提取特征
-patchcore = PatchCore(torch.device("cuda:1"))
+    #region patchcore提取特征
+    patchcore = PatchCore(torch.device("cuda:1"))
 
-with torch.no_grad():
-    input_image = imgs.to(torch.device("cuda:1"))
-    feas = patchcore._embed(input_image)
-    feas = np.array(feas)
-    s = int(sqrt(len(feas)/101))
-    feas = feas.reshape(-1,s,s,1024)
-#endregion
+    with torch.no_grad():
+        input_image = imgs.to(torch.device("cuda:1"))
+        feas = patchcore._embed(input_image)
+        feas = np.array(feas)
+        s = int(sqrt(len(feas)/101))
+        feas = feas.reshape(-1,s,s,1024)
+    #endregion
 
-#region 遍历图像，计算异常分
-dd = []
-for y in range(s):
-    for x in range(s):
-        X = feas[:,y,x,:]
-        d = [np.linalg.norm(X[0]-p) for p in X[1:]]
-        dd.append(np.mean(d))
-dd = np.array(dd)
-dd = dd.reshape(s,s)
-dd = (dd - np.min(dd)) / (np.max(dd) - np.min(dd))
-dd = cv2.resize(dd, (224,224), cv2.INTER_LINEAR)
-cv2.imshow("dis", dd)
-cv2.waitKey()
-pass
 
-#endregion
+    #region 遍历图像，计算异常分
+    dd = []
+    for y in range(s):
+        for x in range(s):
+            X = feas[:,y,x,:]
+            d = [np.linalg.norm(X[0]-p) for p in X[1:]]
+            dd.append(np.mean(d))
+    dd = np.array(dd)
+    dd = dd.reshape(s,s)
+    dd = (dd - np.min(dd)) / (np.max(dd) - np.min(dd))
+    dd = dd + 0.29 - np.mean(dd)
 
+    dd = cv2.resize(dd, (224,224), cv2.INTER_LINEAR)
+    cv2.imshow("dis", dd)
+    cv2.waitKey(1)
+    pass
+    #endregion
+    dd = dd*255
+    dd = dd.astype("int32")
+    cv2.imwrite(f"D:/desktop/ddd/{os.path.basename(fff)}", dd)
 
 
 
