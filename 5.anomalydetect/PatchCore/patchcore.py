@@ -393,9 +393,7 @@ class NetworkFeatureAggregator(torch.nn.Module):
         self.outputs = {}
 
         for extract_layer in layers_to_extract_from:
-            forward_hook = ForwardHook(
-                self.outputs, extract_layer, layers_to_extract_from[-1]
-            )
+            forward_hook = ForwardHook(self.outputs, extract_layer, layers_to_extract_from[-1])
             if "." in extract_layer:
                 extract_block, extract_idx = extract_layer.split(".")
                 network_layer = backbone.__dict__["_modules"][extract_block]
@@ -408,13 +406,9 @@ class NetworkFeatureAggregator(torch.nn.Module):
                 network_layer = backbone.__dict__["_modules"][extract_layer]
 
             if isinstance(network_layer, torch.nn.Sequential):
-                self.backbone.hook_handles.append(
-                    network_layer[-1].register_forward_hook(forward_hook)
-                )
+                self.backbone.hook_handles.append(network_layer[-1].register_forward_hook(forward_hook))
             else:
-                self.backbone.hook_handles.append(
-                    network_layer.register_forward_hook(forward_hook)
-                )
+                self.backbone.hook_handles.append(network_layer.register_forward_hook(forward_hook))
         self.to(self.device)
 
     def forward(self, images):
