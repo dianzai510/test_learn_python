@@ -1,4 +1,6 @@
 """PatchCore and PatchCore detection methods."""
+import sys
+sys.path.append("D:/work/program/python/DeepLearning/test_learn_python")
 import logging
 import os
 import pickle
@@ -9,7 +11,7 @@ import tqdm
 import cv2
 import faiss
 import copy
-from data import CJJDataset,DatasetSplit
+from .data import CJJDataset,DatasetSplit
 from torch.utils.data import DataLoader
 import torchvision
 import scipy.ndimage as ndimage
@@ -70,7 +72,7 @@ class PatchCore(torch.nn.Module):
         self.faiss_index = faiss.GpuIndexFlatL2(faiss.StandardGpuResources(), 1024, faiss.GpuIndexFlatConfig()) #faiss.IndexFlatL2(1024)
         
     def embed(self, data):
-        if isinstance(data, torch.utils.data.DataLoader):#如果是DataLoader，则遍历每张图片提取特征
+        if data.shape[0]>1 or isinstance(data, torch.utils.data.DataLoader):#如果是DataLoader，则遍历每张图片提取特征
             features = []
             for image in data:
                 if isinstance(image, dict):
@@ -156,7 +158,6 @@ class PatchCore(torch.nn.Module):
 
         sample_indices = self._compute_greedy_coreset_indices(features_map)#减小特征维度，并根据论文原理减少特征数量。
         features = features[sample_indices]#根据索引进行过滤
-        
         
         #3、添加到索引器
         self.faiss_index.add(features)

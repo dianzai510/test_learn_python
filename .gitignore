@@ -521,3 +521,8 @@ _3_image_segmentation/test_seg/run/train/best_out.pth
 _3_image_segmentation/test_seg/run/train/best_real_adam.pth
 _3_image_segmentation/test_seg/run/train/best_unet.onnx
 _3_image_segmentation/test_seg/run/train/best_unet.pth
+_10_proj/__pycache__/data.cpython-39.pyc
+_10_proj/__pycache__/model1.cpython-39.pyc
+_10_proj/__pycache__/model2.cpython-39.pyc
+_5_anomalydetect/PatchCore/__pycache__/patchcore.cpython-39.pyc
+_5_anomalydetect/PatchCore/__pycache__/data.cpython-39.pyc

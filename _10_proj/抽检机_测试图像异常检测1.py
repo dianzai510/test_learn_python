@@ -20,9 +20,9 @@ test_transform = transforms.Compose([
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
         ])
 
-path = 'D:/desktop/tmp2.png'#input('输入图像路径：')
+path = 'D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/test/ng/0 (2).png'#input('输入图像路径：')
 src = cv2.imdecode(np.fromfile(path, dtype=np.uint8), cv2.IMREAD_COLOR)#type:np.ndarray
-dir_image = "D:/work/proj/抽检机/program/ChouJianJi/data/ic"
+dir_image = "D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/train/good"
 files_all = os.listdir(dir_image)
 images_path = [os.path.join(dir_image, f) for f in files_all if f.endswith('.png') or f.endswith('.jpg') or f.endswith('.bmp')]
 images_path = images_path[:100]
