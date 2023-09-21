@@ -98,12 +98,16 @@ for fff in files_all:
     #endregion
 
     #region 遍历图像，计算异常分
+    """
+    如果以当前特征与所有特征距离的平均值作为异常分可能有问题。
+    他会被
+    """
     dd = []
     for y in range(s):
         for x in range(s):
             X = feas[:,y,x,:]
-            d = [np.linalg.norm(X[0]-p) for p in X[1:]]
-            dd.append(np.mean(d))
+            d = [np.linalg.norm(X[0]-p) for p in X[1:]]#计算当前特征与所有特征的距离
+            dd.append(np.mean(d))#求平均值
     dd = np.array(dd)
     dd = dd.reshape(s,s)
     dd = (dd - np.min(dd)) / (np.max(dd) - np.min(dd))
@@ -112,7 +116,6 @@ for fff in files_all:
     dd = cv2.resize(dd, (224,224), cv2.INTER_LINEAR)
     cv2.imshow("dis", dd)
     cv2.waitKey(1)
-    pass
     #endregion
     dd = dd*255
     dd = dd.astype("int32")
