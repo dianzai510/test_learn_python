@@ -55,10 +55,12 @@ transform_img1 = [
 transform1 = transforms.Compose(transform_img1)
 
 
-path = 'D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/test/ng/1.png'#input('输入图像路径：')
+path = 'D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/test/ng/0 (0).png'#input('输入图像路径：')
 src = cv2.imdecode(np.fromfile(path, dtype=np.uint8), cv2.IMREAD_COLOR)#type:np.ndarray
+
 dir_image = "D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/train/good"
 files_all = os.listdir(dir_image)
+
 images_path = [os.path.join(dir_image, f) for f in files_all if f.endswith('.png') or f.endswith('.jpg') or f.endswith('.bmp')]
 images_path = images_path[:100]
 
@@ -95,14 +97,19 @@ for y in range(s):
         d = [np.linalg.norm(X[0]-p) for p in X[1:]]
         dd.append(np.mean(d))
 dd = np.array(dd)
-dd = dd.reshape(s,s) - 1
-#dd = (dd - np.min(dd)) / (np.max(dd) - np.min(dd))
+dd = dd.reshape(s,s)
+dd = (dd - np.min(dd)) / (np.max(dd) - np.min(dd))
 dd = cv2.resize(dd, (224,224), cv2.INTER_LINEAR)
 cv2.imshow("dis", dd)
 cv2.waitKey()
 pass
 
 #endregion
+
+
+
+
+
 num = 224//s
 #clf = LocalOutlierFactor(n_neighbors=40, contamination=0.01)#异常检测器
 clf = LocalOutlierFactor(n_neighbors=10, contamination=1e-6, novelty=False)
