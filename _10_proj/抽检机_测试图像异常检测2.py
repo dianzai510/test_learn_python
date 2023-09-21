@@ -89,7 +89,6 @@ for fff in files_all:
 
     #region patchcore提取特征
     patchcore = PatchCore(torch.device("cuda:1"))
-
     with torch.no_grad():
         input_image = imgs.to(torch.device("cuda:1"))
         feas = patchcore._embed(input_image)
@@ -97,7 +96,6 @@ for fff in files_all:
         s = int(sqrt(len(feas)/101))
         feas = feas.reshape(-1,s,s,1024)
     #endregion
-
 
     #region 遍历图像，计算异常分
     dd = []
