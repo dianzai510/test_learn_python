@@ -205,7 +205,6 @@ def addWeightedMask(src1, alpha, mask, beta, blendChannle=2):
     src1 = cv2.copyTo(src_mask, mask=mask, dst=src1)
     return src1
 
-
 def Now():
     return datetime.now().strftime("%Y-%m-%d_%H.%M.%S-%f")
 
