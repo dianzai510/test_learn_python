@@ -17,6 +17,7 @@ from math import *
 import faiss
 from our1314.work.Utils import GetAllFiles
 from queue import Queue
+import gc
 
 
 test_transform = transforms.Compose([
@@ -113,7 +114,7 @@ for i,path in enumerate(files_all):
     dd = dd*255
     dd = dd.astype("int32")
     cv2.imwrite(f"D:/desktop/eee/{os.path.basename(path)}", dd)
-
+    gc.collect()
 
 
 
