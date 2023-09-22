@@ -118,6 +118,8 @@ for i,path in enumerate(files_all):
 
 
 
+#鼠标点选计算异常
+src = cv2.imdecode(np.fromfile(path, dtype=np.uint8), cv2.IMREAD_COLOR)#type:np.ndarray
 num = 224//s
 #clf = LocalOutlierFactor(n_neighbors=40, contamination=0.01)#异常检测器
 clf = LocalOutlierFactor(n_neighbors=10, contamination=1e-6, novelty=False)
