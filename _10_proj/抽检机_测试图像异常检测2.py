@@ -63,21 +63,15 @@ files_all = [f for f in files_all if f.endswith('.png') or f.endswith('.jpg') or
 cnt_queue = 100
 queuq_image = Queue(cnt_queue)
 faiss_index = faiss.IndexFlatL2(1024)
+patchcore = PatchCore(torch.device("cuda:1"))
 
 for i,path in enumerate(files_all):
     images_queue = files_all[i:i+cnt_queue]
-
-    # src = Image.open(path).convert("RGB")
-    # d = transform1(src)
-    # src = F.to_tensor(d).numpy()
-    # src = src.transpose([1,2,0])
-    # src = cv2.cvtColor(src,cv2.COLOR_RGB2BGR)
 
     imgs = [transform(Image.open(f).convert('RGB')) for f in images_queue]#读取队列内的所有图像
     imgs = torch.stack(imgs,dim=0)#合并为张量
 
     #region patchcore提取特征
-    patchcore = PatchCore(torch.device("cuda:1"))
     with torch.no_grad():
         input_image = imgs.to(torch.device("cuda:1"))
         feas = patchcore._embed(input_image)
@@ -98,12 +92,13 @@ for i,path in enumerate(files_all):
         for x in range(s):
             X = feas[:,y,x,:]
             d = [np.linalg.norm(X[0]-p) for p in X[1:]]#计算当前特征与所有特征的距离
+            d = np.sort(d)
+            d = d[:10]
+
             # faiss_index.reset()
             # faiss_index.add(X[1:])
             # d = faiss_index.search(X[0:1],10)[0]
 
-            d = d.sort()
-            d = d[:10]
             dd.append(np.mean(d))#求平均值
             
     dd = np.array(dd)
