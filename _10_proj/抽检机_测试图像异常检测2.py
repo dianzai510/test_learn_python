@@ -79,8 +79,8 @@ for i,path in enumerate(files_all):
         feas = np.array(feas)
         s = int(sqrt(len(feas)/cnt_queue))
         feas = feas.reshape(-1,s,s,1024)
-        feas_train = feas.reshape(-1,1024)
-        faiss_index.add(feas_train)
+        #feas_train = feas.reshape(-1,1024)
+        #faiss_index.add(feas_train)
     #endregion
 
     #region 遍历图像，计算异常分
@@ -114,8 +114,8 @@ for i,path in enumerate(files_all):
     dd = dd*255
     dd = dd.astype("int32")
     cv2.imwrite(f"D:/desktop/eee/{os.path.basename(path)}", dd)
+    del imgs,feas
     gc.collect()
-
 
 
 #鼠标点选计算异常
