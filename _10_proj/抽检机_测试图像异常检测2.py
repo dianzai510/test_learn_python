@@ -24,7 +24,7 @@ IMAGENET_MEAN = [0.485, 0.456, 0.406]
 IMAGENET_STD = [0.229, 0.224, 0.225]
 
 transform_img = [
-        transforms.Resize(900),
+        transforms.Resize(300),
         # transforms.RandomRotation(rotate_degrees, transforms.InterpolationMode.BILINEAR),
         #transforms.ColorJitter(brightness_factor, contrast_factor, saturation_factor),
         #transforms.RandomHorizontalFlip(h_flip_p),
@@ -37,7 +37,7 @@ transform_img = [
         
         #transforms.GaussianBlur(kernel_size=(7,7),sigma=(0.1,2.0)),#随机高斯模糊          
 
-        transforms.CenterCrop(640),
+        transforms.CenterCrop(224),
         transforms.ToTensor(),
         transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD),
         ]
