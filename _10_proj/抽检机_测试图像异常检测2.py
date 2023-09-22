@@ -92,8 +92,7 @@ for i,path in enumerate(files_all):
         for x in range(s):
             X = feas[:,y,x,:]
             d = [np.linalg.norm(X[0]-p) for p in X[1:]]#计算当前特征与所有特征的距离
-            d = np.sort(d)
-            d = d[:10]
+            d = np.sort(d)[:10]#取前10个
 
             # faiss_index.reset()
             # faiss_index.add(X[1:])
