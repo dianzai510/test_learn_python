@@ -67,14 +67,7 @@ for root,dirs,files in os.walk(dir_image):
 faiss_index = faiss.IndexFlatL2(1024)
 cnt_queue = 100
 for i,path in enumerate(files_all):
-    # path = 'D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/test/ng/0 (1).png'#input('输入图像路径：')
-    # path = fff
     src = cv2.imdecode(np.fromfile(path, dtype=np.uint8), cv2.IMREAD_COLOR)#type:np.ndarray
-
-    #dir_image = "D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/train/good"
-    #files_all = os.listdir(dir_image)
-
-    #images_path = [os.path.join(dir_image, f) for f in files_all if f.endswith('.png') or f.endswith('.jpg') or f.endswith('.bmp')]
     images_path = files_all[i:i+cnt_queue]
 
     src = Image.open(path).convert("RGB")
@@ -82,10 +75,6 @@ for i,path in enumerate(files_all):
     src = F.to_tensor(d).numpy()
     src = src.transpose([1,2,0])
     src = cv2.cvtColor(src,cv2.COLOR_RGB2BGR)
-
-    # images_path.append(path)
-    #shuffle(images_path)#随机排序
-    #images_path.insert(0, path)
 
     #imgs = [cv2.imdecode(np.fromfile(f, dtype=np.uint8), cv2.IMREAD_COLOR) for f in images_path]
     imgs = [transform(Image.open(f).convert('RGB')) for f in images_path]

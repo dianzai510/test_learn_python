@@ -208,6 +208,16 @@ def addWeightedMask(src1, alpha, mask, beta, blendChannle=2):
 
 def Now():
     return datetime.now().strftime("%Y-%m-%d_%H.%M.%S-%f")
+
+def GetAllFiles(path:str):
+    '''
+    获取当前目录，及子目录下的所有文件的路径。
+    '''
+    files_all = []
+    for root,dirs,files in os.walk(path):
+        for file in files:
+            files_all.append(os.path.join(root,file))
+    return files_all
 #endregion
 
 #region ext_transform
