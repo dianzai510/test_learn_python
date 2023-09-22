@@ -111,6 +111,7 @@ for i,path in enumerate(files_all):
     cv2.imshow("dis", dd)
     cv2.waitKey(1)
     #endregion
+    
     dd = dd*255
     dd = dd.astype("int32")
     cv2.imwrite(f"D:/desktop/eee/{os.path.basename(path)}", dd)
