@@ -20,12 +20,6 @@ from queue import Queue
 import gc
 
 
-test_transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Resize((100,100)),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-        ])
-
 IMAGENET_MEAN = [0.485, 0.456, 0.406]
 IMAGENET_STD = [0.229, 0.224, 0.225]
 
@@ -49,35 +43,75 @@ transform_img = [
         ]
 transform = transforms.Compose(transform_img)
 
-transform_img1 = [
-        transforms.Resize(300),
-        transforms.CenterCrop(224),
-        ]
-transform1 = transforms.Compose(transform_img1)
-
-cnt = 0
-#dir_image = "D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/test"
-dir_image = "D:/work/proj/抽检机/program/抽检机/bin/net7.0-windows/data/roi"
+dir_image = "D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/test3"
+#dir_image = "D:/work/proj/抽检机/program/抽检机/bin/net7.0-windows/data/roi"
 files_all = GetAllFiles(dir_image)
 files_all = [f for f in files_all if f.endswith('.png') or f.endswith('.jpg') or f.endswith('.bmp')]
 
-cnt_queue = 100
-queuq_image = Queue(cnt_queue)
-faiss_index = faiss.IndexFlatL2(1024)
+
+#faiss_index = faiss.IndexFlatL2(1024)
 patchcore = PatchCore(torch.device("cuda:1"))
+cnt_queue = 30
 
+#1、向队列填充特征
+queue_feas = Queue()
 for i,path in enumerate(files_all):
-    images_queue = files_all[i:i+cnt_queue]
+    image = transform(Image.open(path).convert('RGB'))#type:torch.Tensor
+    with torch.no_grad():
+        image = image.unsqueeze(0)
+        input_image = image.to(torch.device("cuda:1"))
+        fea = patchcore._embed(input_image)#提取特征
+        fea = np.array(fea)
+        s = int(sqrt(len(fea)))
+        fea = fea.reshape(-1,s,s,1024)
+        fea = torch.tensor(fea)
+        queue_feas.put([path,fea])
+    
+    if i >= cnt_queue:
+        path_query, fea_query = queue_feas.get()
+        features = [fea[1] for fea in queue_feas.queue]
+        fea_lib = torch.cat(list(features),dim=0)
+        off = fea_query - fea_lib
+        d = torch.norm(off,dim=-1)
+        d = d.numpy()
+        d = np.sort(d,axis=0)
+        d = d[:10,:,:]
+        d = np.mean(d,axis=0)
+        d = d-np.mean(d)+0.3
+        d = d/2
+        d = cv2.resize(d, (224,224), cv2.INTER_LINEAR)
 
-    imgs = [transform(Image.open(f).convert('RGB')) for f in images_queue]#读取队列内的所有图像
-    imgs = torch.stack(imgs,dim=0)#合并为张量
+        cv2.imwrite(f"D:/desktop/ccc/{os.path.basename(path_query)}", (d*255).astype("int32"))
+        cv2.imshow("dis", d)
+        cv2.waitKey(1)
+
+
+
+imgs = [transform(Image.open(f).convert('RGB')) for f in files_all[-100:]]#读取队列内的所有图像
+imgs = torch.stack(imgs,dim=0)#合并为张量
+
+with torch.no_grad():
+    input_image = imgs.to(torch.device("cuda:1"))
+    feas = patchcore._embed(input_image)#提取batchsize的特征
+    feas = np.array(feas)
+    s = int(sqrt(len(feas)/cnt_queue))
+    feas = feas.reshape(-1,s,s,1024)
+
+for fea in feas:#将特征填充进队列
+    queue_feas.put(fea)
+
+#2、遍历图像与队列特征进行异常检测
+for i,path in enumerate(files_all[:-100]):
+    # imgs = [transform(Image.open(f).convert('RGB')) for f in images_queue]#读取队列内的所有图像
+    # imgs = torch.stack(imgs,dim=0)#合并为张量
+    img = transform(Image.open(path).convert('RGB'))#type:torch.Tensor
+    img = img.unsqueeze(0)
 
     #region patchcore提取特征
     with torch.no_grad():
-        input_image = imgs.to(torch.device("cuda:1"))
+        input_image = img.to(torch.device("cuda:1"))
         feas = patchcore._embed(input_image)
         feas = np.array(feas)
-        s = int(sqrt(len(feas)/cnt_queue))
         feas = feas.reshape(-1,s,s,1024)
         #feas_train = feas.reshape(-1,1024)
         #faiss_index.add(feas_train)
@@ -88,34 +122,38 @@ for i,path in enumerate(files_all):
     如果以当前特征与所有特征距离的平均值作为异常分可能有问题。
     尝试以最近的几个(10个)近邻的均值作为异常分。
     """
-    dd = []
-    for y in range(s):
-        for x in range(s):
-            X = feas[:,y,x,:]
-            d = [np.linalg.norm(X[0]-p) for p in X[1:]]#计算当前特征与所有特征的距离
-            d = np.sort(d)[:10]#取前10个
+    qfeas = np.stack(list(queue_feas.queue),axis=0)
+    dis = []
+    off = feas - qfeas
+    for b in range(off.shape[0]):
+        for y in range(off.shape[1]):
+            for x in range(off.shape[2]):
+                dis.append(np.linalg.norm(off[b,y,x]))
+    dis = np.reshape(dis, off.shape[:3])
+    dis = np.sort(dis,axis=0)
+    dis = dis[:10,:,:]
+    dd = np.mean(dis,axis=0)
+    print(dis[:,0,0])
 
-            # faiss_index.reset()
-            # faiss_index.add(X[1:])
-            # d = faiss_index.search(X[0:1],10)[0]
-
-            dd.append(np.mean(d))#求平均值
-            
-    dd = np.array(dd)
-    dd = dd.reshape(s,s)-0.5
+    # f = np.sort(ff,axis=3)
+    # f = f[:,:,:,:10]
+    # dd = np.mean(f,axis=3)-0.5
+    dd = dd-0.5
+    # dd = np.array(dd)
+    # dd = dd.reshape(s,s)-0.5
     #dd = (dd - np.min(dd)) / (np.max(dd) - np.min(dd))
-    dd = dd/2
+
     dd = dd + 0.29 - np.mean(dd)
 
     dd = cv2.resize(dd, (224,224), cv2.INTER_LINEAR)
     cv2.imshow("dis", dd)
     cv2.waitKey(1)
     #endregion
-    
+
     dd = dd*255
     dd = dd.astype("int32")
     cv2.imwrite(f"D:/desktop/eee/{os.path.basename(path)}", dd)
-    del imgs,feas
+    #del imgs,feas
     gc.collect()
 
 
