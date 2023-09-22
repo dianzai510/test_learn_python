@@ -15,10 +15,9 @@ import torchvision.transforms.functional as F
 from PIL import Image
 from math import *
 import faiss
+from our1314.work.Utils import GetAllFiles
+from queue import Queue
 
-
-net = Model2()
-net.eval()
 
 test_transform = transforms.Compose([
         transforms.ToTensor(),
@@ -58,27 +57,24 @@ transform1 = transforms.Compose(transform_img1)
 cnt = 0
 #dir_image = "D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/test"
 dir_image = "D:/work/proj/抽检机/program/抽检机/bin/net7.0-windows/data/roi"
-# files_all = [os.path.join(dir_image, f) for f in os.listdir(dir_image) if f.endswith('.png') or f.endswith('.jpg') or f.endswith('.bmp')]
-files_all = []
-for root,dirs,files in os.walk(dir_image):
-        for file in files:
-            files_all.append(os.path.join(root,file))
+files_all = GetAllFiles(dir_image)
+files_all = [f for f in files_all if f.endswith('.png') or f.endswith('.jpg') or f.endswith('.bmp')]
 
-faiss_index = faiss.IndexFlatL2(1024)
 cnt_queue = 100
+queuq_image = Queue(cnt_queue)
+faiss_index = faiss.IndexFlatL2(1024)
+
 for i,path in enumerate(files_all):
-    src = cv2.imdecode(np.fromfile(path, dtype=np.uint8), cv2.IMREAD_COLOR)#type:np.ndarray
-    images_path = files_all[i:i+cnt_queue]
+    images_queue = files_all[i:i+cnt_queue]
 
-    src = Image.open(path).convert("RGB")
-    d = transform1(src)
-    src = F.to_tensor(d).numpy()
-    src = src.transpose([1,2,0])
-    src = cv2.cvtColor(src,cv2.COLOR_RGB2BGR)
+    # src = Image.open(path).convert("RGB")
+    # d = transform1(src)
+    # src = F.to_tensor(d).numpy()
+    # src = src.transpose([1,2,0])
+    # src = cv2.cvtColor(src,cv2.COLOR_RGB2BGR)
 
-    #imgs = [cv2.imdecode(np.fromfile(f, dtype=np.uint8), cv2.IMREAD_COLOR) for f in images_path]
-    imgs = [transform(Image.open(f).convert('RGB')) for f in images_path]
-    imgs = torch.stack(imgs,dim=0)
+    imgs = [transform(Image.open(f).convert('RGB')) for f in images_queue]#读取队列内的所有图像
+    imgs = torch.stack(imgs,dim=0)#合并为张量
 
     #region patchcore提取特征
     patchcore = PatchCore(torch.device("cuda:1"))
@@ -101,10 +97,13 @@ for i,path in enumerate(files_all):
     for y in range(s):
         for x in range(s):
             X = feas[:,y,x,:]
-            #d = [np.linalg.norm(X[0]-p) for p in X[1:]]#计算当前特征与所有特征的距离
-            faiss_index.reset()
-            faiss_index.add(X[1:])
-            d = faiss_index.search(X[0:1],10)[0]
+            d = [np.linalg.norm(X[0]-p) for p in X[1:]]#计算当前特征与所有特征的距离
+            # faiss_index.reset()
+            # faiss_index.add(X[1:])
+            # d = faiss_index.search(X[0:1],10)[0]
+
+            d = d.sort()
+            d = d[:10]
             dd.append(np.mean(d))#求平均值
             
     dd = np.array(dd)
