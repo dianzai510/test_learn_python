@@ -24,7 +24,7 @@ IMAGENET_MEAN = [0.485, 0.456, 0.406]
 IMAGENET_STD = [0.229, 0.224, 0.225]
 
 transform_img = [
-        transforms.Resize(300),
+        transforms.Resize(900),
         # transforms.RandomRotation(rotate_degrees, transforms.InterpolationMode.BILINEAR),
         #transforms.ColorJitter(brightness_factor, contrast_factor, saturation_factor),
         #transforms.RandomHorizontalFlip(h_flip_p),
@@ -37,17 +37,16 @@ transform_img = [
         
         #transforms.GaussianBlur(kernel_size=(7,7),sigma=(0.1,2.0)),#随机高斯模糊          
 
-        transforms.CenterCrop(224),
+        transforms.CenterCrop(640),
         transforms.ToTensor(),
         transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD),
         ]
 transform = transforms.Compose(transform_img)
 
-dir_image = "D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/test3"
-#dir_image = "D:/work/proj/抽检机/program/抽检机/bin/net7.0-windows/data/roi"
+dir_image = "D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/test2"
 files_all = GetAllFiles(dir_image)
+#shuffle(files_all)
 files_all = [f for f in files_all if f.endswith('.png') or f.endswith('.jpg') or f.endswith('.bmp')]
-
 
 #faiss_index = faiss.IndexFlatL2(1024)
 patchcore = PatchCore(torch.device("cuda:1"))
@@ -81,10 +80,17 @@ for i,path in enumerate(files_all):
         d = d/2
         d = cv2.resize(d, (224,224), cv2.INTER_LINEAR)
 
-        cv2.imwrite(f"D:/desktop/ccc/{os.path.basename(path_query)}", (d*255).astype("int32"))
+        # d[d>=0.7]=1
+        # d[d<0.7]=0
+        d[d>1]=1
+        d[d<0]=0
+        d = (d*255).astype("uint8")
+        # d = np.expand_dims(d, axis=2)
+        # k,d = cv2.threshold(d,0,255,cv2.THRESH_OTSU)
+        
+        cv2.imwrite(f"D:/desktop/eee/{os.path.basename(path_query)}", d)
         cv2.imshow("dis", d)
         cv2.waitKey(1)
-
 
 
 imgs = [transform(Image.open(f).convert('RGB')) for f in files_all[-100:]]#读取队列内的所有图像
