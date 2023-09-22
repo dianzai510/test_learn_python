@@ -14,6 +14,7 @@ from _5_anomalydetect.PatchCore.patchcore import PatchCore
 import torchvision.transforms.functional as F
 from PIL import Image
 from math import *
+import faiss
 
 
 net = Model2()
@@ -55,23 +56,26 @@ transform_img1 = [
 transform1 = transforms.Compose(transform_img1)
 
 cnt = 0
-dir_image = "D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/test"
+#dir_image = "D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/test"
+dir_image = "D:/work/proj/抽检机/program/抽检机/bin/net7.0-windows/data/roi"
 # files_all = [os.path.join(dir_image, f) for f in os.listdir(dir_image) if f.endswith('.png') or f.endswith('.jpg') or f.endswith('.bmp')]
 files_all = []
 for root,dirs,files in os.walk(dir_image):
         for file in files:
             files_all.append(os.path.join(root,file))
 
-for fff in files_all:
-    path = 'D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/test/ng/0 (1).png'#input('输入图像路径：')
-    path = fff
+faiss_index = faiss.IndexFlatL2(1024)
+cnt_queue = 100
+for i,path in enumerate(files_all):
+    # path = 'D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/test/ng/0 (1).png'#input('输入图像路径：')
+    # path = fff
     src = cv2.imdecode(np.fromfile(path, dtype=np.uint8), cv2.IMREAD_COLOR)#type:np.ndarray
 
-    dir_image = "D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/train/good"
-    files_all = os.listdir(dir_image)
+    #dir_image = "D:/work/files/deeplearn_datasets/choujianji/roi-mynetseg/test/train/good"
+    #files_all = os.listdir(dir_image)
 
-    images_path = [os.path.join(dir_image, f) for f in files_all if f.endswith('.png') or f.endswith('.jpg') or f.endswith('.bmp')]
-    images_path = images_path[:100]
+    #images_path = [os.path.join(dir_image, f) for f in files_all if f.endswith('.png') or f.endswith('.jpg') or f.endswith('.bmp')]
+    images_path = files_all[i:i+cnt_queue]
 
     src = Image.open(path).convert("RGB")
     d = transform1(src)
@@ -81,9 +85,9 @@ for fff in files_all:
 
     # images_path.append(path)
     #shuffle(images_path)#随机排序
-    images_path.insert(0, path)
+    #images_path.insert(0, path)
 
-    imgs = [cv2.imdecode(np.fromfile(f, dtype=np.uint8), cv2.IMREAD_COLOR) for f in images_path]
+    #imgs = [cv2.imdecode(np.fromfile(f, dtype=np.uint8), cv2.IMREAD_COLOR) for f in images_path]
     imgs = [transform(Image.open(f).convert('RGB')) for f in images_path]
     imgs = torch.stack(imgs,dim=0)
 
@@ -93,24 +97,31 @@ for fff in files_all:
         input_image = imgs.to(torch.device("cuda:1"))
         feas = patchcore._embed(input_image)
         feas = np.array(feas)
-        s = int(sqrt(len(feas)/101))
+        s = int(sqrt(len(feas)/cnt_queue))
         feas = feas.reshape(-1,s,s,1024)
+        feas_train = feas.reshape(-1,1024)
+        faiss_index.add(feas_train)
     #endregion
 
     #region 遍历图像，计算异常分
     """
     如果以当前特征与所有特征距离的平均值作为异常分可能有问题。
-    他会被
+    尝试以最近的几个(10个)近邻的均值作为异常分。
     """
     dd = []
     for y in range(s):
         for x in range(s):
             X = feas[:,y,x,:]
-            d = [np.linalg.norm(X[0]-p) for p in X[1:]]#计算当前特征与所有特征的距离
+            #d = [np.linalg.norm(X[0]-p) for p in X[1:]]#计算当前特征与所有特征的距离
+            faiss_index.reset()
+            faiss_index.add(X[1:])
+            d = faiss_index.search(X[0:1],10)[0]
             dd.append(np.mean(d))#求平均值
+            
     dd = np.array(dd)
-    dd = dd.reshape(s,s)
-    dd = (dd - np.min(dd)) / (np.max(dd) - np.min(dd))
+    dd = dd.reshape(s,s)-0.5
+    #dd = (dd - np.min(dd)) / (np.max(dd) - np.min(dd))
+    dd = dd/2
     dd = dd + 0.29 - np.mean(dd)
 
     dd = cv2.resize(dd, (224,224), cv2.INTER_LINEAR)
@@ -119,7 +130,7 @@ for fff in files_all:
     #endregion
     dd = dd*255
     dd = dd.astype("int32")
-    cv2.imwrite(f"D:/desktop/ddd/{os.path.basename(fff)}", dd)
+    cv2.imwrite(f"D:/desktop/eee/{os.path.basename(path)}", dd)
 
 
 
