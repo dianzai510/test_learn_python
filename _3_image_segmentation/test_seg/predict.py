@@ -12,6 +12,7 @@ from our1314.work.Utils import tensor2mat
 
 
 def predict(opt):
+    print(os.getcwd())
     path_weight = os.path.join(opt.out_path,opt.weights)
     checkpoint = torch.load(path_weight)
     net = deeplabv3()
@@ -45,8 +46,8 @@ def predict(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='best_qgd_304_small.pth', help='指定权重文件，未指定则使用官方权重！')
-    parser.add_argument('--out_path', default='D:\work\program\python\DeepLearning/test_learn_python\_3_image_segmentation/test_seg\_3_image_segmentation/test_seg/run/train', type=str)  # 修改
+    parser.add_argument('--weights', default='best_qgd_304.pth', help='指定权重文件，未指定则使用官方权重！')
+    parser.add_argument('--out_path', default='./run/train', type=str)  # 修改
     parser.add_argument('--data_path_test', default='D:/desktop/qgd/test')  # 修改
     parser.add_argument('--conf', default=0.3, type=float)
 
