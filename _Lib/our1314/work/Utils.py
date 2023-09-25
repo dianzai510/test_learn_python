@@ -13,11 +13,24 @@ import leb128
 from collections import OrderedDict
 
 #region math
+def SO2(rad):
+    r = np.array([
+            [cos(rad),-sin(rad)],
+            [sin(rad),cos(rad)],
+        ])
+    return r
+
+def _SO2(R):
+    cos_theta = R[0,0]
+    sin_theta = R[1,0]
+    theta = atan2(cos_theta, sin_theta)
+    return theta
+
 def SE2(x,y,rad):
     r = np.array([
-        [cos(rad),-sin(rad),x],
-        [sin(rad),cos(rad),y],
-        [0,0,1]
+            [cos(rad),-sin(rad),x],
+            [sin(rad),cos(rad),y],
+            [0,0,1]
         ])
     return r
 
