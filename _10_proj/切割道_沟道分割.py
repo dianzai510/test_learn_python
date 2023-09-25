@@ -50,10 +50,15 @@ def gen_line(len,off,num=20):
     return pts
 
 for i in range(10**8):
-    pts = gen_rect1(len=200,off=(-3,3),num=20)
+    
     img = np.zeros([300,300,3], np.int32)
+    mask1 = img.copy()
+    mask2 = img.copy()
     h,w,c = img.shape
-    theta = np.random.rand(1)*pi/12 - pi/24
+    theta = np.random.rand(1)*pi/60 - pi/60/2
+
+    #1、绘制锯齿矩形
+    pts = gen_rect1(len=200,off=(-3,3),num=20)
     pts = SE2(h/2,w/2,theta).dot(pts)
     pts = pts[0:2,:].T.astype(np.int32)
 
@@ -62,22 +67,41 @@ for i in range(10**8):
         continue
        
     cv2.fillPoly(img,[pts],color)
+    cv2.fillPoly(mask1,[pts],(255,255,255))
 
-    pts = gen_rect1(len=170,off=(-1.5,1.5),num=100)
-    pts = SE2(h/2,w/2,theta).dot(pts)
+    #2、绘制内部小矩形
+    off = (-random.randint(0,1), 1)
+    pts = gen_rect1(len=170,off=off,num=100)
+    offx,offy = random.randint(-10,10),random.randint(-10,10)
+    pts = SE2(h/2+offx, w/2+offy, theta).dot(pts)
     pts = pts[0:2,:].T.astype(np.int32)
-    color2 = (random.randint(0,255),random.randint(0,255),random.randint(0,255))
-    cv2.fillPoly(img,[pts],color2)
+    color = (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+    cv2.fillPoly(img,[pts],color)#(0,0,0)
+    cv2.fillPoly(mask2,[pts],(255,255,255))
 
-    color = (random.randint(0,80),random.randint(0,80),random.randint(0,80))
-    cv2.polylines(img, [pts], True, color, random.randint(1,3))
+    #3、绘制边线
+    color = (random.randint(0,40),random.randint(0,40),random.randint(0,40))
+    cv2.polylines(img, [pts], True, color, random.randint(1,2))
     
     noise = np.random.randn(h,w,c) * random.randint(5,10)
     img[img>0] = img[img>0] + noise[img>0]
+    
 
     img[img>255]=255
     img[img<=0]=0
     img = img.astype("uint8")
 
-    cv2.imshow("dis",img)
-    cv2.waitKey()
+    sigma = random.random()*1.2
+    win = int(2*3*sigma+1)
+    win = win if win%2==1 else win+1
+    img = cv2.GaussianBlur(img, (win,win), sigmaX=sigma, sigmaY=sigma)
+    mask = mask1 - mask2
+    mask = mask.astype("uint8")
+
+
+    os.makedirs("d:/desktop/qgd",exist_ok=True)
+    cv2.imwrite(f"d:/desktop/qgd/{i}.jpg", img)
+    cv2.imwrite(f"d:/desktop/qgd/{i}.png", mask)
+
+    cv2.imshow("dis",np.hstack([img, mask]))
+    cv2.waitKey(200)
