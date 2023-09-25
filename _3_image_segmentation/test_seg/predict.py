@@ -15,12 +15,14 @@ def predict(opt):
     checkpoint = torch.load(path_weight)
     net = deeplabv3()
     net.load_state_dict(checkpoint['net'])
+    print("best loss:",checkpoint['loss'])
     net.eval()
+    
 
     with torch.no_grad():
         files = [os.path.join(opt.data_path_test,f) for f in os.listdir(opt.data_path_test)]
         for image_path in files:
-            src = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_UNCHANGED)   # type:cv2.Mat
+            src = cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_COLOR)   # type:cv2.Mat
             
             img, = transform_val([src])
             x = net(img.unsqueeze(0))#type:torch.Tensor
@@ -42,9 +44,9 @@ def predict(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='best_kongdong1.pth', help='指定权重文件，未指定则使用官方权重！')
-    parser.add_argument('--out_path', default='./run/train', type=str)  # 修改
-    parser.add_argument('--data_path_test', default='D:/work/files/deeplearn_datasets/xray空洞检测/空洞检测生成数据集/val')  # 修改
+    parser.add_argument('--weights', default='best_qgd_304.pth', help='指定权重文件，未指定则使用官方权重！')
+    parser.add_argument('--out_path', default='D:/work/program/python/DeepLearning/test_learn_python/_3_image_segmentation/test_seg/run/train', type=str)  # 修改
+    parser.add_argument('--data_path_test', default='D:/desktop/qgd/test')  # 修改
     parser.add_argument('--conf', default=0.3, type=float)
 
     opt = parser.parse_args()
