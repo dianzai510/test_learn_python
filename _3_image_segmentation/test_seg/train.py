@@ -53,7 +53,7 @@ def train(opt):
         # 训练
         net.train()
         loss_train = 0
-        for images, labels in tqdm.tqdm(dataloader_train,"训练"):
+        for images, labels in tqdm.tqdm(dataloader_train, "train"):
             images = images.to(device)
             labels = labels.to(device)
 
@@ -72,7 +72,7 @@ def train(opt):
         net.eval()
         loss_val = 0
         with torch.no_grad():
-            for images, labels in tqdm.tqdm(dataloader_val,"验证"):
+            for images, labels in tqdm.tqdm(dataloader_val, "val"):
                 images = images.to(device)
                 labels = labels.to(device)
                 out = net(images)
