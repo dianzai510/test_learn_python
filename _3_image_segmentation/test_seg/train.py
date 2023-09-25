@@ -3,7 +3,7 @@ import os
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
-#from data import data_seg, transform1, transform2, transform_val
+#from data_抽检机 import data_seg, transform1, transform2, transform_val
 #from data_空洞检测 import data_seg, transform1, transform2, transform_val
 from data_切割道检测 import data_seg, transform1, transform2, transform_val
 from model import UNet,deeplabv3
@@ -19,8 +19,8 @@ def train(opt):
     datasets_train = data_seg(opt.data_path_train, transform1, transform2)
     datasets_val = data_seg(opt.data_path_val, transform_val)
 
-    dataloader_train = DataLoader(datasets_train, batch_size=opt.batch_size, shuffle=True, num_workers=8, drop_last=True)
-    dataloader_val = DataLoader(datasets_val, batch_size=opt.batch_size, shuffle=True, num_workers=8, drop_last=True)
+    dataloader_train = DataLoader(datasets_train, batch_size=opt.batch_size, shuffle=True, num_workers=8, drop_last=False)
+    dataloader_val = DataLoader(datasets_val, batch_size=opt.batch_size, shuffle=True, num_workers=8, drop_last=False)
 
     net = deeplabv3()  # deeplabv3() UNet()
     net.to(device)
@@ -98,16 +98,16 @@ def train(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pretrain', default='best_qgd_304.pth', help='指定权重文件，未指定则使用官方权重！')  # 修改
-    parser.add_argument('--out_path', default='_3_image_segmentation/test_seg/run/train', type=str)  # 修改
-    parser.add_argument('--weights', default='best_qgd_304.pth', help='指定权重文件，未指定则使用官方权重！')
+    parser.add_argument('--pretrain', default='best_qgd_304_small.pth', help='指定权重文件，未指定则使用官方权重！')  # 修改
+    parser.add_argument('--out_path', default='./run/train', type=str)  # 修改
+    parser.add_argument('--weights', default='best_qgd_304_small.pth', help='指定权重文件，未指定则使用官方权重！')
 
     parser.add_argument('--resume', default=False, type=bool, help='True表示从--weights参数指定的epoch开始训练,False从0开始')
     parser.add_argument('--data_path_train', default='D:/desktop/qgd/train')
     parser.add_argument('--data_path_val', default='D:/desktop/qgd/train')
     parser.add_argument('--epoch', default=1000, type=int)
     parser.add_argument('--lr', default=0.01, type=float)
-    parser.add_argument('--batch_size', default=16, type=int)
+    parser.add_argument('--batch_size', default=64, type=int)
 
     opt = parser.parse_args()
 

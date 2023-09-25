@@ -530,3 +530,5 @@ _3_image_segmentation/test_seg/__pycache__/model.cpython-39.pyc
 _3_image_segmentation/test_seg/__pycache__/data_切割道检测.cpython-39.pyc
 _3_image_segmentation/test_seg/run/train/best_qgd_304.pth
 _3_image_segmentation/test_seg/__pycache__/data.cpython-39.pyc
+_3_image_segmentation/test_seg/_3_image_segmentation/test_seg/run/train/best_qgd_304_small.pth
+run/train/best_qgd_304_small.pth

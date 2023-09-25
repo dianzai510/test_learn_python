@@ -13,22 +13,22 @@ input_size = (304,304)
 transform1 = torchvision.transforms.Compose([
     ToTensors(),
     Resize1(input_size[0]),#等比例缩放
-    PadSquare(),
-    randomaffine_imgs(0.5, [-5,5], [-0.1,0.1], [-0.1,0.1], [0.7,1/0.8]),
+    # PadSquare(),
+    # randomaffine_imgs(0.5, [-5,5], [-0.1,0.1], [-0.1,0.1], [0.7,1/0.8]),
     #randomaffine_imgs(1, [-0,0], [-0.0,0.0], [-0.0,0.0], [0.7,1/0.8]),
-    randomvflip_imgs(0.5),
-    randomhflip_imgs(0.5)
+    # randomvflip_imgs(0.5),
+    # randomhflip_imgs(0.5)
 ])
 
 transform2 = torchvision.transforms.RandomApply([
-    torchvision.transforms.GaussianBlur(kernel_size=(1, 13)),  # 随机高斯模糊
+    #torchvision.transforms.GaussianBlur(kernel_size=(1, 13)),  # 随机高斯模糊
     torchvision.transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.3),
 ], p=0.6)
 
 transform_val = torchvision.transforms.Compose([
     ToTensors(),
     Resize1(input_size[0]),  # 按比例缩放
-    PadSquare()  # 四周补零
+    #PadSquare()  # 四周补零
 ])
 
 class data_seg(Dataset):

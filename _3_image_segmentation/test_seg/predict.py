@@ -3,7 +3,8 @@ import os
 import torch
 from model import UNet
 from model import deeplabv3,UNet
-from data import transform_val
+#from data_抽检机 import transform_val
+from data_切割道检测 import transform_val
 import cv2
 import numpy as np
 import torchvision
@@ -44,8 +45,8 @@ def predict(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='best_qgd_304.pth', help='指定权重文件，未指定则使用官方权重！')
-    parser.add_argument('--out_path', default='D:/work/program/python/DeepLearning/test_learn_python/_3_image_segmentation/test_seg/run/train', type=str)  # 修改
+    parser.add_argument('--weights', default='best_qgd_304_small.pth', help='指定权重文件，未指定则使用官方权重！')
+    parser.add_argument('--out_path', default='D:\work\program\python\DeepLearning/test_learn_python\_3_image_segmentation/test_seg\_3_image_segmentation/test_seg/run/train', type=str)  # 修改
     parser.add_argument('--data_path_test', default='D:/desktop/qgd/test')  # 修改
     parser.add_argument('--conf', default=0.3, type=float)
 

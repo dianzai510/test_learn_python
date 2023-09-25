@@ -55,7 +55,7 @@ for i in range(10**8):
     mask1 = img.copy()
     mask2 = img.copy()
     h,w,c = img.shape
-    theta = np.random.rand(1)*pi/60 - pi/60/2
+    theta = 0 #np.random.rand(1)*pi/60 - pi/60/2
 
     #1、绘制锯齿矩形
     pts = gen_rect1(len=200,off=(-3,3),num=20)
@@ -98,6 +98,20 @@ for i in range(10**8):
     mask = mask1 - mask2
     mask = mask.astype("uint8")
 
+    roi_img = cv2.rectangle(img, [50-20,30,200+40,60], (255,255,255), 2)
+    roi_mask = cv2.rectangle(img, [50-20,30,200+40,60], (255,255,255), 2)
+
+    # roi_img = img[50-20,30,200+40,60]
+    # roi_mask = mask[50-20,30,200+40,60]
+    roi_img = img[30:90,30:270,:]
+    roi_mask = mask[30:90,30:270,:]
+    cv2.imshow("dis", roi_img)
+    cv2.waitKey(1)
+
+    os.makedirs("d:/desktop/qgd",exist_ok=True)
+    cv2.imwrite(f"d:/desktop/qgd/{i}.jpg", roi_img)
+    cv2.imwrite(f"d:/desktop/qgd/{i}.png", roi_mask)
+    continue
 
     os.makedirs("d:/desktop/qgd",exist_ok=True)
     cv2.imwrite(f"d:/desktop/qgd/{i}.jpg", img)
