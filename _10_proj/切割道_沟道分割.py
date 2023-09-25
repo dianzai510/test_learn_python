@@ -50,7 +50,7 @@ def gen_line(len,off,num=20):
     return pts
 
 for i in range(10**8):
-    pts = gen_rect1(len=200,off=(-random.randint(3,4),3),num=20)
+    pts = gen_rect1(len=200,off=(-3,3),num=20)
     img = np.zeros([300,300,3], np.int32)
     h,w,c = img.shape
     theta = np.random.rand(1)*pi/12 - pi/24
