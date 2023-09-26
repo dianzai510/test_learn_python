@@ -95,27 +95,46 @@ for i in range(10**8):
     win = int(2*3*sigma+1)
     win = win if win%2==1 else win+1
     img = cv2.GaussianBlur(img, (win,win), sigmaX=sigma, sigmaY=sigma)
-    mask = mask1 - mask2
-    mask = mask.astype("uint8")
+    
 
-    roi_img = cv2.rectangle(img, [50-20,30,200+40,60], (255,255,255), 2)
-    roi_mask = cv2.rectangle(img, [50-20,30,200+40,60], (255,255,255), 2)
+    #region 1、上边缘区域
+    # mask = mask1 - mask2
+    # mask = mask.astype("uint8")
 
-    # roi_img = img[50-20,30,200+40,60]
-    # roi_mask = mask[50-20,30,200+40,60]
-    roi_img = img[30:90,30:270,:]
-    roi_mask = mask[30:90,30:270,:]
-    cv2.imshow("dis", roi_img)
+    # roi_img = cv2.rectangle(img, [50-20,30,200+40,60], (255,255,255), 2)
+    # roi_mask = cv2.rectangle(img, [50-20,30,200+40,60], (255,255,255), 2)
+    # # roi_img = img[50-20,30,200+40,60]
+    # # roi_mask = mask[50-20,30,200+40,60]
+    # roi_img = img[30:90,30:270,:]
+    # roi_mask = mask[30:90,30:270,:]
+    # cv2.imshow("dis", roi_img)
+    # cv2.waitKey(1)
+
+    # os.makedirs("d:/desktop/qgd",exist_ok=True)
+    # cv2.imwrite(f"d:/desktop/qgd/{i}.jpg", roi_img)
+    # cv2.imwrite(f"d:/desktop/qgd/{i}.png", roi_mask)
+    # continue
+    #endregion
+
+    #region 周边区域
+    # os.makedirs("d:/desktop/qgd_around",exist_ok=True)
+    # cv2.imwrite(f"d:/desktop/qgd_around/{i}.jpg", img)
+    # cv2.imwrite(f"d:/desktop/qgd_around/{i}.png", mask)
+
+    # cv2.imshow("dis",np.hstack([img, mask]))
+    # cv2.waitKey(200)
+    #endregion
+
+    #region 中间区域
+    os.makedirs("d:/desktop/qgd_center",exist_ok=True)
+
+    noise = np.random.randn(h,w,c) * random.randint(15,25)
+    img[mask2>0] = img[mask2>0] + noise[mask2>0]
+
+    cv2.imwrite(f"d:/desktop/qgd_center/{i}.jpg", img)
+    cv2.imwrite(f"d:/desktop/qgd_center/{i}.png", mask2)
+
+    mask2 = mask2.astype("uint8")
+    cv2.imshow("dis",np.hstack([img, mask2]))
     cv2.waitKey(1)
-
-    os.makedirs("d:/desktop/qgd",exist_ok=True)
-    cv2.imwrite(f"d:/desktop/qgd/{i}.jpg", roi_img)
-    cv2.imwrite(f"d:/desktop/qgd/{i}.png", roi_mask)
-    continue
-
-    os.makedirs("d:/desktop/qgd",exist_ok=True)
-    cv2.imwrite(f"d:/desktop/qgd/{i}.jpg", img)
-    cv2.imwrite(f"d:/desktop/qgd/{i}.png", mask)
-
-    cv2.imshow("dis",np.hstack([img, mask]))
-    cv2.waitKey(200)
+    #endregion

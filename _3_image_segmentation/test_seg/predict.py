@@ -46,9 +46,9 @@ def predict(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='best_qgd_304.pth', help='指定权重文件，未指定则使用官方权重！')
+    parser.add_argument('--weights', default='best_qgd_304_center.pth', help='指定权重文件，未指定则使用官方权重！')
     parser.add_argument('--out_path', default='./run/train', type=str)  # 修改
-    parser.add_argument('--data_path_test', default='D:/desktop/qgd/test')  # 修改
+    parser.add_argument('--data_path_test', default='D:/desktop/qgd_center/test')  # 修改
     parser.add_argument('--conf', default=0.3, type=float)
 
     opt = parser.parse_args()
