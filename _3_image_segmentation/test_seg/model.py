@@ -431,42 +431,57 @@ class R2AttU_Net(nn.Module):
 #endregion
 
 
+from collections import OrderedDict
 
 class deeplabv3(nn.Module):
     def __init__(self, frozen=False):
         super(deeplabv3, self).__init__()
 
         self.deeplabv3 = deeplabv3_resnet50(weights=DeepLabV3_ResNet50_Weights.DEFAULT)
+
+        #region 只加载backbone部分权重
+        pretrain_OrderedDict = torch.load("run/train/best_qgd_304_center.pth")['net']
+
+        temp_ordereddict = OrderedDict()
+        for key,value in pretrain_OrderedDict.items():
+            if 'classifier' in key:
+                break
+            else:
+                key = key.replace("deeplabv3.backbone.","")
+                temp_ordereddict[key] = value
+        
+        self.deeplabv3.backbone.load_state_dict(temp_ordereddict)
+        #endregion
+
         self.deeplabv3.classifier = nn.Conv2d(2048, 1, kernel_size=1)
-        self.deeplabv3.aux_classifier = None
         self.sigmoid = nn.Sigmoid()
+        self.deeplabv3.aux_classifier = None
 
         # 冻结特征层
-        # if frozen == True:
-        #     for name, param in self.deeplabv3.named_parameters():
-        #         if name == 'classifier.weight':
-        #             break
-        #         else:
-        #             param.requires_grad = False
+        if frozen == True:
+            for name, param in self.deeplabv3.named_parameters():
+                if 'classifier' in name:
+                    break
+                else:
+                    param.requires_grad = False
 
     def forward(self, x):
-        x = self.deeplabv3(x)
-        x = self.sigmoid(x['out'])
-        #x = self.sigmoid(x['aux'])
+        x = self.deeplabv3(x)['out']
+        x = self.sigmoid(x)
         return x
 
-    # def forward(self, x):
-    #         x = self.deeplabv3(x)
-    #         x = self.linear1(x['out'])
-    #         x = self.sigmoid(x)
-    #         return x
 
 if __name__ == "__main__":
     x = torch.rand([5,3,512,512],dtype=torch.float)
-    net = deeplabv3()
+    net = deeplabv3(True)
     x = net(x)
-    print(x.shape)
+
     print(net)
+    print('$'*100)
+    print(x.shape)
+    
+    param_sum = sum(param.numel() for name,param in net.named_parameters() if param.requires_grad == True)
+    print("训练参数量：", param_sum)    
 
     # loss_fn = torch.nn.BCELoss()
     # net = U_Net()
