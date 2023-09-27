@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='our1314',
-    version='0.1.32',
+    version='0.1.33',
     keywords='our1314',
     description='a library for work',
     license='MIT License',
