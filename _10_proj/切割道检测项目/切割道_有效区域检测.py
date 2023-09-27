@@ -29,8 +29,11 @@ if __name__ == "__main__":
     tmp = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     a,tmp = cv2.threshold(tmp, 20, 255, cv2.THRESH_BINARY)
     tmp = cv2.bitwise_not(tmp)
-    size = tmp.shape[:2]
-    cv2.imshow("dis",tmp)
+    contours,hi = cv2.findContours(tmp,cv2.RETR_CCOMP,cv2.CHAIN_APPROX_NONE)
+    
+    cv2.drawContours(img,contours,-1,(0,0,255),1) 
+    #img[contours[0]]=(0,0,255)
+    cv2.imshow("dis",img)
     cv2.waitKey()
     pass
 
