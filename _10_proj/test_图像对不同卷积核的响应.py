@@ -4,13 +4,13 @@ import numpy as np
 import torchvision.transforms.functional as F
 
 """
+分别采用卷积算子和pytorch网络的卷积层对同一图像进行卷积操作，得到的图像一样。
 结论：
 卷积神经网络的操作实际与图像卷积是一样的。
 """
 
 #region opencv
 src = np.ones([400,400,1],dtype=np.uint8)*128
-
 
 cv2.circle(src, (200,300),10,(255,255,255),-1)
 cv2.rectangle(src, (300,200),(300+5,200+5),(255,255,255),-1)
