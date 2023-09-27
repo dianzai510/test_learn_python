@@ -6,7 +6,7 @@ import torchvision.transforms.functional as F
 """
 分别采用卷积算子和pytorch网络的卷积层对同一图像进行卷积操作，得到的图像一样。
 结论：
-卷积神经网络的操作实际与图像卷积是一样的。
+卷积神经网络的操作实际与图像卷积是一样的，不同的是神经网络的卷积是3D的、且有偏置。
 """
 
 #region opencv
