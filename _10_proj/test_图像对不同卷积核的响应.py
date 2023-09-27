@@ -72,5 +72,20 @@ a = torch.permute(a,[1,2,0])
 a = a.detach().numpy()
 cv2.imshow("dis",a)
 cv2.waitKey()
+
+conv1 = torch.nn.Conv2d(in_channels=1,out_channels=1,kernel_size=(1,3),stride=1,padding=0,bias=False,)
+
+kernel = np.array([[-0.5],[0],[0.5]],dtype=float)
+kernel = np.expand_dims(kernel,axis=0)
+kernel = np.expand_dims(kernel,axis=0)
+kernel = kernel.astype("float")
+kernel = torch.from_numpy(kernel)
+kernel = kernel.type(torch.float)
+conv1.weight = torch.nn.Parameter(kernel,requires_grad=False)
+a = conv1(img)
+a = torch.permute(a,[1,2,0])
+a = a.detach().numpy()
+cv2.imshow("dis",a)
+cv2.waitKey()
 pass
 #endregion
