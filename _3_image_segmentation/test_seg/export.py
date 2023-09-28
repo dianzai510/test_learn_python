@@ -62,7 +62,7 @@ def export(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', default='./run/train/best_kongdong.pth')  # 修改
+    parser.add_argument('--weights', default='./run/train/best_kongdong_new.pth')  # 修改
 
     opt = parser.parse_args()
     export(opt)

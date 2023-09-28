@@ -100,7 +100,7 @@ def train(opt):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pretrain', default='./run/train/best_kongdong.pth', help='指定权重文件，未指定则使用官方权重！')  # 修改
+    parser.add_argument('--pretrain', default='./run/train/best_kongdong_new.pth', help='指定权重文件，未指定则使用官方权重！')  # 修改
     parser.add_argument('--out_path', default='./run/train', type=str)  # 修改
     parser.add_argument('--weights', default='best_kongdong_new.pth', help='指定权重文件，未指定则使用官方权重！')
 
