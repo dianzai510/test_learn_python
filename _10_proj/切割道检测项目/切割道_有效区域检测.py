@@ -6,7 +6,7 @@
     思路2：
         a.分别沿XY方向计算梯度(幅值+方向+附近像素的梯度)，利用AI模型(如线性分类器)对其进行分类。
         b.将切割道附近的像素过滤出来分类，以避免计算量过大
-        
+
 二、芯片有效区域边缘检测：
     a.转换为梯度图像
     b.从切割道边缘开始滑窗+分类。
@@ -54,8 +54,8 @@ if __name__ == "__main__":
         if len(line)==2:
             rho, theta = line
             x0,y0 = rho*cos(theta),rho*sin(theta)
-            x1,y1 = int(x0-500000*cos(theta)), int(y0-sin(theta))
-            x2,y2 = int(x0+500000*cos(theta)), int(y0+sin(theta))
+            x1,y1 = int(x0-500000*cos(theta)),int(y0-sin(theta))
+            x2,y2 = int(x0+500000*cos(theta)),int(y0+sin(theta))
             cv2.line(dis,(x1,y1),(x2,y2),(0,0,255),1)
             cv2.imshow("dis",dis)
             cv2.waitKey()
