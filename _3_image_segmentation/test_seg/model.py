@@ -440,17 +440,17 @@ class deeplabv3(nn.Module):
         self.deeplabv3 = deeplabv3_resnet50(weights=DeepLabV3_ResNet50_Weights.DEFAULT)
 
         #region 只加载backbone部分权重
-        pretrain_OrderedDict = torch.load("run/train/best_qgd_304_center.pth")['net']
+        # pretrain_OrderedDict = torch.load("run/train/best_qgd_304_center.pth")['net']
 
-        temp_ordereddict = OrderedDict()
-        for key,value in pretrain_OrderedDict.items():
-            if 'classifier' in key:
-                break
-            else:
-                key = key.replace("deeplabv3.backbone.","")
-                temp_ordereddict[key] = value
+        # temp_ordereddict = OrderedDict()
+        # for key,value in pretrain_OrderedDict.items():
+        #     if 'classifier' in key:
+        #         break
+        #     else:
+        #         key = key.replace("deeplabv3.backbone.","")
+        #         temp_ordereddict[key] = value
         
-        self.deeplabv3.backbone.load_state_dict(temp_ordereddict)
+        # self.deeplabv3.backbone.load_state_dict(temp_ordereddict)
         #endregion
 
         self.deeplabv3.classifier = nn.Conv2d(2048, 1, kernel_size=1)
