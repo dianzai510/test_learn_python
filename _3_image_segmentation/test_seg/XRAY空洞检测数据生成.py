@@ -55,16 +55,20 @@ for i in range(0,500):
     idx = random.randint(0, len(files_back)-1)
     back = cv2.imdecode(np.fromfile(files_back[idx], dtype=np.uint8), cv2.IMREAD_ANYCOLOR)  # type:cv2.Mat
     h,w,_ = back.shape
-    left,top = int((512-w)/2), int((512-h)/2)
-    right,bottom = 512-w-left, 512-h-top
+    left,top = int((304-w)/2), int((304-h)/2)
+    left = 0 if left <0 else left
+    top = 0 if top <0 else top
+    right,bottom = 304-w-left, 304-h-top
+    right = 0 if right <0 else right
+    bottom = 0 if bottom <0 else bottom
     back = cv2.copyMakeBorder(back, top, bottom, left, right, cv2.BORDER_REFLECT)
 
     mask = np.zeros(back.shape[:2], np.uint8)
-    for j in range(100):
+    for j in range(20):
         #2、生成前景图
         force = 生成随机二维图像()
         
-        tsize = random.randint(5,10)
+        tsize = random.randint(10,20)
         fh,fw = force.shape
         scale = min(tsize/fh,tsize/fw)
         force = cv2.resize(force, None, fx=scale, fy=scale)
@@ -78,17 +82,31 @@ for i in range(0,500):
         
         #4、合成mask图像
         mask[y1:y1+fh, x1:x1+fw] = force
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(5,5),(1,1))#膨胀，填补空白
+        mask = cv2.morphologyEx(mask,cv2.MORPH_CLOSE,kernel)
+        # cv2.imshow("dis",mask)
+        # cv2.waitKey()
 
     #5、融合
     mask = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
-    mix = np.uint8(back*0.9 + mask*(random.random()*0.1+0.1))
+    #融合方式A
+    #mix = np.uint8(back*0.9 + mask*(random.random()*0.1+0.1))
+
+    #融合方式B
+    back = np.int32(back) - random.randint(0,50)
+    back[back<0] = 0
+    back = np.uint8(back)
+
+    mix = back + mask*(random.random()*1.7+0.3)
+    mix[mix>255] = 255
+    mix[mix<0] = 0
+    mix = np.uint8(mix)
 
     #6、显示
     dis = cv2.hconcat([back, mask, mix])
     cv2.putText(dis, os.path.basename(files_back[idx]), (0,100), cv2.FONT_ITALIC, 2, (0,0,255))
     cv2.imshow("dis", dis)
-    cv2.waitKey()
-    continue
+    cv2.waitKey(1)
 
     #7、保存
     from datetime import datetime

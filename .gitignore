@@ -555,3 +555,5 @@ _3_image_segmentation/test_seg/run/train/best_qgd1.pth
 5.anomalydetect/mysimplenet/__pycache__/data.cpython-39.pyc
 5.anomalydetect/mysimplenet/model/__pycache__/model.cpython-39.pyc
 _10_proj/切割道检测项目/__pycache__/ransac_line.cpython-39.pyc
+_3_image_segmentation/test_seg/__pycache__/data_空洞检测.cpython-39.pyc
+_3_image_segmentation/test_seg/run/train/best_kongdong_new.pth
