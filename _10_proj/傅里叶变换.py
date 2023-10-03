@@ -6,7 +6,8 @@ https://blog.csdn.net/qq_42856191/article/details/123776656
 # import numpy as np
 # from matplotlib import pyplot as plt
 
-path = "D:/work/files/deeplearn_datasets/其它数据集/切割道检测/芯片尺寸/6380B24L1805/10-111.jpg"
+#path = "D:/work/files/deeplearn_datasets/其它数据集/切割道检测/芯片尺寸/6380B24L1805/10-111.jpg"
+path = "D:/desktop/7.jpg"
 # img = cv2.imdecode(np.fromfile(path, dtype=np.uint8), cv2.IMREAD_GRAYSCALE)
 
 # f = np.fft.fft2(img)
