@@ -559,3 +559,4 @@ _3_image_segmentation/test_seg/__pycache__/data_空洞检测.cpython-39.pyc
 _3_image_segmentation/test_seg/run/train/best_kongdong_new.pth
 _3_image_segmentation/test_seg/run/train/best_kongdong_new.onnx
 _3_image_segmentation/test_seg/run/train/best_kongdong_new2.pth
+_3_image_segmentation/test_seg/run/train/best_kongdong_new2.onnx
