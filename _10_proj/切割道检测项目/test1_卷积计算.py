@@ -4,6 +4,10 @@ import numpy as np
 import torchvision.transforms.functional as F
 import torch.nn.functional as f
 
+"""
+旋转各个角度，找到水平卷积核响应最大的角度
+"""
+
 def conv2d(x, kernel):
     H,W = x.shape
     h,w = kernel.shape
