@@ -25,8 +25,9 @@ def conv2d(x, kernel):
 if __name__ == "__main__":
     img = cv2.imdecode(np.fromfile(file='D:/desktop/1.png',dtype=np.uint8), cv2.IMREAD_COLOR)
     #img = cv2.resize(img, (570,540))
+    img = cv2.GaussianBlur(img, (7,7), 1)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    k,img = cv2.threshold(img, 10,255, cv2.THRESH_TOZERO)
+    #k,img = cv2.threshold(img, 10,255, cv2.THRESH_TOZERO)
 
     img = np.float32(img)
     # img = F.to_tensor(img)#自动交换通道和归一化
@@ -39,6 +40,10 @@ if __name__ == "__main__":
     img = conv2d(img, kernel=kernel)#type:np.ndarray
     m1,m2 = np.max(img),np.min(img)
 
+    img0 = img.copy()
+    img0 = np.abs(img0)
+    img0 = img0/np.max(img0)
+
     img1 = img.copy()
     img1[img1<0]=0
     img1 = img1/np.max(img1)
@@ -48,7 +53,7 @@ if __name__ == "__main__":
     img2 = np.abs(img2)
     img2 = img2/np.max(img2)
 
-    cv2.imshow("dis", cv2.hconcat([img1,img2]))
+    cv2.imshow("dis", cv2.hconcat([img1,img0,img2]))
     cv2.waitKey()
     cv2.destroyAllWindows()
     pass
